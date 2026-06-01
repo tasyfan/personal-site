@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northstar</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <canvas id="fx" aria-hidden="true"></canvas>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Northstar">
+        <span class="brand-mark"></span>
+        <span>Northstar</span>
+      </a>
+      <nav class="nav" aria-label="主导航">
+        <a href="#vision">Vision</a>
+        <a href="#blocks">Blocks</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">quiet digital presence</p>
+          <h1 id="hero-title">A clean starting point for the next thing.</h1>
+          <p class="lede">
+            一个轻盈、克制、带一点未来感的网站底座。先把空间搭起来，等方向出现，再让内容长进去。
+          </p>
+          <div class="actions">
+            <a class="primary-action" href="#blocks">Explore</a>
+            <a class="secondary-action" href="#contact">Start</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="constellation">
+            <span class="node node-a"></span>
+            <span class="node node-b"></span>
+            <span class="node node-c"></span>
+            <span class="node node-d"></span>
+            <span class="beam beam-a"></span>
+            <span class="beam beam-b"></span>
+            <span class="beam beam-c"></span>
+          </div>
+          <div class="orbital-card">
+            <span class="glyph">N</span>
+            <span class="ring ring-one"></span>
+            <span class="ring ring-two"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="vision" class="section intro-section">
+        <div>
+          <p class="section-kicker">vision</p>
+          <h2>保持足够清晰，也保留一点未知。</h2>
+        </div>
+        <p>
+          这个页面先承担一个稳定的第一印象：简洁的导航、明确的视觉中心、可继续扩展的内容区。
+          后续可以变成品牌官网、作品集、产品介绍页，或者一个更完整的交互网站。
+        </p>
+      </section>
+
+      <section id="blocks" class="section block-grid" aria-label="内容模块">
+        <article>
+          <span class="block-icon blue"></span>
+          <h3>Signal</h3>
+          <p>用于放核心主张、项目简介或品牌说明。</p>
+        </article>
+        <article>
+          <span class="block-icon green"></span>
+          <h3>Flow</h3>
+          <p>用于承载流程、服务、案例或阶段信息。</p>
+        </article>
+        <article>
+          <span class="block-icon amber"></span>
+          <h3>Field</h3>
+          <p>用于展示图片、视频、数据或互动内容。</p>
+        </article>
+      </section>
+
+      <section class="section feature-band">
+        <div class="feature-visual" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div>
+          <p class="section-kicker">shape</p>
+          <h2>留白、粒子、轨道和一个足够安静的舞台。</h2>
+          <p>
+            视觉风格保留了刚才那版的高级感，但现在它不再绑定照片幻灯片。
+            页面骨架更像一个可以继续生长的网站。
+          </p>
+        </div>
+      </section>
+
+      <section id="contact" class="section contact">
+        <p class="section-kicker">next</p>
+        <h2>等你想好网站用途，我们就从这里继续。</h2>
+        <a class="primary-action" href="mailto:hello@example.com">hello@example.com</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Northstar</span>
+      <span>2026</span>
+    </footer>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
