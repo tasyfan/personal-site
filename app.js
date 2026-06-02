@@ -653,7 +653,73 @@
     return a
   }
 
-  // ─── PaymentModal Component ─────────────────────────────────
+  // ─── Web Audio API Synthesizer ──────────────────────────────
+  const AudioSynth = {
+    ctx: null,
+    init() {
+      if (!this.ctx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext
+        if (AudioContext) {
+          this.ctx = new AudioContext()
+        }
+      }
+      if (this.ctx && this.ctx.state === 'suspended') {
+        this.ctx.resume()
+      }
+    },
+    playHover() {
+      if (!this.ctx) return
+      const osc = this.ctx.createOscillator()
+      const gain = this.ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(440, this.ctx.currentTime)
+      osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.1)
+      gain.gain.setValueAtTime(0, this.ctx.currentTime)
+      gain.gain.linearRampToValueAtTime(0.05, this.ctx.currentTime + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1)
+      osc.connect(gain)
+      gain.connect(this.ctx.destination)
+      osc.start()
+      osc.stop(this.ctx.currentTime + 0.1)
+    },
+    playShuffle() {
+      if (!this.ctx) return
+      const bufferSize = this.ctx.sampleRate * 0.15 // 150ms noise
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
+      const data = buffer.getChannelData(0)
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1
+      }
+      const noise = this.ctx.createBufferSource()
+      noise.buffer = buffer
+      const filter = this.ctx.createBiquadFilter()
+      filter.type = 'bandpass'
+      filter.frequency.value = 1000
+      const gain = this.ctx.createGain()
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15)
+      noise.connect(filter)
+      filter.connect(gain)
+      gain.connect(this.ctx.destination)
+      noise.start()
+    },
+    playFlip() {
+      if (!this.ctx) return
+      const osc = this.ctx.createOscillator()
+      const gain = this.ctx.createGain()
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(150, this.ctx.currentTime)
+      osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.3)
+      gain.gain.setValueAtTime(0.3, this.ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3)
+      osc.connect(gain)
+      gain.connect(this.ctx.destination)
+      osc.start()
+      osc.stop(this.ctx.currentTime + 0.3)
+    }
+  }
+
+  // ─── PaymentModal Component (MVP Flow) ───────────────────────
   const PaymentModal = defineComponent({
     name: 'PaymentModal',
     emits: ['close', 'success'],
@@ -661,6 +727,7 @@
       const isPaying = ref(false)
       const simulatePayment = () => {
         isPaying.value = true
+        // Simulate checking payment status for 1.5s then succeed
         setTimeout(() => emit('success'), 1500)
       }
       return { isPaying, simulatePayment }
@@ -669,20 +736,23 @@
       <div class="modal-backdrop" @click.self="$emit('close')">
         <div class="modal-content">
           <button class="close-btn" @click="$emit('close')">×</button>
-          <h3>解锁深度报告</h3>
-          <p class="modal-desc">支付完成后，将自动为您生成完整的长图报告。</p>
+          <h3>解锁专属流式深度报告</h3>
+          <p class="modal-desc" style="margin-top:8px;font-size:14px;color:var(--muted);">
+            平台公测期间，支持手动解锁。<br>
+            支付完成后，凭截图添加作者微信即可获取专属解读和后续更新通知。
+          </p>
           <div class="qr-container">
             <div class="qr-code">
-              <span class="qr-icon">❇️</span>
-              <p>请使用 微信/支付宝 扫码</p>
+              <span class="qr-icon" style="font-size:32px;">💸</span>
+              <p style="font-size:12px;margin-top:8px;">(此处替换为您的个人收款码)</p>
             </div>
           </div>
           <div class="payment-status">
-            <p v-if="!isPaying">等待支付 ¥ 9.90</p>
-            <p v-else class="success-text">支付成功！正在为您解锁...</p>
+            <p v-if="!isPaying" style="font-weight:600;color:var(--red);">¥ 9.90 限时早鸟价</p>
+            <p v-else class="success-text">正在验证您的支付状态...</p>
           </div>
-          <button class="secondary-action mock-pay-btn" @click="simulatePayment" :disabled="isPaying">
-            {{ isPaying ? '处理中...' : '模拟支付成功（测试用）' }}
+          <button class="primary-action mock-pay-btn" @click="simulatePayment" :disabled="isPaying" style="margin-top:24px;">
+            {{ isPaying ? '处理中...' : '已支付，立即解锁流式解读动效' }}
           </button>
         </div>
       </div>
@@ -800,6 +870,8 @@
       }
 
       const startReading = () => {
+        AudioSynth.init()
+        AudioSynth.playShuffle()
         store.question = question.value.trim() || '我近期的整体运势如何？'
         isShuffling.value = true
         initDeck()
@@ -814,6 +886,10 @@
 
       const selectedCount = computed(() => selected.value.length)
 
+      const playHover = () => {
+        if (phase.value === 'pick') AudioSynth.playHover()
+      }
+
       const pickCard = (index) => {
         if (phase.value !== 'pick') return
         const item = deck.value[index]
@@ -821,9 +897,11 @@
           // Deselect
           item.selected = false
           selected.value = selected.value.filter(i => i !== index)
+          AudioSynth.playHover()
         } else if (selectedCount.value < 3) {
           item.selected = true
           selected.value.push(index)
+          AudioSynth.playHover()
         }
       }
 
@@ -835,6 +913,7 @@
         // Reveal cards one by one with delay
         selected.value.forEach((deckIndex, i) => {
           setTimeout(() => {
+            AudioSynth.playFlip()
             deck.value[deckIndex].flipped = true
             revealedCount.value++
           }, 600 * (i + 1))
@@ -853,7 +932,7 @@
       return {
         phase, question, deck, selected, selectedCount,
         revealedCount, isShuffling,
-        startReading, pickCard, revealCards, goToResult,
+        startReading, pickCard, playHover, revealCards, goToResult,
         POSITIONS
       }
     },
@@ -909,6 +988,7 @@
               class="tarot-card"
               :class="{ selected: item.selected }"
               @click="pickCard(index)"
+              @mouseenter="playHover"
             >
               <div class="card-inner">
                 <div class="card-front">
@@ -994,11 +1074,8 @@
 
       const cards = ref(store.selectedCards)
       const question = ref(store.question)
-
-      const handlePaymentSuccess = () => {
-        showPayment.value = false
-        hasPaid.value = true
-      }
+      const displayedDeepText = ref('')
+      const isTyping = ref(false)
 
       const getKeywords = (item) => {
         return item.isReversed ? item.card.keywords.reversed : item.card.keywords.upright
@@ -1016,6 +1093,61 @@
         return item.card.deep[dir][pos]
       }
 
+      const startTypewriter = (fullText) => {
+        isTyping.value = true
+        displayedDeepText.value = ''
+        let i = 0
+        const interval = setInterval(() => {
+          if (i < fullText.length) {
+            displayedDeepText.value += fullText.charAt(i)
+            i++
+            // Auto scroll to bottom
+            const container = document.documentElement
+            container.scrollTop = container.scrollHeight
+          } else {
+            clearInterval(interval)
+            isTyping.value = false
+          }
+        }, 50) // 50ms per character
+      }
+
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+        
+        // Assemble AI text
+        const intro = \`基于您的问题：「\${question.value}」以及您抽到的三张牌（\${cards.value.map(c => c.card.name + (c.isReversed ? '逆位' : '正位')).join('、')}），宇宙的深层指引如下：\\n\\n\`
+        const body = cards.value.map(c => \`【\${c.position}位置 - \${c.card.name}\${c.isReversed ? '逆位' : '正位'}】\\n\${getDeepMeaning(c)}\`).join('\\n\\n')
+        
+        startTypewriter(intro + body)
+      }
+
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('poster-dom')
+        if (!posterEl) return
+        
+        // Use html2canvas
+        try {
+          // Add a loading state if needed
+          const canvas = await html2canvas(posterEl, {
+            scale: 2, // High resolution
+            useCORS: true,
+            backgroundColor: '#16213e'
+          })
+          
+          const imgUrl = canvas.toDataURL('image/png')
+          
+          // Trigger download
+          const link = document.createElement('a')
+          link.download = 'Northstar_Tarot_Reading.png'
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
       const restartTest = () => {
         store.selectedCards = []
         store.question = ''
@@ -1023,8 +1155,8 @@
       }
 
       return {
-        showPayment, hasPaid, cards, question,
-        handlePaymentSuccess, getKeywords, getMeaning, getDeepMeaning, restartTest
+        showPayment, hasPaid, cards, question, displayedDeepText, isTyping,
+        handlePaymentSuccess, getKeywords, getMeaning, generatePoster, restartTest
       }
     },
     template: `
@@ -1080,7 +1212,7 @@
             </div>
           </div>
 
-          <div class="deep-content" :class="{ 'is-blurred': !hasPaid }">
+          <div class="deep-content" :class="{ 'is-blurred': !hasPaid }" v-if="!hasPaid">
             <h3>✦ 深度命运指引（高阶解析）</h3>
             <div v-for="item in cards" :key="'deep-' + item.card.id" class="reading-block deep-block">
               <div class="reading-block-header">
@@ -1090,12 +1222,63 @@
               <p class="reading-text deep-text">{{ getDeepMeaning(item) }}</p>
             </div>
           </div>
+          
+          <!-- AI Typewriter Effect (Shown after payment) -->
+          <div class="deep-content ai-mode" v-if="hasPaid">
+            <h3 style="color:var(--blue);margin-bottom:16px;">
+              <span class="qr-icon" style="font-size:18px;">✨</span> 宇宙深层链接已建立...
+            </h3>
+            <div class="reading-block deep-block ai-response" style="min-height:300px;">
+              <p class="reading-text deep-text" style="white-space:pre-wrap;">{{ displayedDeepText }}<span class="typewriter-cursor" v-if="isTyping"></span></p>
+            </div>
+          </div>
         </div>
 
         <!-- Actions -->
         <div class="result-actions" v-reveal style="transition-delay: 0.4s">
+          <button class="primary-action" @click="generatePoster" v-if="hasPaid && !isTyping">
+            ✧ 保存专属灵魂海报
+          </button>
           <button class="secondary-action" @click="restartTest">重新抽牌</button>
           <router-link class="secondary-action" to="/">返回首页</router-link>
+        </div>
+
+        <!-- Hidden Poster DOM -->
+        <div id="poster-dom" class="poster-container" v-if="hasPaid">
+          <div class="poster-header">
+            <div class="poster-brand">✧ Northstar Tarot ✧</div>
+            <div class="poster-title">潜意识之境·命运启示</div>
+            <div class="poster-question" v-if="question">「{{ question }}」</div>
+          </div>
+          
+          <div class="poster-cards">
+            <div v-for="item in cards" :key="'poster-'+item.card.id" class="poster-card-item">
+              <div class="poster-card-visual" :class="{ 'is-reversed': item.isReversed }">
+                <span class="poster-card-symbol">{{ item.card.symbol }}</span>
+              </div>
+              <div class="poster-card-info">
+                <div class="poster-card-pos">{{ item.position }}</div>
+                <div class="poster-card-name">
+                  {{ item.card.name }} {{ item.isReversed ? '逆位' : '正位' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="poster-reading">
+            <div class="poster-reading-title">✧ 宇宙深层指引 ✧</div>
+            <div class="poster-reading-text">{{ displayedDeepText }}</div>
+          </div>
+          
+          <div class="poster-footer">
+            <div class="poster-footer-text">
+              本报告由 Northstar 独家生成<br>
+              探索潜意识，预见未知的自我
+            </div>
+            <div class="poster-qr">
+              扫码<br>开启<br>你的旅程
+            </div>
+          </div>
         </div>
 
         <PaymentModal
