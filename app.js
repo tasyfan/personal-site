@@ -1348,9 +1348,6 @@
         if (currentQuestionIndex.value < MBTI_QUESTIONS.length - 1) {
           setTimeout(() => {
             currentQuestionIndex.value++
-            // scroll into view
-            const el = document.getElementById('q-' + MBTI_QUESTIONS[currentQuestionIndex.value].id)
-            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
           }, 300)
         }
       }
@@ -1425,8 +1422,8 @@
             :key="q.id"
             :id="'q-' + q.id"
             class="question-card"
-            :class="{ active: index === currentQuestionIndex, answered: answers[q.id] !== undefined }"
-            v-show="index <= currentQuestionIndex + 1"
+            :class="{ active: true }"
+            v-show="index === currentQuestionIndex"
           >
             <p class="question-text">{{ q.id }}. {{ q.text }}</p>
             <div class="scale-options">
@@ -1495,7 +1492,7 @@
         showPayment.value = false
         hasPaid.value = true
         
-        const intro = `系统已接通潜意识深层数据库。\\n正在为您生成【${typeData.value.type} ${typeData.value.name}】的专属深度分析报告...\\n\\n`
+        const intro = `系统已接通潜意识深层数据库。\n正在为您生成【${typeData.value.type} ${typeData.value.name}】的专属深度分析报告...\n\n`
         const body = typeData.value.deep
         
         startTypewriter(intro + body)

@@ -687,6 +687,7 @@ h3 {
   background: white;
   border-radius: 16px;
   border: 1px solid var(--soft);
+  min-height: 400px;
 }
 
 .is-blurred {
@@ -1312,6 +1313,7 @@ h3 {
   border-radius: 20px;
   border: 1px solid var(--soft);
   overflow: hidden;
+  min-height: 400px;
 }
 
 .paywall-overlay {
