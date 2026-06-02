@@ -1156,7 +1156,7 @@
 
       return {
         showPayment, hasPaid, cards, question, displayedDeepText, isTyping,
-        handlePaymentSuccess, getKeywords, getMeaning, generatePoster, restartTest
+        handlePaymentSuccess, getKeywords, getMeaning, getDeepMeaning, generatePoster, restartTest
       }
     },
     template: `
