@@ -798,8 +798,7 @@
               通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
             </p>
             <div class="actions" v-reveal style="transition-delay: 0.3s">
-              <router-link class="primary-action" to="/tarot">开始塔罗占卜</router-link>
-              <a class="secondary-action" href="#blocks">浏览所有测试</a>
+              <a class="primary-action" href="#blocks">探索潜意识图鉴</a>
             </div>
           </div>
           <div class="hero-visual" ref="heroVisual" aria-hidden="true"
@@ -2068,10 +2067,9 @@
             <span>Northstar</span>
           </router-link>
           <nav class="nav" aria-label="主导航">
-            <router-link to="/tarot">塔罗占卜</router-link>
-            <router-link to="/mbti">MBTI解析</router-link>
-            <router-link to="/attachment">依恋测试</router-link>
-            <a href="#astrology" @click.prevent="comingSoon">星盘运势</a>
+            <router-link to="/">首页</router-link>
+            <a href="#blocks">测试图鉴</a>
+            <a href="#reports" @click.prevent="comingSoon">我的报告</a>
           </nav>
         </header>
         <router-view v-slot="{ Component }">
