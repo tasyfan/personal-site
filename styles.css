@@ -1761,12 +1761,13 @@ h3 {
 }
 
 .hero-visual.is-warping {
-  /* Transition from CURRENT inline transform to massive scale */
-  transform: perspective(1000px) scale3d(25, 25, 25) rotateZ(120deg) translateZ(200px) !important;
-  transition: transform 2.2s cubic-bezier(0.5, 0, 0.1, 1), opacity 1.5s 0.7s ease-out !important;
+  /* Void Fade Transition: sink, scale down, blur, and fade out */
+  transform: translateY(120px) scale(0.9) !important;
+  filter: blur(20px) brightness(0.5) !important;
+  transition: transform 2.2s cubic-bezier(0.4, 0, 0.2, 1), filter 2s ease-in, opacity 2s ease-in !important;
   opacity: 0;
   pointer-events: none;
-  z-index: 999;
+  z-index: 0;
 }
 
 /* Menu Reveal Transition */
