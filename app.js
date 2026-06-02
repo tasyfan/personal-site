@@ -641,7 +641,8 @@
   const store = reactive({
     question: '',
     selectedCards: [],   // [{card, isReversed, position}]
-    mbtiResult: null
+    mbtiResult: null,
+    attachmentResult: null
   })
 
   // ─── Utility: shuffle array ─────────────────────────────────
@@ -830,6 +831,11 @@
             <span class="block-icon blue"></span>
             <h3>MBTI 深度解析</h3>
             <p>基于荣格心理学，深度挖掘你的潜能、职场发展与灵魂伴侣匹配度。</p>
+          </article>
+          <article v-reveal style="cursor: pointer; transition-delay: 0.05s;" @click="$router.push('/attachment')">
+            <span class="block-icon" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);"></span>
+            <h3>四大依恋类型测试</h3>
+            <p>通过心理学量表，深度剖析你在亲密关系中的焦虑与回避维度，修复恋爱安全感。</p>
           </article>
           <article v-reveal style="transition-delay: 0.1s; cursor: pointer;" @click="$router.push('/tarot')">
             <span class="block-icon green"></span>
@@ -1296,15 +1302,63 @@
     { id: 1, trait: 'E_I', text: '在社交聚会中，我通常会主动开启话题，而不是等待别人来找我。' },
     { id: 2, trait: 'E_I', text: '经过一天漫长的工作后，我更倾向于独处来恢复精力。', invert: true },
     { id: 3, trait: 'E_I', text: '我喜欢结交新朋友，并且很容易在陌生环境中融入人群。' },
-    { id: 4, trait: 'S_N', text: '在处理问题时，我更相信实际的经验和确凿的数据，而不是直觉。' },
-    { id: 5, trait: 'S_N', text: '我经常会花很多时间思考宇宙的奥秘、人生的意义或未来的可能性。', invert: true },
-    { id: 6, trait: 'S_N', text: '我更喜欢一步一步、有条理地完成任务，而不是随时跳跃着处理。' },
-    { id: 7, trait: 'T_F', text: '在做决定时，逻辑和客观事实比个人情感或他人的感受更重要。' },
-    { id: 8, trait: 'T_F', text: '当朋友遇到困难时，我通常首先提供情感上的安慰，而不是分析如何解决问题。', invert: true },
-    { id: 9, trait: 'T_F', text: '如果某人的观点在逻辑上是错误的，即使会让他不高兴，我也倾向于指出。' },
-    { id: 10, trait: 'J_P', text: '我喜欢提前规划好我的日程，而不是随性而为。' },
-    { id: 11, trait: 'J_P', text: '在截止日期前，我常常拖延，习惯在最后一刻集中精力完成工作。', invert: true },
-    { id: 12, trait: 'J_P', text: '我喜欢把工作区域整理得井井有条，因为混乱会让我感到焦虑。' }
+    { id: 4, trait: 'E_I', text: '我更喜欢通过写信息或邮件交流，而不是直接打电话。', invert: true },
+    { id: 5, trait: 'E_I', text: '在团队会议中，我常常是第一个发言表达想法的人。' },
+    { id: 6, trait: 'E_I', text: '我享受成为众人瞩目焦点的感觉。' },
+    { id: 7, trait: 'E_I', text: '相比于热闹的派对，我更喜欢只有两三个挚友的小聚会。', invert: true },
+    { id: 8, trait: 'E_I', text: '即使和不熟悉的人待在一起，我也能轻松地找到共同话题。' },
+    { id: 9, trait: 'E_I', text: '连续几天的社交活动会让我感到极其疲惫。', invert: true },
+    { id: 10, trait: 'E_I', text: '我喜欢那种充满活力和喧闹的工作环境。' },
+    { id: 11, trait: 'E_I', text: '我倾向于在脑海里反复斟酌想法，而不是大声说出来与人讨论。', invert: true },
+    { id: 12, trait: 'E_I', text: '周末如果没有人约我出去，我会感到很无聊。' },
+    { id: 13, trait: 'E_I', text: '在做决定之前，我喜欢听取许多人的意见并进行讨论。' },
+    { id: 14, trait: 'E_I', text: '当我和一大群人在一起时，我会觉得自己的能量被耗尽了。', invert: true },
+    { id: 15, trait: 'E_I', text: '我很容易与刚认识的人建立起热络的连接。' },
+    { id: 16, trait: 'S_N', text: '在处理问题时，我更相信实际的经验和确凿的数据，而不是直觉。' },
+    { id: 17, trait: 'S_N', text: '我经常会花很多时间思考宇宙的奥秘、人生的意义或未来的可能性。', invert: true },
+    { id: 18, trait: 'S_N', text: '我更喜欢一步一步、有条理地完成任务，而不是随时跳跃着处理。' },
+    { id: 19, trait: 'S_N', text: '我常常沉浸在自己的幻想和白日梦中，以至于忽略了周围发生的事情。', invert: true },
+    { id: 20, trait: 'S_N', text: '相比于抽象的理论，我更喜欢能够立即应用到现实生活中的实用知识。' },
+    { id: 21, trait: 'S_N', text: '当阅读一本书或看电影时，我更关注字面上的细节，而不是背后的隐喻。' },
+    { id: 22, trait: 'S_N', text: '我很容易将看似不相关的事物联系起来，发现它们之间的隐藏模式。', invert: true },
+    { id: 23, trait: 'S_N', text: '我擅长记住具体的日期、事件细节和人的相貌。' },
+    { id: 24, trait: 'S_N', text: '如果某件事物运转良好，我就没有兴趣去探究它背后的复杂原理。' },
+    { id: 25, trait: 'S_N', text: '我常常对“未来可能发生什么”比“现在正在发生什么”更感兴趣。', invert: true },
+    { id: 26, trait: 'S_N', text: '我更倾向于遵循经过验证的传统方法，而不是尝试未经测试的新鲜事物。' },
+    { id: 27, trait: 'S_N', text: '我喜欢用生动、具象的语言描述事物，而不是使用抽象的概念。' },
+    { id: 28, trait: 'S_N', text: '在谈话中，我常常偏离主题，天马行空地聊到其他地方。', invert: true },
+    { id: 29, trait: 'S_N', text: '我更看重事物的实用价值，而不是它的象征意义。' },
+    { id: 30, trait: 'S_N', text: '我经常有预感或强烈的直觉，并且这些直觉往往是准确的。', invert: true },
+    { id: 31, trait: 'T_F', text: '在做决定时，逻辑和客观事实比个人情感或他人的感受更重要。' },
+    { id: 32, trait: 'T_F', text: '当朋友遇到困难时，我通常首先提供情感上的安慰，而不是分析如何解决问题。', invert: true },
+    { id: 33, trait: 'T_F', text: '如果某人的观点在逻辑上是错误的，即使会让他不高兴，我也倾向于指出。' },
+    { id: 34, trait: 'T_F', text: '我很容易受到周围人情绪的感染。', invert: true },
+    { id: 35, trait: 'T_F', text: '在辩论中，我认为赢得逻辑上的胜利比保持和气更重要。' },
+    { id: 36, trait: 'T_F', text: '在评估一个项目是否成功时，我更看重客观的数据指标，而不是团队的感受。' },
+    { id: 37, trait: 'T_F', text: '如果必须在“做一个正确但冷酷的人”和“做一个充满同情心但可能犯错的人”之间选择，我更倾向于后者。', invert: true },
+    { id: 38, trait: 'T_F', text: '我通常能将个人的感情与工作或决策完全剥离开来。' },
+    { id: 39, trait: 'T_F', text: '如果我的决定会让某些人受到伤害，我会感到非常内疚，甚至改变决定。', invert: true },
+    { id: 40, trait: 'T_F', text: '我认为“公平和公正”比“仁慈和宽恕”更加重要。' },
+    { id: 41, trait: 'T_F', text: '相比于被认为是一个“聪明、有逻辑”的人，我更希望被认为是一个“善良、温暖”的人。', invert: true },
+    { id: 42, trait: 'T_F', text: '当别人情绪失控时，我依然能保持冷静和理性。' },
+    { id: 43, trait: 'T_F', text: '为了避免发生冲突或伤害他人的感情，我有时会选择隐藏真实的自己。', invert: true },
+    { id: 44, trait: 'T_F', text: '我认为那些让感情凌驾于理智之上的人是软弱或不专业的。' },
+    { id: 45, trait: 'T_F', text: '在一段关系中，情感的共鸣和支持比智力上的匹配更让我看重。', invert: true },
+    { id: 46, trait: 'J_P', text: '我喜欢提前规划好我的日程，而不是随性而为。' },
+    { id: 47, trait: 'J_P', text: '在截止日期前，我常常拖延，习惯在最后一刻集中精力完成工作。', invert: true },
+    { id: 48, trait: 'J_P', text: '我喜欢把工作区域整理得井井有条，因为混乱会让我感到焦虑。' },
+    { id: 49, trait: 'J_P', text: '对于周末或假期，我更喜欢不安排具体计划，走到哪算哪。', invert: true },
+    { id: 50, trait: 'J_P', text: '我通常会列出每日的待办事项清单，并享受将其划掉的成就感。' },
+    { id: 51, trait: 'J_P', text: '比起完成任务带来的解脱感，我更享受探索新可能性的过程。', invert: true },
+    { id: 52, trait: 'J_P', text: '做决定后，我不喜欢再去重新思考或推翻它。' },
+    { id: 53, trait: 'J_P', text: '我喜欢保持选项开放，以便随时根据新情况调整计划。', invert: true },
+    { id: 54, trait: 'J_P', text: '如果某人的迟到打乱了我的计划，我会感到非常恼火。' },
+    { id: 55, trait: 'J_P', text: '我的工作方式常常是一阵一阵的爆发，而不是每天稳定、持续的输出。', invert: true },
+    { id: 56, trait: 'J_P', text: '在开始一项任务之前，我必须先清楚地知道最终目标和具体步骤。' },
+    { id: 57, trait: 'J_P', text: '我很容易在处理一件事的时候被另一件有趣的事分心。', invert: true },
+    { id: 58, trait: 'J_P', text: '我认为“今日事今日毕”是生活中非常重要的准则。' },
+    { id: 59, trait: 'J_P', text: '如果需要严格按照时间表行事，我会感到被束缚和压抑。', invert: true },
+    { id: 60, trait: 'J_P', text: '在我看来，一个混乱或未完结的状态是难以忍受的，我需要及时的“闭环”。' }
   ]
 
   const MBTI_PROFILES = {
@@ -1631,6 +1685,337 @@
     `
   })
 
+
+  // ─── ATTACHMENT DATABASE ──────────────────────────────────────────
+  const ATTACHMENT_QUESTIONS = [
+    { id: 1, trait: 'anxiety', text: '我常常担心伴侣并非真正爱我。' },
+    { id: 2, trait: 'avoidance', text: '我觉得与他人保持亲密关系是一件很容易的事。', invert: true },
+    { id: 3, trait: 'anxiety', text: '当伴侣离开我身边时，我会感到非常不安和焦虑。' },
+    { id: 4, trait: 'avoidance', text: '当伴侣试图在情感上靠近我时，我有时会本能地想逃避。' },
+    { id: 5, trait: 'anxiety', text: '我时常害怕自己会被我所依赖的人抛弃。' },
+    { id: 6, trait: 'avoidance', text: '我通常很乐意向伴侣倾诉我的心事和脆弱。', invert: true },
+    { id: 7, trait: 'anxiety', text: '如果伴侣不回我信息，我会忍不住胡思乱想。' },
+    { id: 8, trait: 'avoidance', text: '我不太习惯完全依赖他人或让别人完全依赖我。' },
+    { id: 9, trait: 'anxiety', text: '我极其渴望与伴侣建立极其亲密的、融为一体的连接。' },
+    { id: 10, trait: 'avoidance', text: '在关系中，保持绝对的独立和自我空间对我来说比什么都重要。' },
+    { id: 11, trait: 'anxiety', text: '当遇到挫折时，我迫切需要伴侣立刻提供情绪价值来安抚我。' },
+    { id: 12, trait: 'avoidance', text: '伴侣想要与我建立深层情感连接的努力常常让我感到有压力。' },
+    { id: 13, trait: 'anxiety', text: '我有时会觉得，我对伴侣的爱要远远超过伴侣对我的爱。' },
+    { id: 14, trait: 'avoidance', text: '我觉得在别人面前展现真实的自我并不困难。', invert: true },
+    { id: 15, trait: 'anxiety', text: '一想到伴侣可能会对别人产生好感，我就会感到极度的恐慌。' },
+    { id: 16, trait: 'avoidance', text: '即使在最亲密的关系中，我也会刻意保留一部分自我，不让对方触碰。' }
+  ]
+
+  const ATTACHMENT_PROFILES = {
+    secure: {
+      name: '安全型依恋',
+      en: 'Secure',
+      desc: '在亲密关系中感到自在，既能独立又能依赖他人，信任度高。',
+      deep: '作为安全型依恋者，你拥有最健康的依恋模式。你既不害怕被抛弃，也不抵触亲密接触。你能坦然地向伴侣表达需求，并在对方需要时提供支持。这种模式源于你内心深处对自我价值的确信，以及对“他人是可靠的”这一信念的认同。在关系中，你能够建立健康的边界：不过度粘人，也不刻意疏远。继续保持你的开放与真诚，你将拥有长久而滋养的灵魂伴侣。'
+    },
+    anxious: {
+      name: '焦虑型依恋',
+      en: 'Anxious-Preoccupied',
+      desc: '渴望极致的亲密，但常担心被抛弃，对伴侣的回应高度敏感。',
+      deep: '作为焦虑型依恋者，你对亲密关系的渴望如同对氧气的需求。你非常害怕被抛弃，因此你总是对伴侣的一举一动保持高度警觉。伴侣的一次晚归或一条未及时回复的消息，都可能在你的内心掀起风暴。你的核心创伤在于内心深处对“我不值得被爱”的恐惧。宇宙给你的建议是：将你投入在伴侣身上的注意力，收回一半给自己。学会自我安抚，建立自我价值感。当你不再把伴侣当作唯一的救命稻草时，你的爱才会不再沉重。'
+    },
+    dismissive: {
+      name: '疏离型回避依恋',
+      en: 'Dismissive-Avoidant',
+      desc: '极度追求独立，害怕亲密关系带来的束缚，常在情感上保持距离。',
+      deep: '作为疏离型依恋者，你是一座习惯了孤独的岛屿。你高度珍视独立和自由，当伴侣试图靠近你的内心时，你可能会本能地感到窒息，甚至通过冷暴力、贬低对方或寻找借口来拉开距离。你往往表现出“我不需要任何人”的坚强，但这其实是你为了避免受伤而穿上的厚重铠甲。宇宙给你的建议是：试着每天卸下一分钟的防御，允许自己展现一丝脆弱。真实的亲密并不会吞噬你，反而会让你体验到真正的自由。'
+    },
+    fearful: {
+      name: '恐惧型混乱依恋',
+      en: 'Fearful-Avoidant',
+      desc: '既渴望亲密又害怕受伤，行为表现往往矛盾且极度不稳定。',
+      deep: '作为恐惧型依恋者，你的内心仿佛住着两个互相撕扯的灵魂：一个极其渴望被爱，另一个又极度害怕被伤害。当伴侣远离时你感到焦虑，而当伴侣真正靠近时你又想要逃跑。这种混乱的模式通常源于早年未解决的创伤经历。你在关系中经历着大起大落的情感体验。宇宙给你的建议是：你需要漫长的时间来疗愈内心的创伤，建议寻求专业心理咨询的帮助。请记住，你内心的恐惧并不是事实，你绝对值得拥有稳定而安全的爱。'
+    }
+  }
+
+  // ─── ATTACHMENT TEST PAGE ───────────────────────────────────────
+  const AttachmentTest = defineComponent({
+    name: 'AttachmentTestPage',
+    setup() {
+      const router = useRouter()
+      const currentQuestionIndex = ref(0)
+      const answers = reactive({})
+      const isCompleting = ref(false)
+
+      const answeredCount = computed(() => Object.keys(answers).length)
+      const progress = computed(() => {
+        return Math.min(100, (answeredCount.value / ATTACHMENT_QUESTIONS.length) * 100)
+      })
+
+      const selectAnswer = (qId, value) => {
+        answers[qId] = value
+        AudioSynth.playHover()
+        if (currentQuestionIndex.value < ATTACHMENT_QUESTIONS.length - 1) {
+          setTimeout(() => {
+            currentQuestionIndex.value++
+          }, 300)
+        }
+      }
+
+      const finishTest = () => {
+        isCompleting.value = true
+        let anxiety = 0
+        let avoidance = 0
+        
+        ATTACHMENT_QUESTIONS.forEach(q => {
+          let score = answers[q.id] || 0
+          if (q.invert) score = score * -1
+          
+          if (q.trait === 'anxiety') {
+            anxiety += score
+          } else if (q.trait === 'avoidance') {
+            avoidance += score
+          }
+        })
+
+        // Normalize scores to percentages (max possible score is 8 * 3 = 24)
+        // Shift to 0-48 range then divide by 48
+        const anxietyScore = Math.round(((anxiety + 24) / 48) * 100)
+        const avoidanceScore = Math.round(((avoidance + 24) / 48) * 100)
+        
+        let type = 'secure'
+        if (anxietyScore > 50 && avoidanceScore > 50) type = 'fearful'
+        else if (anxietyScore > 50) type = 'anxious'
+        else if (avoidanceScore > 50) type = 'dismissive'
+
+        store.attachmentResult = { type, anxietyScore, avoidanceScore }
+        
+        setTimeout(() => {
+          router.push('/attachment-result')
+        }, 1000)
+      }
+
+      return {
+        ATTACHMENT_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount,
+        selectAnswer, finishTest
+      }
+    },
+    template: `
+      <main class="mbti-test section">
+        <div class="test-header" v-reveal>
+          <p class="section-kicker">ATTACHMENT STYLE</p>
+          <h2>亲密关系依恋模型</h2>
+          <p class="lede">通过 16 个深度问题，剖析你在恋爱与亲密关系中的底层逻辑模式。</p>
+        </div>
+
+        <div class="mbti-progress-container" v-reveal>
+          <div class="mbti-progress-bar">
+            <div class="mbti-progress-fill" :style="{ width: progress + '%', background: 'linear-gradient(90deg, #ff7e5f, #feb47b)' }"></div>
+          </div>
+          <div class="mbti-progress-text">已完成 {{ answeredCount }} / {{ ATTACHMENT_QUESTIONS.length }}</div>
+        </div>
+
+        <div class="questions-list">
+          <div
+            v-for="(q, index) in ATTACHMENT_QUESTIONS"
+            :key="'att-'+q.id"
+            class="question-card"
+            :class="{ active: true }"
+            v-show="index === currentQuestionIndex"
+          >
+            <p class="question-text">{{ q.id }}. {{ q.text }}</p>
+            <div class="scale-options">
+              <div class="scale-btn agree size-1" :class="{ selected: answers[q.id] === 3 }" @click="selectAnswer(q.id, 3)" style="border-color: #ff7e5f;"></div>
+              <div class="scale-btn agree size-2" :class="{ selected: answers[q.id] === 2 }" @click="selectAnswer(q.id, 2)" style="border-color: #ff7e5f;"></div>
+              <div class="scale-btn agree size-3" :class="{ selected: answers[q.id] === 1 }" @click="selectAnswer(q.id, 1)" style="border-color: #ff7e5f;"></div>
+              <div class="scale-btn neutral size-3" :class="{ selected: answers[q.id] === 0 }" @click="selectAnswer(q.id, 0)"></div>
+              <div class="scale-btn disagree size-3" :class="{ selected: answers[q.id] === -1 }" @click="selectAnswer(q.id, -1)" style="border-color: #556270;"></div>
+              <div class="scale-btn disagree size-2" :class="{ selected: answers[q.id] === -2 }" @click="selectAnswer(q.id, -2)" style="border-color: #556270;"></div>
+              <div class="scale-btn disagree size-1" :class="{ selected: answers[q.id] === -3 }" @click="selectAnswer(q.id, -3)" style="border-color: #556270;"></div>
+            </div>
+            <div class="scale-labels">
+              <span class="label-agree" style="color: #ff7e5f;">完全符合</span>
+              <span class="label-disagree" style="color: #556270;">完全不符</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="action-area" v-if="answeredCount === ATTACHMENT_QUESTIONS.length" style="margin-top: 40px;">
+          <button class="primary-action" @click="finishTest" :disabled="isCompleting" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);">
+            {{ isCompleting ? '正在生成依恋报告...' : '✧ 查看我的依恋类型' }}
+          </button>
+        </div>
+      </main>
+    `
+  })
+
+  // ─── ATTACHMENT RESULT PAGE ─────────────────────────────────────
+  const AttachmentResult = defineComponent({
+    name: 'AttachmentResultPage',
+    components: { PaymentModal },
+    setup() {
+      const router = useRouter()
+      const showPayment = ref(false)
+      const hasPaid = ref(false)
+      const displayedDeepText = ref('')
+      const isTyping = ref(false)
+
+      if (!store.attachmentResult) {
+        router.push('/attachment')
+        return { showPayment, hasPaid, typeData: ref({ type: '', name: '', en: '', desc: '', deep: '' }), p: ref({ anxietyScore:0, avoidanceScore:0 }), displayedDeepText, isTyping, handlePaymentSuccess: () => {}, generatePoster: () => {}, restartTest: () => {} }
+      }
+
+      const { type, anxietyScore, avoidanceScore } = store.attachmentResult
+      const typeData = ref({ type, ...ATTACHMENT_PROFILES[type] })
+      const p = ref({ anxietyScore, avoidanceScore })
+
+      const startTypewriter = (fullText) => {
+        isTyping.value = true
+        displayedDeepText.value = ''
+        let i = 0
+        const interval = setInterval(() => {
+          if (i < fullText.length) {
+            displayedDeepText.value += fullText.charAt(i)
+            i++
+            const container = document.documentElement
+            container.scrollTop = container.scrollHeight
+          } else {
+            clearInterval(interval)
+            isTyping.value = false
+          }
+        }, 30)
+      }
+
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+        
+        const intro = `系统已接通潜意识深层数据库。\n正在为您生成【${typeData.value.name}】的专属深度情感修复报告...\n\n`
+        const body = typeData.value.deep
+        
+        startTypewriter(intro + body)
+      }
+
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('att-poster-dom')
+        if (!posterEl) return
+        try {
+          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
+          const imgUrl = canvas.toDataURL('image/png')
+          const link = document.createElement('a')
+          link.download = `Northstar_Attachment_${typeData.value.type}.png`
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
+      const restartTest = () => {
+        store.attachmentResult = null
+        router.push('/attachment')
+      }
+
+      return {
+        showPayment, hasPaid, typeData, p, displayedDeepText, isTyping,
+        handlePaymentSuccess, generatePoster, restartTest
+      }
+    },
+    template: `
+      <main class="result-page section">
+        <div v-reveal>
+          <p class="section-kicker">ATTACHMENT STYLE</p>
+          <div class="mbti-type-title">
+            <h2 style="font-size: 36px; background: linear-gradient(90deg, #ff7e5f, #feb47b); -webkit-background-clip: text;">{{ typeData.name }}</h2>
+            <p>{{ typeData.en }}</p>
+          </div>
+        </div>
+
+        <div class="reading-section" v-reveal style="transition-delay: 0.1s">
+          <h3>✦ 核心倾向剖析</h3>
+          <p style="margin-bottom: 30px; text-align: center; color: var(--text-muted);">{{ typeData.desc }}</p>
+          
+          <div class="trait-container">
+            <div class="trait-header"><span>焦虑程度 (Anxiety)</span><span>{{ p.anxietyScore }}%</span></div>
+            <div class="trait-bar-bg"><div class="trait-bar-fill" :style="{ width: p.anxietyScore + '%', background: 'linear-gradient(90deg, #ff7e5f, #ff416c)' }"></div></div>
+          </div>
+          <div class="trait-container">
+            <div class="trait-header"><span>回避程度 (Avoidance)</span><span>{{ p.avoidanceScore }}%</span></div>
+            <div class="trait-bar-bg"><div class="trait-bar-fill" :style="{ width: p.avoidanceScore + '%', background: 'linear-gradient(90deg, #556270, #4ECDC4)' }"></div></div>
+          </div>
+        </div>
+
+        <div class="deep-result-container" v-reveal style="transition-delay: 0.2s">
+          <div class="paywall-overlay" v-if="!hasPaid">
+            <div class="paywall-content">
+              <h3 style="color:#ff7e5f;">✦ 解锁高阶依恋救赎说明书</h3>
+              <p>包含：童年创伤追溯、恋爱核心死穴破解、灵魂伴侣类型建议。</p>
+              <div class="price">¥ 9.90 <span class="original-price">¥ 39.90</span></div>
+              <p class="price-hint">限时 1 折 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
+              <button class="primary-action pay-btn" @click="showPayment = true" style="background: linear-gradient(135deg, #ff7e5f, #ff416c);">
+                立即解锁完整报告
+              </button>
+            </div>
+          </div>
+
+          <div class="deep-content" :class="{ 'is-blurred': !hasPaid }" v-if="!hasPaid">
+            <h3 style="color:#ff7e5f;">✦ 深度情感使用说明（高阶解析）</h3>
+            <div class="reading-block deep-block">
+              <p class="reading-text deep-text">{{ typeData.deep }}</p>
+            </div>
+          </div>
+          
+          <div class="deep-content ai-mode" v-if="hasPaid">
+            <h3 style="color:#ff7e5f;margin-bottom:16px;">
+              <span class="qr-icon" style="font-size:18px;">✨</span> AI 大模型深度推演中...
+            </h3>
+            <div class="reading-block deep-block ai-response" style="min-height:300px;">
+              <p class="reading-text deep-text" style="white-space:pre-wrap;">{{ displayedDeepText }}<span class="typewriter-cursor" v-if="isTyping"></span></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-actions" v-reveal style="transition-delay: 0.3s">
+          <button class="primary-action" @click="generatePoster" v-if="hasPaid && !isTyping" style="background: linear-gradient(135deg, #ff7e5f, #ff416c);">
+            ✧ 保存专属依恋海报
+          </button>
+          <button class="secondary-action" @click="restartTest">重新测试</button>
+          <router-link class="secondary-action" to="/">返回首页</router-link>
+        </div>
+
+        <!-- Hidden Poster DOM -->
+        <div id="att-poster-dom" class="poster-container" v-if="hasPaid">
+          <div class="poster-header">
+            <div class="poster-brand" style="color:#ff7e5f;">✧ Northstar Attachment ✧</div>
+            <div class="poster-title">灵魂切片·亲密关系解析</div>
+          </div>
+          
+          <div class="mbti-type-title" style="margin-top: 30px; margin-bottom: 20px;">
+            <h2 style="font-size:48px; background: linear-gradient(90deg, #ff7e5f, #feb47b); -webkit-background-clip: text; margin-bottom:5px;">{{ typeData.name }}</h2>
+            <p style="font-size:24px; color:#fff;">{{ typeData.en }}</p>
+          </div>
+          
+          <div class="poster-reading">
+            <div class="poster-reading-title">✧ 专属高阶说明书 ✧</div>
+            <div class="poster-reading-text">{{ displayedDeepText }}</div>
+          </div>
+          
+          <div class="poster-footer">
+            <div class="poster-footer-text">
+              本报告由 Northstar 独家生成<br>
+              探索潜意识，治愈你的亲密关系
+            </div>
+            <div class="poster-qr">
+              扫码<br>开启<br>你的旅程
+            </div>
+          </div>
+        </div>
+
+        <PaymentModal
+          v-if="showPayment"
+          @close="showPayment = false"
+          @success="handlePaymentSuccess"
+        />
+      </main>
+    `
+  })
+
   // ─── App Shell ──────────────────────────────────────────────
   const App = defineComponent({
     name: 'AppShell',
@@ -1649,6 +2034,7 @@
           <nav class="nav" aria-label="主导航">
             <router-link to="/tarot">塔罗占卜</router-link>
             <router-link to="/mbti">MBTI解析</router-link>
+            <router-link to="/attachment">依恋测试</router-link>
             <a href="#astrology" @click.prevent="comingSoon">星盘运势</a>
           </nav>
         </header>
@@ -1673,7 +2059,9 @@
       { path: '/tarot', component: TarotTest },
       { path: '/result', component: Result },
       { path: '/mbti', component: MBTITest },
-      { path: '/mbti-result', component: MBTIResult }
+      { path: '/mbti-result', component: MBTIResult },
+      { path: '/attachment', component: AttachmentTest },
+      { path: '/attachment-result', component: AttachmentResult }
     ],
     scrollBehavior() { return { top: 0 } }
   })
