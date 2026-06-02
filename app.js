@@ -786,7 +786,12 @@
         if (heroVisual.value && !reduceMotion) heroVisual.value.style.transition = 'none'
       }
 
-      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter }
+      const scrollToBlocks = () => {
+        const el = document.getElementById('blocks')
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }
+
+      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, scrollToBlocks }
     },
     template: `
       <main id="top">
@@ -798,7 +803,7 @@
               通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
             </p>
             <div class="actions" v-reveal style="transition-delay: 0.3s">
-              <a class="primary-action" href="#blocks">探索潜意识图鉴</a>
+              <a class="primary-action" href="#" @click.prevent="scrollToBlocks">探索潜意识图鉴</a>
             </div>
           </div>
           <div class="hero-visual" ref="heroVisual" aria-hidden="true"
@@ -2057,6 +2062,19 @@
     methods: {
       comingSoon() {
         alert('该模块正在升级中，敬请期待！')
+      },
+      goToBlocks() {
+        if (this.$route.path !== '/') {
+          this.$router.push('/').then(() => {
+            setTimeout(() => {
+              const el = document.getElementById('blocks')
+              if (el) el.scrollIntoView({ behavior: 'smooth' })
+            }, 300)
+          })
+        } else {
+          const el = document.getElementById('blocks')
+          if (el) el.scrollIntoView({ behavior: 'smooth' })
+        }
       }
     },
     template: `
@@ -2068,8 +2086,8 @@
           </router-link>
           <nav class="nav" aria-label="主导航">
             <router-link to="/">首页</router-link>
-            <a href="#blocks">测试图鉴</a>
-            <a href="#reports" @click.prevent="comingSoon">我的报告</a>
+            <a href="#" @click.prevent="goToBlocks">测试图鉴</a>
+            <a href="#" @click.prevent="comingSoon">我的报告</a>
           </nav>
         </header>
         <router-view v-slot="{ Component }">
