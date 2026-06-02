@@ -1748,3 +1748,54 @@ h3 {
   opacity: 0;
   transform: translateY(-20px);
 }
+
+/* Warp Animation */
+.hero-visual.is-warping {
+  /* Warp into the starfield */
+  animation: warpDrive 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards !important;
+  pointer-events: none;
+}
+
+@keyframes warpDrive {
+  0% {
+    transform: perspective(1000px) scale3d(1, 1, 1) rotateZ(0deg);
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(1000px) scale3d(20, 20, 20) rotateZ(180deg);
+    opacity: 0;
+  }
+}
+
+.hero-visual.is-warping .orbital-card {
+  animation: hyperSpin 1.5s ease-in-out forwards;
+}
+
+@keyframes hyperSpin {
+  0% { transform: rotateX(60deg) rotateZ(0deg); }
+  100% { transform: rotateX(60deg) rotateZ(720deg); }
+}
+
+.hero-visual.is-warping .constellation {
+  opacity: 1;
+  filter: brightness(2) drop-shadow(0 0 20px rgba(255,255,255,0.8));
+}
+
+/* Centered Menu State */
+.centered-menu {
+  min-height: calc(100vh - 120px);
+  align-content: center;
+  padding-top: 40px; /* Reduced from 160px default section padding */
+  padding-bottom: 80px;
+}
+
+.warp-btn {
+  font-family: inherit;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}

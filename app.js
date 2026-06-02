@@ -639,6 +639,7 @@
 
   // ─── Shared State (simple reactive store) ───────────────────
   const store = reactive({
+    homePhase: 'hero', // 'hero', 'warping', 'menu'
     question: '',
     selectedCards: [],   // [{card, isReversed, position}]
     mbtiResult: null,
@@ -769,6 +770,7 @@
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
       const onMouseMove = (e) => {
+        if (store.homePhase !== 'hero') return
         if (heroVisual.value && !reduceMotion) {
           const x = (e.clientX / window.innerWidth - 0.5) * 40
           const y = (e.clientY / window.innerHeight - 0.5) * -40
@@ -777,21 +779,35 @@
         }
       }
       const onMouseLeave = () => {
+        if (store.homePhase !== 'hero') return
         if (heroVisual.value && !reduceMotion) {
           heroVisual.value.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)'
           heroVisual.value.style.transition = 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)'
         }
       }
       const onMouseEnter = () => {
+        if (store.homePhase !== 'hero') return
         if (heroVisual.value && !reduceMotion) heroVisual.value.style.transition = 'none'
       }
 
-      const scrollToBlocks = () => {
-        const el = document.getElementById('blocks')
-        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      const startWarp = () => {
+        if (reduceMotion) {
+          store.homePhase = 'menu'
+          return
+        }
+        store.homePhase = 'warping'
+        // Reset transform so the CSS warp can take over cleanly
+        if (heroVisual.value) {
+          heroVisual.value.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)'
+          heroVisual.value.style.transition = 'none'
+        }
+        
+        setTimeout(() => {
+          store.homePhase = 'menu'
+        }, 1500)
       }
 
-      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, scrollToBlocks }
+      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store }
     },
     template: `
       <main id="top">
@@ -851,7 +867,9 @@
             <h3>星盘与流年运势</h3>
             <p>输入你的出生星图，解析你生命中的重要转折点与事业财富格局。</p>
           </article>
-        </section>
+          </section>
+          
+        </transition>
       </main>
     `
   })
@@ -2059,21 +2077,15 @@
   // ─── App Shell ──────────────────────────────────────────────
   const App = defineComponent({
     name: 'AppShell',
+    setup() { return { store } },
     methods: {
       comingSoon() {
         alert('该模块正在升级中，敬请期待！')
       },
       goToBlocks() {
+        store.homePhase = 'menu'
         if (this.$route.path !== '/') {
-          this.$router.push('/').then(() => {
-            setTimeout(() => {
-              const el = document.getElementById('blocks')
-              if (el) el.scrollIntoView({ behavior: 'smooth' })
-            }, 300)
-          })
-        } else {
-          const el = document.getElementById('blocks')
-          if (el) el.scrollIntoView({ behavior: 'smooth' })
+          this.$router.push('/')
         }
       }
     },
@@ -2085,7 +2097,7 @@
             <span>Northstar</span>
           </router-link>
           <nav class="nav" aria-label="主导航">
-            <router-link to="/">首页</router-link>
+            <router-link to="/" @click="store.homePhase = 'hero'">首页</router-link>
             <a href="#" @click.prevent="goToBlocks">测试图鉴</a>
             <a href="#" @click.prevent="comingSoon">我的报告</a>
           </nav>
