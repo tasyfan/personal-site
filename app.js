@@ -826,7 +826,7 @@
         </section>
 
         <section id="blocks" class="section block-grid" aria-label="内容模块">
-          <article v-reveal>
+          <article v-reveal style="cursor: pointer;" @click="$router.push('/mbti')">
             <span class="block-icon blue"></span>
             <h3>MBTI 深度解析</h3>
             <p>基于荣格心理学，深度挖掘你的潜能、职场发展与灵魂伴侣匹配度。</p>
@@ -1335,8 +1335,9 @@
       const answers = reactive({})
       const isCompleting = ref(false)
 
+      const answeredCount = computed(() => Object.keys(answers).length)
       const progress = computed(() => {
-        return Math.min(100, (Object.keys(answers).length / MBTI_QUESTIONS.length) * 100)
+        return Math.min(100, (answeredCount.value / MBTI_QUESTIONS.length) * 100)
       })
 
       const selectAnswer = (qId, value) => {
@@ -1399,7 +1400,7 @@
       }
 
       return {
-        MBTI_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting,
+        MBTI_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount,
         selectAnswer, finishTest
       }
     },
@@ -1415,7 +1416,7 @@
           <div class="mbti-progress-bar">
             <div class="mbti-progress-fill" :style="{ width: progress + '%' }"></div>
           </div>
-          <div class="mbti-progress-text">已完成 {{ Object.keys(answers).length }} / {{ MBTI_QUESTIONS.length }}</div>
+          <div class="mbti-progress-text">已完成 {{ answeredCount }} / {{ MBTI_QUESTIONS.length }}</div>
         </div>
 
         <div class="questions-list">
@@ -1444,7 +1445,7 @@
           </div>
         </div>
 
-        <div class="action-area" v-if="Object.keys(answers).length === MBTI_QUESTIONS.length" style="margin-top: 40px;">
+        <div class="action-area" v-if="answeredCount === MBTI_QUESTIONS.length" style="margin-top: 40px;">
           <button class="primary-action" @click="finishTest" :disabled="isCompleting">
             {{ isCompleting ? '正在解析灵魂密码...' : '✧ 生成我的性格报告' }}
           </button>
@@ -1466,7 +1467,7 @@
 
       if (!store.mbtiResult) {
         router.push('/mbti')
-        return { showPayment, hasPaid, typeData: ref(null), p: ref({}), displayedDeepText, isTyping, handlePaymentSuccess: () => {}, generatePoster: () => {}, restartTest: () => {} }
+        return { showPayment, hasPaid, typeData: ref({ type: '', name: '', en: '', desc: '', deep: '' }), p: ref({ E_I:0, S_N:0, T_F:0, J_P:0 }), displayedDeepText, isTyping, handlePaymentSuccess: () => {}, generatePoster: () => {}, restartTest: () => {} }
       }
 
       const { type, percentages } = store.mbtiResult
@@ -1673,7 +1674,9 @@
     routes: [
       { path: '/', component: Home },
       { path: '/tarot', component: TarotTest },
-      { path: '/result', component: Result }
+      { path: '/result', component: Result },
+      { path: '/mbti', component: MBTITest },
+      { path: '/mbti-result', component: MBTIResult }
     ],
     scrollBehavior() { return { top: 0 } }
   })
