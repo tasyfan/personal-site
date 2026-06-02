@@ -827,7 +827,7 @@
               
               <div class="hero-visual" ref="heroVisual" aria-hidden="true" :class="{ 'is-warping': store.homePhase === 'warping' }"
                    @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
-                <img src="./mystic-hero.png" alt="Cosmic Subconscious" class="mystic-hero-image" />
+                <img src="./mystic-hero-light.png" alt="Mystical Crystal Prism" class="mystic-hero-image" />
               </div>
             </section>
 

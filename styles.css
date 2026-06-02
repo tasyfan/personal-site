@@ -1751,13 +1751,8 @@ h3 {
 
 /* Warp Animation */
 .home-container {
-  background-color: var(--black);
   min-height: 100vh;
   transition: background-color 1s ease;
-}
-.home-container:has(.centered-menu) {
-  /* Keeps the background dark when menu is active */
-  background-color: var(--black);
 }
 
 .hero-visual.is-warping {
@@ -1787,22 +1782,12 @@ h3 {
   transform: scale(1.1);
 }
 
-/* Make blocks stand out on dark bg */
-.centered-menu {
-  color: white;
-}
+/* Card hover effects for light/dark theme */
 .centered-menu article {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;
 }
 .centered-menu article:hover {
-  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-8px);
-}
-.centered-menu h3, .centered-menu p {
-  color: rgba(255, 255, 255, 0.9) !important;
 }
 
 
@@ -1852,20 +1837,5 @@ h3 {
   display: none !important;
 }
 
-/* Force centered menu text contrast */
-.centered-menu article h3 {
-  color: #ffffff !important;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-}
-.centered-menu article p {
-  color: rgba(255, 255, 255, 0.85) !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-}
 
-/* Force ALL text in home-container to be bright white for dark mode aesthetic */
-.home-container {
-  color: #ffffff !important;
-}
-.home-container p, .home-container h1, .home-container h2 {
-  color: rgba(255, 255, 255, 0.95) !important;
-}
+
