@@ -1750,25 +1750,60 @@ h3 {
 }
 
 /* Warp Animation */
-.hero-visual.is-warping {
-  /* Warp into the starfield */
-  animation: warpDrive 1.5s cubic-bezier(0.7, 0, 0.3, 1) forwards !important;
-  pointer-events: none;
+.home-container {
+  background-color: var(--black);
+  min-height: 100vh;
+  transition: background-color 1s ease;
+}
+.home-container:has(.centered-menu) {
+  /* Keeps the background dark when menu is active */
+  background-color: var(--black);
 }
 
-@keyframes warpDrive {
-  0% {
-    transform: perspective(1000px) scale3d(1, 1, 1) rotateZ(0deg);
-    opacity: 1;
-  }
-  40% {
-    opacity: 1;
-  }
-  100% {
-    transform: perspective(1000px) scale3d(20, 20, 20) rotateZ(180deg);
-    opacity: 0;
-  }
+.hero-visual.is-warping {
+  /* Transition from CURRENT inline transform to massive scale */
+  transform: perspective(1000px) scale3d(25, 25, 25) rotateZ(120deg) translateZ(200px) !important;
+  transition: transform 2.2s cubic-bezier(0.5, 0, 0.1, 1), opacity 1.5s 0.7s ease-out !important;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 999;
 }
+
+/* Menu Reveal Transition */
+.menu-reveal-enter-active {
+  transition: all 1.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.menu-reveal-leave-active {
+  transition: all 0.5s ease;
+}
+.menu-reveal-enter-from {
+  opacity: 0;
+  transform: translateY(80px) scale(0.95);
+  filter: blur(10px);
+}
+.menu-reveal-leave-to {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+/* Make blocks stand out on dark bg */
+.centered-menu {
+  color: white;
+}
+.centered-menu article {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.4s ease;
+}
+.centered-menu article:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-8px);
+}
+.centered-menu h3, .centered-menu p {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
 
 .hero-visual.is-warping .orbital-card {
   animation: hyperSpin 1.5s ease-in-out forwards;

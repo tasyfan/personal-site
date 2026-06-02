@@ -796,22 +796,21 @@
           return
         }
         store.homePhase = 'warping'
-        // Reset transform so the CSS warp can take over cleanly
+        // Remove inline transition to let CSS handle it
         if (heroVisual.value) {
-          heroVisual.value.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)'
-          heroVisual.value.style.transition = 'none'
+          heroVisual.value.style.transition = ''
         }
         
         setTimeout(() => {
           store.homePhase = 'menu'
-        }, 1500)
+        }, 2200) // longer duration for dramatic effect
       }
 
       return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store }
     },
     template: `
       <main id="top" class="home-container">
-        <transition name="fade" mode="out-in">
+        <transition name="menu-reveal" mode="out-in">
           
           <div v-if="store.homePhase === 'hero' || store.homePhase === 'warping'" key="hero-state">
             <section class="hero" aria-labelledby="hero-title">
@@ -2110,7 +2109,7 @@
           </nav>
         </header>
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
+          <transition name="menu-reveal" mode="out-in">
             <component :is="Component" />
           </transition>
         </router-view>
