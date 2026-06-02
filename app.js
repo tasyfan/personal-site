@@ -1116,8 +1116,8 @@
         hasPaid.value = true
         
         // Assemble AI text
-        const intro = \`基于您的问题：「\${question.value}」以及您抽到的三张牌（\${cards.value.map(c => c.card.name + (c.isReversed ? '逆位' : '正位')).join('、')}），宇宙的深层指引如下：\\n\\n\`
-        const body = cards.value.map(c => \`【\${c.position}位置 - \${c.card.name}\${c.isReversed ? '逆位' : '正位'}】\\n\${getDeepMeaning(c)}\`).join('\\n\\n')
+        const intro = `基于您的问题：「${question.value}」以及您抽到的三张牌（${cards.value.map(c => c.card.name + (c.isReversed ? '逆位' : '正位')).join('、')}），宇宙的深层指引如下：\n\n`
+        const body = cards.value.map(c => `【${c.position}位置 - ${c.card.name}${c.isReversed ? '逆位' : '正位'}】\n${getDeepMeaning(c)}`).join('\n\n')
         
         startTypewriter(intro + body)
       }
