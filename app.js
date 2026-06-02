@@ -810,43 +810,50 @@
       return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store }
     },
     template: `
-      <main id="top">
-        <section class="hero" aria-labelledby="hero-title">
-          <div class="hero-copy">
-            <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
-            <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>
-            <p class="lede" v-reveal style="transition-delay: 0.2s">
-              通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
-            </p>
-            <div class="actions" v-reveal style="transition-delay: 0.3s">
-              <a class="primary-action" href="#" @click.prevent="scrollToBlocks">探索潜意识图鉴</a>
-            </div>
-          </div>
-          <div class="hero-visual" ref="heroVisual" aria-hidden="true"
-               @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
-            <div class="constellation">
-              <span class="node node-a"></span><span class="node node-b"></span>
-              <span class="node node-c"></span><span class="node node-d"></span>
-              <span class="beam beam-a"></span><span class="beam beam-b"></span><span class="beam beam-c"></span>
-            </div>
-            <div class="orbital-card">
-              <span class="glyph">✧</span>
-              <span class="ring ring-one"></span><span class="ring ring-two"></span>
-            </div>
-          </div>
-        </section>
+      <main id="top" class="home-container">
+        <transition name="fade" mode="out-in">
+          
+          <div v-if="store.homePhase === 'hero' || store.homePhase === 'warping'" key="hero-state">
+            <section class="hero" aria-labelledby="hero-title">
+              <transition name="fade">
+                <div class="hero-copy" v-if="store.homePhase === 'hero'">
+                  <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
+                  <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>
+                  <p class="lede" v-reveal style="transition-delay: 0.2s">
+                    通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
+                  </p>
+                  <div class="actions" v-reveal style="transition-delay: 0.3s">
+                    <button class="primary-action warp-btn" @click="startWarp">探索潜意识图鉴</button>
+                  </div>
+                </div>
+              </transition>
+              
+              <div class="hero-visual" ref="heroVisual" aria-hidden="true" :class="{ 'is-warping': store.homePhase === 'warping' }"
+                   @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
+                <div class="constellation">
+                  <span class="node node-a"></span><span class="node node-b"></span>
+                  <span class="node node-c"></span><span class="node node-d"></span>
+                  <span class="beam beam-a"></span><span class="beam beam-b"></span><span class="beam beam-c"></span>
+                </div>
+                <div class="orbital-card">
+                  <span class="glyph">✧</span>
+                  <span class="ring ring-one"></span><span class="ring ring-two"></span>
+                </div>
+              </div>
+            </section>
 
-        <section id="vision" class="section intro-section">
-          <div v-reveal>
-            <p class="section-kicker">vision</p>
-            <h2>保持足够清晰，也保留一点未知。</h2>
+            <section id="vision" class="section intro-section">
+              <div v-reveal>
+                <p class="section-kicker">vision</p>
+                <h2>保持足够清晰，也保留一点未知。</h2>
+              </div>
+              <p v-reveal style="transition-delay: 0.1s">
+                我们摒弃了市面上杂乱的广告与诱导，只为您提供最干净、最纯粹的测试体验。在这里，每一次点击都是与自己内心的对话。
+              </p>
+            </section>
           </div>
-          <p v-reveal style="transition-delay: 0.1s">
-            我们摒弃了市面上杂乱的广告与诱导，只为您提供最干净、最纯粹的测试体验。在这里，每一次点击都是与自己内心的对话。
-          </p>
-        </section>
 
-        <section id="blocks" class="section block-grid" aria-label="内容模块">
+          <section id="blocks" class="section block-grid centered-menu" aria-label="内容模块" v-else-if="store.homePhase === 'menu'" key="menu-state">
           <article v-reveal style="cursor: pointer;" @click="$router.push('/mbti')">
             <span class="block-icon blue"></span>
             <h3>MBTI 深度解析</h3>
