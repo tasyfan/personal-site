@@ -1691,22 +1691,42 @@
 
   // ─── ATTACHMENT DATABASE ──────────────────────────────────────────
   const ATTACHMENT_QUESTIONS = [
-    { id: 1, trait: 'anxiety', text: '我常常担心伴侣并非真正爱我。' },
-    { id: 2, trait: 'avoidance', text: '我觉得与他人保持亲密关系是一件很容易的事。', invert: true },
-    { id: 3, trait: 'anxiety', text: '当伴侣离开我身边时，我会感到非常不安和焦虑。' },
-    { id: 4, trait: 'avoidance', text: '当伴侣试图在情感上靠近我时，我有时会本能地想逃避。' },
-    { id: 5, trait: 'anxiety', text: '我时常害怕自己会被我所依赖的人抛弃。' },
-    { id: 6, trait: 'avoidance', text: '我通常很乐意向伴侣倾诉我的心事和脆弱。', invert: true },
-    { id: 7, trait: 'anxiety', text: '如果伴侣不回我信息，我会忍不住胡思乱想。' },
-    { id: 8, trait: 'avoidance', text: '我不太习惯完全依赖他人或让别人完全依赖我。' },
-    { id: 9, trait: 'anxiety', text: '我极其渴望与伴侣建立极其亲密的、融为一体的连接。' },
-    { id: 10, trait: 'avoidance', text: '在关系中，保持绝对的独立和自我空间对我来说比什么都重要。' },
-    { id: 11, trait: 'anxiety', text: '当遇到挫折时，我迫切需要伴侣立刻提供情绪价值来安抚我。' },
-    { id: 12, trait: 'avoidance', text: '伴侣想要与我建立深层情感连接的努力常常让我感到有压力。' },
-    { id: 13, trait: 'anxiety', text: '我有时会觉得，我对伴侣的爱要远远超过伴侣对我的爱。' },
-    { id: 14, trait: 'avoidance', text: '我觉得在别人面前展现真实的自我并不困难。', invert: true },
-    { id: 15, trait: 'anxiety', text: '一想到伴侣可能会对别人产生好感，我就会感到极度的恐慌。' },
-    { id: 16, trait: 'avoidance', text: '即使在最亲密的关系中，我也会刻意保留一部分自我，不让对方触碰。' }
+    { id: 1, trait: 'avoidance', text: '我不愿意告诉伴侣我内心深处的感受。' },
+    { id: 2, trait: 'anxiety', text: '我常常担心伴侣不再爱我了。' },
+    { id: 3, trait: 'avoidance', text: '我发现自己很容易与伴侣亲近。', invert: true },
+    { id: 4, trait: 'anxiety', text: '我极其渴望与伴侣融为一体，但这有时会把他们吓跑。' },
+    { id: 5, trait: 'avoidance', text: '当伴侣想要与我建立非常亲密的关系时，我会感到不自在。' },
+    { id: 6, trait: 'anxiety', text: '我时常害怕自己会被抛弃。' },
+    { id: 7, trait: 'avoidance', text: '当伴侣过于靠近我时，我往往会本能地退缩。' },
+    { id: 8, trait: 'anxiety', text: '我需要伴侣经常保证他们是爱我的。' },
+    { id: 9, trait: 'avoidance', text: '我不习惯完全依赖伴侣。' },
+    { id: 10, trait: 'anxiety', text: '如果伴侣对我不如平时亲热，我会变得很不安。' },
+    { id: 11, trait: 'avoidance', text: '我倾向于不和伴侣走得太近。' },
+    { id: 12, trait: 'anxiety', text: '我很少担心伴侣会离开我。', invert: true },
+    { id: 13, trait: 'avoidance', text: '我希望伴侣在情感上不要过度依赖我。' },
+    { id: 14, trait: 'anxiety', text: '如果我不能从伴侣那里得到我想要的关注，我会感到非常沮丧。' },
+    { id: 15, trait: 'avoidance', text: '向伴侣表达我的爱意对我来说是件很容易的事。', invert: true },
+    { id: 16, trait: 'anxiety', text: '我有时觉得伴侣不想和我像我希望的那样亲密。' },
+    { id: 17, trait: 'avoidance', text: '我总是尽量和伴侣保持一定的心理距离。' },
+    { id: 18, trait: 'anxiety', text: '当伴侣不在身边时，我常常感到强烈的不安。' },
+    { id: 19, trait: 'avoidance', text: '我觉得向伴侣倾诉我的心事是一件舒服的事。', invert: true },
+    { id: 20, trait: 'anxiety', text: '我对伴侣的一举一动、一言一行都非常敏感。' },
+    { id: 21, trait: 'avoidance', text: '当伴侣对我表达强烈的依恋时，我会感到有压力。' },
+    { id: 22, trait: 'anxiety', text: '我不担心在伴侣面前表现出自己脆弱的一面。', invert: true },
+    { id: 23, trait: 'avoidance', text: '相比起从伴侣那里获得安慰，我更愿意自己解决问题。' },
+    { id: 24, trait: 'anxiety', text: '如果伴侣似乎对别人产生了兴趣，我会感到极度的恐慌。' },
+    { id: 25, trait: 'avoidance', text: '我很享受和伴侣之间深度的相互依赖。', invert: true },
+    { id: 26, trait: 'anxiety', text: '我觉得自己对亲密关系的投入常常比伴侣多。' },
+    { id: 27, trait: 'avoidance', text: '当伴侣在情感上向我寻求支持时，我有时会感到不知所措。' },
+    { id: 28, trait: 'anxiety', text: '当伴侣不赞同我的观点时，我会觉得他们是在拒绝我这个人。' },
+    { id: 29, trait: 'avoidance', text: '我可以很自然地向伴侣寻求帮助和安慰。', invert: true },
+    { id: 30, trait: 'anxiety', text: '我很容易因为伴侣的一点小冷淡而感到受伤。' },
+    { id: 31, trait: 'avoidance', text: '我不喜欢别人看透我的内心世界。' },
+    { id: 32, trait: 'anxiety', text: '我常常因为太在意伴侣的感受而委屈自己。' },
+    { id: 33, trait: 'avoidance', text: '与伴侣探讨彼此的关系状态会让我感到心烦意乱。' },
+    { id: 34, trait: 'anxiety', text: '我有时会觉得，如果没有了现在的伴侣，我的人生就失去了意义。' },
+    { id: 35, trait: 'avoidance', text: '我通常很乐意与伴侣分享我的个人目标和秘密。', invert: true },
+    { id: 36, trait: 'anxiety', text: '如果伴侣一段时间没有回我信息，我就会忍不住胡思乱想。' }
   ]
 
   const ATTACHMENT_PROFILES = {
@@ -1767,31 +1787,40 @@
 
       const finishTest = () => {
         isCompleting.value = true
-        let anxiety = 0
-        let avoidance = 0
+        let anxietySum = 0
+        let avoidanceSum = 0
         
         ATTACHMENT_QUESTIONS.forEach(q => {
-          let score = answers[q.id] || 0
-          if (q.invert) score = score * -1
+          // original UI gives: 3, 2, 1, 0, -1, -2, -3
+          // Map to 7-point scale: 7, 6, 5, 4, 3, 2, 1
+          let rawValue = answers[q.id] !== undefined ? answers[q.id] : 0
+          let ecrScore = rawValue + 4
+          
+          if (q.invert) {
+            ecrScore = 8 - ecrScore
+          }
           
           if (q.trait === 'anxiety') {
-            anxiety += score
+            anxietySum += ecrScore
           } else if (q.trait === 'avoidance') {
-            avoidance += score
+            avoidanceSum += ecrScore
           }
         })
 
-        // Normalize scores to percentages (max possible score is 8 * 3 = 24)
-        // Shift to 0-48 range then divide by 48
-        const anxietyScore = Math.round(((anxiety + 24) / 48) * 100)
-        const avoidanceScore = Math.round(((avoidance + 24) / 48) * 100)
+        // Averages (18 questions each)
+        const anxietyMean = anxietySum / 18
+        const avoidanceMean = avoidanceSum / 18
         
         let type = 'secure'
-        if (anxietyScore > 50 && avoidanceScore > 50) type = 'fearful'
-        else if (anxietyScore > 50) type = 'anxious'
-        else if (avoidanceScore > 50) type = 'dismissive'
+        if (anxietyMean > 4 && avoidanceMean > 4) type = 'fearful'
+        else if (anxietyMean > 4) type = 'anxious'
+        else if (avoidanceMean > 4) type = 'dismissive'
 
-        store.attachmentResult = { type, anxietyScore, avoidanceScore }
+        // Convert to percentage for UI rendering (min 1, max 7)
+        const anxietyScore = Math.round(((anxietyMean - 1) / 6) * 100)
+        const avoidanceScore = Math.round(((avoidanceMean - 1) / 6) * 100)
+
+        store.attachmentResult = { type, anxietyScore, avoidanceScore, anxietyMean: anxietyMean.toFixed(2), avoidanceMean: avoidanceMean.toFixed(2) }
         
         setTimeout(() => {
           router.push('/attachment-result')
@@ -1868,7 +1897,7 @@
       }
 
       const { type, anxietyScore, avoidanceScore } = store.attachmentResult
-      const typeData = ref({ type, ...ATTACHMENT_PROFILES[type] })
+      const typeData = ref({ type, anxietyMean: store.attachmentResult.anxietyMean, avoidanceMean: store.attachmentResult.avoidanceMean, ...ATTACHMENT_PROFILES[type] })
       const p = ref({ anxietyScore, avoidanceScore })
 
       const startTypewriter = (fullText) => {
@@ -1939,11 +1968,11 @@
           <p style="margin-bottom: 30px; text-align: center; color: var(--text-muted);">{{ typeData.desc }}</p>
           
           <div class="trait-container">
-            <div class="trait-header"><span>焦虑程度 (Anxiety)</span><span>{{ p.anxietyScore }}%</span></div>
+            <div class="trait-header"><span>焦虑程度 (Anxiety)</span><span>{{ typeData.anxietyMean }} / 7.00</span></div>
             <div class="trait-bar-bg"><div class="trait-bar-fill" :style="{ width: p.anxietyScore + '%', background: 'linear-gradient(90deg, #ff7e5f, #ff416c)' }"></div></div>
           </div>
           <div class="trait-container">
-            <div class="trait-header"><span>回避程度 (Avoidance)</span><span>{{ p.avoidanceScore }}%</span></div>
+            <div class="trait-header"><span>回避程度 (Avoidance)</span><span>{{ typeData.avoidanceMean }} / 7.00</span></div>
             <div class="trait-bar-bg"><div class="trait-bar-fill" :style="{ width: p.avoidanceScore + '%', background: 'linear-gradient(90deg, #556270, #4ECDC4)' }"></div></div>
           </div>
         </div>
