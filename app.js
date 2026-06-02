@@ -98,12 +98,65 @@ window.addEventListener("resize", () => {
   seed();
 });
 
+const heroVisual = document.querySelector(".hero-visual");
+
 window.addEventListener("pointermove", (event) => {
   state.pointer.x = event.clientX;
   state.pointer.y = event.clientY;
   if (!reduceMotion && state.frame % 3 === 0) {
     spawn(event.clientX, event.clientY, 1, 0.9);
   }
+
+  // Apple-like 3D Parallax effect (Made more obvious)
+  if (heroVisual && !reduceMotion) {
+    const x = (event.clientX / window.innerWidth - 0.5) * 40; // Max 20 degrees
+    const y = (event.clientY / window.innerHeight - 0.5) * -40;
+    heroVisual.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${y}deg) scale3d(1.02, 1.02, 1.02)`;
+  }
+});
+
+document.addEventListener("mouseleave", () => {
+  if (heroVisual && !reduceMotion) {
+    heroVisual.style.transform = `perspective(1000px) rotateY(0deg) rotateX(0deg) scale3d(1, 1, 1)`;
+    heroVisual.style.transition = `transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)`;
+  }
+});
+
+document.addEventListener("mouseenter", () => {
+  if (heroVisual && !reduceMotion) {
+    heroVisual.style.transition = `none`;
+  }
+});
+
+// --- Scroll Reveal Interactions ---
+const revealElements = document.querySelectorAll(
+  ".eyebrow, h1, .lede, .actions, .section-kicker, h2, .intro-section > p, .block-grid article, .feature-band > div, .contact > *"
+);
+
+revealElements.forEach((el, index) => {
+  el.classList.add("reveal");
+  // Stagger delays slightly for elements close to each other
+  const delay = (index % 4) * 0.1;
+  el.style.transitionDelay = `${delay}s`;
+});
+
+const observerOptions = {
+  root: null,
+  rootMargin: "0px -10% 0px 0px",
+  threshold: 0.15,
+};
+
+const observer = new IntersectionObserver((entries, observer) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("active");
+      observer.unobserve(entry.target);
+    }
+  });
+}, observerOptions);
+
+revealElements.forEach((el) => {
+  observer.observe(el);
 });
 
 document.addEventListener("visibilitychange", () => {

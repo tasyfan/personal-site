@@ -9,6 +9,8 @@
   --yellow: #fbbc04;
   --green: #34a853;
   --black: #050506;
+  --apple-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-ease: cubic-bezier(0.25, 1.2, 0.5, 1);
 }
 
 * {
@@ -88,11 +90,12 @@ main,
 }
 
 .nav a {
-  transition: color 160ms ease;
+  transition: color 0.4s var(--apple-ease), opacity 0.4s var(--apple-ease);
 }
 
 .nav a:hover {
   color: var(--ink);
+  opacity: 0.8;
 }
 
 .hero {
@@ -172,6 +175,20 @@ h3 {
   border-radius: 999px;
   font-size: 15px;
   font-weight: 650;
+  transition: transform 0.5s var(--apple-ease), box-shadow 0.5s var(--apple-ease), background 0.5s var(--apple-ease);
+  cursor: pointer;
+  will-change: transform;
+}
+
+.primary-action:hover,
+.secondary-action:hover {
+  transform: scale(1.06);
+}
+
+.primary-action:active,
+.secondary-action:active {
+  transform: scale(0.94);
+  transition-duration: 0.1s;
 }
 
 .primary-action {
@@ -180,9 +197,19 @@ h3 {
   box-shadow: 0 16px 42px rgba(23, 23, 23, 0.16);
 }
 
+.primary-action:hover {
+  box-shadow: 0 20px 48px rgba(23, 23, 23, 0.24);
+  background: #000;
+}
+
 .secondary-action {
   border: 1px solid var(--soft);
   background: rgba(255, 255, 255, 0.72);
+}
+
+.secondary-action:hover {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 24px rgba(23, 23, 23, 0.06);
 }
 
 .hero-visual {
@@ -200,6 +227,9 @@ h3 {
   box-shadow:
     0 24px 58px rgba(17, 24, 39, 0.12),
     inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  will-change: transform;
 }
 
 .hero-visual::before {
@@ -361,6 +391,14 @@ h3 {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.76);
   box-shadow: 0 12px 28px rgba(17, 24, 39, 0.045);
+  transition: transform 0.6s var(--apple-ease), box-shadow 0.6s var(--apple-ease);
+  will-change: transform;
+  cursor: default;
+}
+
+.block-grid article:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 32px 64px rgba(17, 24, 39, 0.12);
 }
 
 .block-grid p {
@@ -374,6 +412,11 @@ h3 {
   height: 42px;
   margin-bottom: 38px;
   border-radius: 50%;
+  transition: transform 0.5s var(--spring-ease);
+}
+
+.block-grid article:hover .block-icon {
+  transform: scale(1.25);
 }
 
 .block-icon.blue {
@@ -525,5 +568,25 @@ h3 {
   .primary-action,
   .secondary-action {
     flex: 1;
+  }
+}
+
+/* Scroll Reveal Utility Classes */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1.2s var(--apple-ease), transform 1.2s var(--apple-ease);
+  will-change: opacity, transform;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: opacity 1.2s ease;
+    transform: none;
   }
 }
