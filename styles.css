@@ -1734,3 +1734,17 @@ h3 {
   font-size: 20px;
   color: var(--text-muted);
 }
+
+/* Slide Up Transition for Tests */
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}

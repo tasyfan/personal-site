@@ -1389,6 +1389,7 @@
       const answers = reactive({})
       const isCompleting = ref(false)
       const isTransitioning = ref(false)
+      const currentQ = computed(() => MBTI_QUESTIONS[currentQuestionIndex.value])
 
       const answeredCount = computed(() => Object.keys(answers).length)
       const progress = computed(() => {
@@ -1455,7 +1456,7 @@
       }
 
       return {
-        MBTI_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount,
+        MBTI_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount, currentQ,
         selectAnswer, finishTest
       }
     },
@@ -1475,29 +1476,27 @@
         </div>
 
         <div class="questions-list">
-          <div
-            v-for="(q, index) in MBTI_QUESTIONS"
-            :key="q.id"
-            :id="'q-' + q.id"
-            class="question-card"
-            :class="{ active: true }"
-            v-show="index === currentQuestionIndex"
-          >
-            <p class="question-text">{{ q.id }}. {{ q.text }}</p>
-            <div class="scale-options">
-              <div class="scale-btn agree size-1" :class="{ selected: answers[q.id] === 3 }" @click="selectAnswer(q.id, 3)"></div>
-              <div class="scale-btn agree size-2" :class="{ selected: answers[q.id] === 2 }" @click="selectAnswer(q.id, 2)"></div>
-              <div class="scale-btn agree size-3" :class="{ selected: answers[q.id] === 1 }" @click="selectAnswer(q.id, 1)"></div>
-              <div class="scale-btn neutral size-3" :class="{ selected: answers[q.id] === 0 }" @click="selectAnswer(q.id, 0)"></div>
-              <div class="scale-btn disagree size-3" :class="{ selected: answers[q.id] === -1 }" @click="selectAnswer(q.id, -1)"></div>
-              <div class="scale-btn disagree size-2" :class="{ selected: answers[q.id] === -2 }" @click="selectAnswer(q.id, -2)"></div>
-              <div class="scale-btn disagree size-1" :class="{ selected: answers[q.id] === -3 }" @click="selectAnswer(q.id, -3)"></div>
+          <transition name="slide-up" mode="out-in">
+            <div
+              :key="'q-' + currentQ.id"
+              class="question-card active"
+            >
+              <p class="question-text">{{ currentQ.id }}. {{ currentQ.text }}</p>
+              <div class="scale-options">
+                <div class="scale-btn agree size-1" :class="{ selected: answers[currentQ.id] === 3 }" @click="selectAnswer(currentQ.id, 3)"></div>
+                <div class="scale-btn agree size-2" :class="{ selected: answers[currentQ.id] === 2 }" @click="selectAnswer(currentQ.id, 2)"></div>
+                <div class="scale-btn agree size-3" :class="{ selected: answers[currentQ.id] === 1 }" @click="selectAnswer(currentQ.id, 1)"></div>
+                <div class="scale-btn neutral size-3" :class="{ selected: answers[currentQ.id] === 0 }" @click="selectAnswer(currentQ.id, 0)"></div>
+                <div class="scale-btn disagree size-3" :class="{ selected: answers[currentQ.id] === -1 }" @click="selectAnswer(currentQ.id, -1)"></div>
+                <div class="scale-btn disagree size-2" :class="{ selected: answers[currentQ.id] === -2 }" @click="selectAnswer(currentQ.id, -2)"></div>
+                <div class="scale-btn disagree size-1" :class="{ selected: answers[currentQ.id] === -3 }" @click="selectAnswer(currentQ.id, -3)"></div>
+              </div>
+              <div class="scale-labels">
+                <span class="label-agree">完全同意</span>
+                <span class="label-disagree">完全反对</span>
+              </div>
             </div>
-            <div class="scale-labels">
-              <span class="label-agree">完全同意</span>
-              <span class="label-disagree">完全反对</span>
-            </div>
-          </div>
+          </transition>
         </div>
 
         <div class="action-area" v-if="answeredCount === MBTI_QUESTIONS.length" style="margin-top: 40px;">
@@ -1746,6 +1745,7 @@
       const answers = reactive({})
       const isCompleting = ref(false)
       const isTransitioning = ref(false)
+      const currentQ = computed(() => ATTACHMENT_QUESTIONS[currentQuestionIndex.value])
 
       const answeredCount = computed(() => Object.keys(answers).length)
       const progress = computed(() => {
@@ -1799,7 +1799,7 @@
       }
 
       return {
-        ATTACHMENT_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount,
+        ATTACHMENT_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount, currentQ,
         selectAnswer, finishTest
       }
     },
@@ -1819,28 +1819,27 @@
         </div>
 
         <div class="questions-list">
-          <div
-            v-for="(q, index) in ATTACHMENT_QUESTIONS"
-            :key="'att-'+q.id"
-            class="question-card"
-            :class="{ active: true }"
-            v-show="index === currentQuestionIndex"
-          >
-            <p class="question-text">{{ q.id }}. {{ q.text }}</p>
-            <div class="scale-options">
-              <div class="scale-btn agree size-1" :class="{ selected: answers[q.id] === 3 }" @click="selectAnswer(q.id, 3)" style="border-color: #ff7e5f;"></div>
-              <div class="scale-btn agree size-2" :class="{ selected: answers[q.id] === 2 }" @click="selectAnswer(q.id, 2)" style="border-color: #ff7e5f;"></div>
-              <div class="scale-btn agree size-3" :class="{ selected: answers[q.id] === 1 }" @click="selectAnswer(q.id, 1)" style="border-color: #ff7e5f;"></div>
-              <div class="scale-btn neutral size-3" :class="{ selected: answers[q.id] === 0 }" @click="selectAnswer(q.id, 0)"></div>
-              <div class="scale-btn disagree size-3" :class="{ selected: answers[q.id] === -1 }" @click="selectAnswer(q.id, -1)" style="border-color: #556270;"></div>
-              <div class="scale-btn disagree size-2" :class="{ selected: answers[q.id] === -2 }" @click="selectAnswer(q.id, -2)" style="border-color: #556270;"></div>
-              <div class="scale-btn disagree size-1" :class="{ selected: answers[q.id] === -3 }" @click="selectAnswer(q.id, -3)" style="border-color: #556270;"></div>
+          <transition name="slide-up" mode="out-in">
+            <div
+              :key="'att-'+currentQ.id"
+              class="question-card active"
+            >
+              <p class="question-text">{{ currentQ.id }}. {{ currentQ.text }}</p>
+              <div class="scale-options">
+                <div class="scale-btn agree size-1" :class="{ selected: answers[currentQ.id] === 3 }" @click="selectAnswer(currentQ.id, 3)" style="border-color: #ff7e5f;"></div>
+                <div class="scale-btn agree size-2" :class="{ selected: answers[currentQ.id] === 2 }" @click="selectAnswer(currentQ.id, 2)" style="border-color: #ff7e5f;"></div>
+                <div class="scale-btn agree size-3" :class="{ selected: answers[currentQ.id] === 1 }" @click="selectAnswer(currentQ.id, 1)" style="border-color: #ff7e5f;"></div>
+                <div class="scale-btn neutral size-3" :class="{ selected: answers[currentQ.id] === 0 }" @click="selectAnswer(currentQ.id, 0)"></div>
+                <div class="scale-btn disagree size-3" :class="{ selected: answers[currentQ.id] === -1 }" @click="selectAnswer(currentQ.id, -1)" style="border-color: #556270;"></div>
+                <div class="scale-btn disagree size-2" :class="{ selected: answers[currentQ.id] === -2 }" @click="selectAnswer(currentQ.id, -2)" style="border-color: #556270;"></div>
+                <div class="scale-btn disagree size-1" :class="{ selected: answers[currentQ.id] === -3 }" @click="selectAnswer(currentQ.id, -3)" style="border-color: #556270;"></div>
+              </div>
+              <div class="scale-labels">
+                <span class="label-agree" style="color: #ff7e5f;">完全符合</span>
+                <span class="label-disagree" style="color: #556270;">完全不符</span>
+              </div>
             </div>
-            <div class="scale-labels">
-              <span class="label-agree" style="color: #ff7e5f;">完全符合</span>
-              <span class="label-disagree" style="color: #556270;">完全不符</span>
-            </div>
-          </div>
+          </transition>
         </div>
 
         <div class="action-area" v-if="answeredCount === ATTACHMENT_QUESTIONS.length" style="margin-top: 40px;">
