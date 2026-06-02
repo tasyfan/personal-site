@@ -1573,3 +1573,162 @@ h3 {
   font-size: 12px;
   text-align: center;
 }
+
+/* ============================================================
+   MBTI TEST STYLES
+   ============================================================ */
+.mbti-test {
+  padding-bottom: 120px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mbti-progress-container {
+  position: sticky;
+  top: 70px;
+  background: var(--bg);
+  padding: 20px 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 40px;
+}
+.mbti-progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.mbti-progress-fill {
+  height: 100%;
+  background: var(--blue);
+  transition: width 0.3s ease;
+}
+.mbti-progress-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: right;
+  font-family: 'Space Mono', monospace;
+}
+
+.question-card {
+  margin-bottom: 60px;
+  padding: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: transform 0.3s ease, opacity 0.3s ease, border-color 0.3s ease;
+}
+.question-card.answered {
+  opacity: 0.5;
+}
+.question-card.active {
+  border-color: var(--blue);
+  box-shadow: 0 8px 32px rgba(110, 86, 207, 0.1);
+}
+.question-text {
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 40px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.scale-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+}
+.scale-options::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: rgba(255,255,255,0.1);
+  z-index: 0;
+  transform: translateY(-50%);
+}
+.scale-btn {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  border: 2px solid;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.scale-btn.agree { border-color: #33b27b; }
+.scale-btn.disagree { border-color: #88619a; }
+.scale-btn.neutral { border-color: #888; }
+
+.scale-btn:hover, .scale-btn.selected {
+  background: currentColor;
+}
+
+.scale-btn.size-1 { width: 56px; height: 56px; }
+.scale-btn.size-2 { width: 44px; height: 44px; }
+.scale-btn.size-3 { width: 32px; height: 32px; }
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  max-width: 500px;
+  margin: 20px auto 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.label-agree { color: #33b27b; }
+.label-disagree { color: #88619a; }
+
+/* MBTI Result Trait Bars */
+.trait-container {
+  margin-bottom: 30px;
+}
+.trait-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.trait-bar-bg {
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.trait-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--pink));
+  border-radius: 4px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.trait-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.mbti-type-title {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.mbti-type-title h2 {
+  font-size: 48px;
+  background: linear-gradient(90deg, #fff, var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+.mbti-type-title p {
+  font-size: 20px;
+  color: var(--text-muted);
+}
