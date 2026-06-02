@@ -1388,6 +1388,7 @@
       const currentQuestionIndex = ref(0)
       const answers = reactive({})
       const isCompleting = ref(false)
+      const isTransitioning = ref(false)
 
       const answeredCount = computed(() => Object.keys(answers).length)
       const progress = computed(() => {
@@ -1395,13 +1396,16 @@
       })
 
       const selectAnswer = (qId, value) => {
+        if (isTransitioning.value) return
         answers[qId] = value
         AudioSynth.playHover()
         
         // Auto advance to next question
         if (currentQuestionIndex.value < MBTI_QUESTIONS.length - 1) {
+          isTransitioning.value = true
           setTimeout(() => {
             currentQuestionIndex.value++
+            isTransitioning.value = false
           }, 300)
         }
       }
@@ -1741,6 +1745,7 @@
       const currentQuestionIndex = ref(0)
       const answers = reactive({})
       const isCompleting = ref(false)
+      const isTransitioning = ref(false)
 
       const answeredCount = computed(() => Object.keys(answers).length)
       const progress = computed(() => {
@@ -1748,11 +1753,14 @@
       })
 
       const selectAnswer = (qId, value) => {
+        if (isTransitioning.value) return
         answers[qId] = value
         AudioSynth.playHover()
         if (currentQuestionIndex.value < ATTACHMENT_QUESTIONS.length - 1) {
+          isTransitioning.value = true
           setTimeout(() => {
             currentQuestionIndex.value++
+            isTransitioning.value = false
           }, 300)
         }
       }
