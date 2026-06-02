@@ -814,18 +814,16 @@
           
           <div v-if="store.homePhase === 'hero' || store.homePhase === 'warping'" key="hero-state">
             <section class="hero" aria-labelledby="hero-title">
-              <transition name="fade">
-                <div class="hero-copy" v-if="store.homePhase === 'hero'">
-                  <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
-                  <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>
-                  <p class="lede" v-reveal style="transition-delay: 0.2s">
-                    通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
-                  </p>
-                  <div class="actions" v-reveal style="transition-delay: 0.3s">
-                    <button class="primary-action warp-btn" @click="startWarp">探索潜意识图鉴</button>
-                  </div>
+              <div class="hero-copy" :style="{ opacity: store.homePhase === 'hero' ? 1 : 0, transition: 'opacity 1s ease', pointerEvents: store.homePhase === 'hero' ? 'auto' : 'none' }">
+                <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
+                <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>
+                <p class="lede" v-reveal style="transition-delay: 0.2s">
+                  通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
+                </p>
+                <div class="actions" v-reveal style="transition-delay: 0.3s">
+                  <button class="primary-action warp-btn" @click="startWarp">探索潜意识图鉴</button>
                 </div>
-              </transition>
+              </div>
               
               <div class="hero-visual" ref="heroVisual" aria-hidden="true" :class="{ 'is-warping': store.homePhase === 'warping' }"
                    @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
