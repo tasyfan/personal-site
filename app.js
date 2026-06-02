@@ -829,15 +829,7 @@
               
               <div class="hero-visual" ref="heroVisual" aria-hidden="true" :class="{ 'is-warping': store.homePhase === 'warping' }"
                    @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
-                <div class="constellation">
-                  <span class="node node-a"></span><span class="node node-b"></span>
-                  <span class="node node-c"></span><span class="node node-d"></span>
-                  <span class="beam beam-a"></span><span class="beam beam-b"></span><span class="beam beam-c"></span>
-                </div>
-                <div class="orbital-card">
-                  <span class="glyph">✧</span>
-                  <span class="ring ring-one"></span><span class="ring ring-two"></span>
-                </div>
+                <img src="./mystic-hero.png" alt="Cosmic Subconscious" class="mystic-hero-image" />
               </div>
             </section>
 
