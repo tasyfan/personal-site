@@ -886,7 +886,7 @@
             <h3>塔罗牌潜意识占卜</h3>
             <p>抽出代表你过去、现在、未来的三张牌，解锁近期的运势走向与启示。</p>
           </article>
-          <article v-reveal style="transition-delay: 0.2s">
+          <article v-reveal style="transition-delay: 0.2s; cursor: pointer;" @click="$router.push('/astrology')">
             <span class="block-icon amber"></span>
             <h3>星盘与流年运势</h3>
             <p>输入你的出生星图，解析你生命中的重要转折点与事业财富格局。</p>
@@ -2135,6 +2135,201 @@
           <span>© 2026</span>
         </footer>
       </div>
+    `
+  })
+
+
+  // ─── Astrology Test Page ──────────────────────────────────────
+  const ZODIACS = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
+  const PLANETS = {
+    sun: { name: '太阳', desc: '核心自我与意志' },
+    moon: { name: '月亮', desc: '潜意识与情感需求' },
+    ascendant: { name: '上升', desc: '人格面具与外在表现' },
+    venus: { name: '金星', desc: '爱情观与审美' },
+    mars: { name: '火星', desc: '行动力与欲望' },
+    mercury: { name: '水星', desc: '思维逻辑与沟通' },
+    jupiter: { name: '木星', desc: '幸运与扩张' }
+  };
+
+  const TRANSITS = [
+    { title: '冥王星顺行', subtitle: '长期的权力课题', desc: '你即将迎来一次个人权力的觉醒。那些曾经压抑你的环境和人，现在正是你彻底摆脱、重建边界的最佳时机。' },
+    { title: '金星合相海王星', subtitle: '浪漫的幻觉', desc: '在人际和情感上，你可能会经历一段非常浪漫但也容易带有滤镜的时期。警惕过度理想化，保持一丝清醒。' },
+    { title: '木星过境第十宫', subtitle: '事业的高光时刻', desc: '长期的努力将开始结出硕果。这段时间的你在职场上极具能见度，是展现领导力和争取资源的黄金期。' },
+    { title: '土星刑克太阳', subtitle: '自我重建的阵痛', desc: '你可能会感觉到外界施加的责任变重，或者自我价值受到挑战。这是宇宙在逼迫你打磨自己的核心竞争力。' },
+    { title: '水星逆行前奏', subtitle: '向内探索，暂缓外放', desc: '沟通和计划容易出现反复。这段时间不适合做出重大承诺，而更适合复盘、反思和整理过去的经验。' }
+  ];
+
+  const hashString = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash);
+  }
+
+  const AstrologyTest = defineComponent({
+    name: 'AstrologyTestPage',
+    setup() {
+      const router = useRouter()
+      const phase = ref('input') // input -> loading -> result
+      const formData = ref({
+        date: '',
+        time: '',
+        city: ''
+      })
+      const loadingText = ref('对齐黄道十二宫...')
+      const report = ref(null)
+
+      const startCalculation = () => {
+        if (!formData.value.date || !formData.value.city) return;
+        phase.value = 'loading'
+        
+        const texts = ['计算宫位与相位...', '读取个人行星坐标...', '拉取流年星象...', '生成星盘报告...']
+        let i = 0
+        const interval = setInterval(() => {
+          if (i < texts.length) {
+            loadingText.value = texts[i]
+            i++
+          }
+        }, 800)
+
+        setTimeout(() => {
+          clearInterval(interval)
+          generateReport()
+          phase.value = 'result'
+        }, 4000)
+      }
+
+      const generateReport = () => {
+        const seed = formData.value.date + formData.value.time + formData.value.city;
+        const h = hashString(seed);
+        
+        const getZodiac = (offset) => ZODIACS[(h + offset) % 12];
+        const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
+
+        report.value = {
+          bigThree: [
+            { id: 'sun', sign: getZodiac(0), ...PLANETS.sun },
+            { id: 'moon', sign: getZodiac(3), ...PLANETS.moon },
+            { id: 'ascendant', sign: getZodiac(7), ...PLANETS.ascendant }
+          ],
+          innerPlanets: [
+            { id: 'venus', sign: getZodiac(2), ...PLANETS.venus },
+            { id: 'mars', sign: getZodiac(5), ...PLANETS.mars },
+            { id: 'mercury', sign: getZodiac(8), ...PLANETS.mercury },
+            { id: 'jupiter', sign: getZodiac(11), ...PLANETS.jupiter }
+          ],
+          transits: [
+            { label: '短期焦点', ...getTransit(1) },
+            { label: '长期课题', ...getTransit(4) }
+          ]
+        }
+      }
+
+      const goHome = () => {
+        router.push('/')
+      }
+
+      return { phase, formData, loadingText, report, startCalculation, goHome }
+    },
+    template: `
+      <main class="test-container astro-test">
+        <transition name="fade" mode="out-in">
+          
+          <!-- Input Phase -->
+          <div v-if="phase === 'input'" key="input" class="astro-input-container">
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">Natal Chart</p>
+              <h2>绘制本命星盘</h2>
+              <p>精确的天体坐标需要你降生那一刻的时间与空间。</p>
+            </div>
+            
+            <div class="form-wrapper" v-reveal style="transition-delay: 0.1s">
+              <div class="input-group">
+                <label>出生日期 *</label>
+                <input type="date" v-model="formData.date" class="astro-input" />
+              </div>
+              <div class="input-group">
+                <label>具体时间 (影响上升星座与宫位精度)</label>
+                <input type="time" v-model="formData.time" class="astro-input" />
+              </div>
+              <div class="input-group">
+                <label>出生城市 *</label>
+                <input type="text" v-model="formData.city" class="astro-input" placeholder="例如：北京" />
+              </div>
+              
+              <button class="primary-action full-width" 
+                      :disabled="!formData.date || !formData.city" 
+                      @click="startCalculation">开始推演星盘</button>
+            </div>
+          </div>
+
+          <!-- Loading Phase -->
+          <div v-else-if="phase === 'loading'" key="loading" class="astro-loading-container">
+            <div class="astro-spinner">
+              <div class="spinner-ring outer"></div>
+              <div class="spinner-ring inner"></div>
+              <div class="spinner-center"></div>
+            </div>
+            <h3 class="loading-title">{{ loadingText }}</h3>
+            <p class="loading-sub">Astral Calculations in progress...</p>
+          </div>
+
+          <!-- Result Phase -->
+          <div v-else-if="phase === 'result'" key="result" class="astro-result-container">
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">Your Astral Blueprint</p>
+              <h2>个人星盘解析</h2>
+              <p>宇宙在你降生时，为你刻下的灵魂蓝图。</p>
+            </div>
+
+            <!-- The Big Three -->
+            <section class="astro-section" v-reveal style="transition-delay: 0.1s">
+              <h3 class="section-title">御三家 <span>(The Big Three)</span></h3>
+              <div class="planet-grid">
+                <div class="planet-card" v-for="p in report.bigThree" :key="p.id">
+                  <div class="planet-header">
+                    <span class="planet-name">{{ p.name }}</span>
+                    <span class="planet-sign">{{ p.sign }}</span>
+                  </div>
+                  <p class="planet-desc">{{ p.desc }}</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Inner Planets -->
+            <section class="astro-section" v-reveal style="transition-delay: 0.2s">
+              <h3 class="section-title">内行星 <span>(Inner Planets)</span></h3>
+              <div class="planet-grid inner-planets">
+                <div class="planet-card" v-for="p in report.innerPlanets" :key="p.id">
+                  <div class="planet-header">
+                    <span class="planet-name">{{ p.name }}</span>
+                    <span class="planet-sign">{{ p.sign }}</span>
+                  </div>
+                  <p class="planet-desc">{{ p.desc }}</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Transits -->
+            <section class="astro-section" v-reveal style="transition-delay: 0.3s">
+              <h3 class="section-title">流年运势 <span>(Current Transits)</span></h3>
+              <div class="transit-list">
+                <div class="transit-card" v-for="(t, i) in report.transits" :key="i">
+                  <div class="transit-label">{{ t.label }}</div>
+                  <h4>{{ t.title }}：{{ t.subtitle }}</h4>
+                  <p>{{ t.desc }}</p>
+                </div>
+              </div>
+            </section>
+
+            <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center;">
+               <button class="secondary-action" @click="goHome">返回探索大厅</button>
+            </div>
+          </div>
+
+        </transition>
+      </main>
     `
   })
 
