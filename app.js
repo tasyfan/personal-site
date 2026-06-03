@@ -2411,10 +2411,13 @@
 
   const AstrologyResult = defineComponent({
     name: 'AstrologyResultPage',
+    components: { PaymentModal },
     setup() {
       const router = useRouter()
       const route = useRoute()
       const report = ref(null)
+      const showPayment = ref(false)
+      const hasPaid = ref(false)
 
       onMounted(() => {
         const d = route.query.d || ''
@@ -2492,11 +2495,16 @@
         }
       })
 
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+      }
+
       const goHome = () => {
         router.push('/')
       }
 
-      return { report, goHome }
+      return { report, showPayment, hasPaid, handlePaymentSuccess, goHome }
     },
     template: `
       <main class="test-container astro-test" v-if="report">
@@ -2524,44 +2532,63 @@
 
             <!-- Inner Planets in Deep Result Container -->
             <div class="deep-result-container" v-reveal style="transition-delay: 0.2s; margin-top: 60px;">
-              <h3 class="section-title" style="margin-bottom: 30px;">内驱动力 <span>(Inner Planets)</span></h3>
-              <div class="planet-grid inner-planets">
-                <div class="planet-card" v-for="p in report.innerPlanets" :key="p.id">
-                  <div class="planet-header">
-                    <span class="planet-name">{{ p.name }} ({{ p.title }})</span>
-                    <span class="planet-sign">{{ p.sign }}</span>
+              
+              <div class="paywall-overlay" v-if="!hasPaid">
+                <div class="paywall-content">
+                  <h3 style="color:#88c8f7;">✦ 解锁星盘高阶解读</h3>
+                  <p>包含：内驱动力行星落座、近期及长期流年运势预测、星图总纲总结。</p>
+                  <div class="price">¥ 19.90 <span class="original-price">¥ 69.90</span></div>
+                  <p class="price-hint">限时折扣 · 窥见命运的齿轮</p>
+                  <button class="primary-action pay-btn" @click="showPayment = true" style="background: linear-gradient(135deg, #b4a0e5, #88c8f7);">
+                    立即解锁完整星盘
+                  </button>
+                </div>
+              </div>
+
+              <div class="deep-content" :class="{ 'is-blurred': !hasPaid }">
+                <h3 class="section-title" style="margin-bottom: 30px;">内驱动力 <span>(Inner Planets)</span></h3>
+                <div class="planet-grid inner-planets">
+                  <div class="planet-card" v-for="p in report.innerPlanets" :key="p.id">
+                    <div class="planet-header">
+                      <span class="planet-name">{{ p.name }} ({{ p.title }})</span>
+                      <span class="planet-sign">{{ p.sign }}</span>
+                    </div>
+                    <p class="planet-desc">{{ p.interpretation }}</p>
                   </div>
-                  <p class="planet-desc">{{ p.interpretation }}</p>
                 </div>
-              </div>
-            </div>
 
-            <!-- Transits in Deep Result Container -->
-            <div class="deep-result-container" v-reveal style="transition-delay: 0.3s; margin-top: 40px;">
-              <h3 class="section-title" style="margin-bottom: 30px;">流年运势 <span>(Current Transits)</span></h3>
-              <div class="transit-list">
-                <div class="transit-card" v-for="(t, i) in report.transits" :key="i">
-                  <div class="transit-label">{{ t.label }}</div>
-                  <h4>{{ t.title }}：{{ t.subtitle }}</h4>
-                  <p>{{ t.desc }}</p>
+                <!-- Transits -->
+                <h3 class="section-title" style="margin-top: 60px; margin-bottom: 30px;">流年运势 <span>(Current Transits)</span></h3>
+                <div class="transit-list">
+                  <div class="transit-card" v-for="(t, i) in report.transits" :key="i">
+                    <div class="transit-label">{{ t.label }}</div>
+                    <h4>{{ t.title }}：{{ t.subtitle }}</h4>
+                    <p>{{ t.desc }}</p>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Synthesis Report - Centered -->
-            <section class="astro-section synthesis-section" v-reveal style="transition-delay: 0.4s">
-              <div class="synthesis-card">
-                 <h3 class="synthesis-title">星图总纲 <br><span style="display:inline-block; margin-top:8px;">(Cosmic Synthesis)</span></h3>
-                 <p class="synthesis-text" style="text-align: center; margin: 0 auto 30px auto; max-width: 600px;">{{ report.synthesis }}</p>
-                 <div class="synthesis-signature">—— 宇宙向你发出的灵魂密语</div>
+                <!-- Synthesis Report - Centered -->
+                <section class="astro-section synthesis-section" style="margin-top: 60px;">
+                  <div class="synthesis-card">
+                     <h3 class="synthesis-title">星图总纲 <br><span style="display:inline-block; margin-top:8px;">(Cosmic Synthesis)</span></h3>
+                     <p class="synthesis-text" style="text-align: center; margin: 0 auto 30px auto; max-width: 600px;">{{ report.synthesis }}</p>
+                     <div class="synthesis-signature">—— 宇宙向你发出的灵魂密语</div>
+                  </div>
+                </section>
               </div>
-            </section>
+
+            </div>
 
             <!-- Actions -->
             <div class="actions" v-reveal style="transition-delay: 0.5s; margin-top: 60px; justify-content: center;">
                <button class="secondary-action" @click="goHome">返回探索大厅</button>
             </div>
 
+            <PaymentModal
+              v-if="showPayment"
+              @close="showPayment = false"
+              @success="handlePaymentSuccess"
+            />
           </div>
       </main>
     `
