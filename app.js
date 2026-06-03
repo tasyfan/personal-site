@@ -2346,25 +2346,30 @@
         const dObj = new Date(`${d}T${t}:00+08:00`)
         let astroTime;
         try {
-           astroTime = Astronomy.MakeTime(dObj)
+           astroTime = typeof Astronomy !== 'undefined' ? Astronomy.MakeTime(dObj) : null;
         } catch(e) {
-           astroTime = Astronomy.MakeTime(new Date())
+           console.error("Astronomy MakeTime error:", e)
         }
+
         
         const getZodiac = (bodyName) => {
            let lon = 0
-           if (bodyName === 'Ascendant') {
-             // For Ascendant, we approximate based on the Sun's position and the time of day
-             // The Sun is on the Ascendant at sunrise (~6 AM local time). 1 hour = 15 degrees.
-             const sunLon = Astronomy.EclipticLongitude(Astronomy.Body.Sun, astroTime)
-             const hour = dObj.getHours() + dObj.getMinutes() / 60
-             lon = (sunLon + (hour - 6) * 15 + 360) % 360
-           } else {
-             const body = Astronomy.Body[bodyName]
-             lon = Astronomy.EclipticLongitude(body, astroTime)
+           try {
+             if (bodyName === 'Ascendant') {
+               const sunLon = Astronomy.EclipticLongitude(Astronomy.Body.Sun, astroTime)
+               const hour = dObj.getHours() + dObj.getMinutes() / 60
+               lon = (sunLon + (hour - 6) * 15 + 360) % 360
+             } else {
+               const body = Astronomy.Body[bodyName]
+               lon = Astronomy.EclipticLongitude(body, astroTime)
+             }
+           } catch (e) {
+             console.error('Astronomy error for', bodyName, e)
+             lon = 0
            }
-           const index = Math.floor(lon / 30) % 12
-           return ZODIAC_KEYS[index]
+           let index = Math.floor(lon / 30) % 12
+           if (index < 0) index += 12
+           return ZODIAC_KEYS[index] || ZODIAC_KEYS[0]
         }
 
         // Keep hash for transits and synthesis so they are consistent per user
