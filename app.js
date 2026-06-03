@@ -815,16 +815,8 @@
       const energy = Vue.ref(getDailyEnergy())
 
       const startWarp = () => {
-        if (reduceMotion) {
-          store.homePhase = 'menu'
-          return
-        }
-        store.homePhase = 'warping'
-        
-        // Very fast transition for minimalist layout
-        setTimeout(() => {
-          store.homePhase = 'menu'
-        }, 600) 
+        // 彻底移除所有延时机制，利用 Vue 自带的 out-in 渐变实现瞬间且丝滑的切换
+        store.homePhase = 'menu'
       }
 
       return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy }
