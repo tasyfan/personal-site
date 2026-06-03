@@ -2166,6 +2166,14 @@
     jupiter: { name: '木星', title: '幸运与扩张领域', prefix: '宇宙为你安排的独特幸运领域与成长方式是：' }
   };
 
+
+  const SYNTHESIS_DICT = [
+    '你的星盘展现了一个在世俗边界与灵性深渊间不断撕裂又重组的灵魂。你此生的终极使命，不是去迎合任何外界的期待，而是在无尽的探索与试错中，找到属于自己内心的那把真理之剑。宇宙正在注视着你，请不要停下脚步。',
+    '从你的星位分布可以看出，你的灵魂携带着累世的深沉记忆。你总能轻易看透人性的幽暗与光辉，这赋予了你极强的治愈力。你这一生的课业，是学会放下对绝对控制的执念，允许一切如其所是地发生，在流动中建立真正的力量。',
+    '你的命盘充满了极强的扩张与冒险能量。你不属于温室，你属于风暴与未知的远方。不要试图被传统的世俗成功学所定义，你此生注定要通过一次次打破规则，建立属于你自己的独立坐标系。',
+    '你的星象图呈现出一种极高频的理智与灵感交织。你是一个天生的观察者和布道者。你这辈子的挑战在于，不要因为看得太透彻而陷入虚无，试着用你庞大的同理心，去感受并建立深刻的现实羁绊。'
+  ];
+
   const TRANSITS = [
     { title: '冥王星顺行', subtitle: '长期的权力课题', desc: '你即将迎来一次个人权力的觉醒。那些曾经压抑你的环境和人，现在正是你彻底摆脱、重建边界的最佳时机。' },
     { title: '金星合相海王星', subtitle: '浪漫的幻觉', desc: '在人际和情感上，你可能会经历一段非常浪漫但也容易带有滤镜的时期。警惕过度理想化，保持一丝清醒。' },
@@ -2246,6 +2254,7 @@
             { label: '短期焦点', ...getTransit(1) },
             { label: '长期课题', ...getTransit(4) }
           ],
+          synthesis: SYNTHESIS_DICT[h % SYNTHESIS_DICT.length],
           sunSign: getZodiac(0),
           moonSign: getZodiac(3),
           ascSign: getZodiac(7)
@@ -2377,6 +2386,15 @@
               </div>
             </section>
 
+            <!-- Synthesis Report -->
+            <section class="astro-section synthesis-section" v-reveal style="transition-delay: 0.35s">
+              <div class="synthesis-card">
+                 <h3 class="synthesis-title">星图总纲 <span>(Cosmic Synthesis)</span></h3>
+                 <p class="synthesis-text">{{ report.synthesis }}</p>
+                 <div class="synthesis-signature">—— 宇宙向你发出的灵魂密语</div>
+              </div>
+            </section>
+
             <!-- Actions -->
             <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center; gap: 20px; flex-wrap: wrap;">
                <button class="primary-action" :disabled="isGenerating" @click="downloadPoster">
@@ -2388,28 +2406,41 @@
         </transition>
 
         <!-- Hidden Poster Template -->
-        <div v-if="report" id="astral-poster" class="astral-poster">
-           <div class="poster-border">
-             <div class="poster-header">
-                <h2>ASTRAL BLUEPRINT</h2>
-                <p>Northstar Subconscious Exploration</p>
+        <div v-if="report" id="astral-poster" class="astral-poster-v2">
+           <img src="./astral_poster_bg.png" class="poster-bg-img" crossorigin="anonymous" />
+           <div class="poster-v2-overlay">
+             <div class="poster-v2-header">
+                <h2>ASTRAL<br>BLUEPRINT</h2>
+                <p class="sub-brand">NORTHSTAR SUBCONSCIOUS</p>
              </div>
              
-             <div class="poster-chart">
-                <div class="astral-wheel"></div>
-                <div class="astral-center-info">
-                   <div class="ac-item"><span>SUN</span><strong>{{ report.sunSign }}</strong></div>
-                   <div class="ac-item"><span>MOON</span><strong>{{ report.moonSign }}</strong></div>
-                   <div class="ac-item"><span>ASC</span><strong>{{ report.ascSign }}</strong></div>
+             <div class="poster-v2-data">
+                <div class="data-group">
+                   <span class="data-label">DATE OF BIRTH</span>
+                   <strong class="data-val">{{ formData.date }} {{ formData.time }}</strong>
+                </div>
+                <div class="data-group">
+                   <span class="data-label">LOCATION</span>
+                   <strong class="data-val">{{ formData.city }}</strong>
+                </div>
+             </div>
+
+             <div class="poster-v2-bigthree">
+                <div class="bt-item">
+                   <span class="bt-label">SUN</span>
+                   <span class="bt-sign">{{ report.sunSign }}</span>
+                </div>
+                <div class="bt-item">
+                   <span class="bt-label">MOON</span>
+                   <span class="bt-sign">{{ report.moonSign }}</span>
+                </div>
+                <div class="bt-item">
+                   <span class="bt-label">RISING</span>
+                   <span class="bt-sign">{{ report.ascSign }}</span>
                 </div>
              </div>
              
-             <div class="poster-details">
-                <div class="pd-row"><span>Date</span><span>{{ formData.date }} {{ formData.time }}</span></div>
-                <div class="pd-row"><span>Location</span><span>{{ formData.city }}</span></div>
-             </div>
-             
-             <div class="poster-footer">
+             <div class="poster-v2-footer">
                 <p>"The cosmos is within us. We are made of star-stuff."</p>
              </div>
            </div>
