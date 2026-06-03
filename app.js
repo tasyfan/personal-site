@@ -2090,7 +2090,6 @@
           </router-link>
           <nav class="nav" aria-label="主导航">
             <router-link to="/" @click="store.homePhase = 'hero'">首页</router-link>
-            <a href="#" @click.prevent="goToBlocks">测试图鉴</a>
             <a href="#" @click.prevent="comingSoon">我的报告</a>
           </nav>
         </header>
