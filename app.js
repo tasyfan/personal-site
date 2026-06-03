@@ -807,7 +807,7 @@
               <span class="price-current">¥ 9.90</span>
               <span class="price-original">¥ 39.90</span>
             </div>
-            <p class="price-hint">限时 1 折 · 今日已有 {{ todayCount }} 人解锁</p>
+            <p class="price-hint">限时特价 · 今日已有 {{ todayCount }} 人解锁</p>
 
             <button class="primary-action pay-confirm-btn" @click="goToVerify">
               ✦ 我已完成支付
@@ -1356,7 +1356,7 @@
               <h3>✦ 解锁深度潜意识解析</h3>
               <p>包含：能量场深度解读、灵魂课题分析、具体时间节点预测、行动建议与仪式指导。</p>
               <div class="price">¥ 9.90 <span class="original-price">¥ 39.90</span></div>
-              <p class="price-hint">限时 1 折 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
+              <p class="price-hint">限时特价 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
               <button class="primary-action pay-btn" @click="showPayment = true">
                 立即解锁完整报告
               </button>
@@ -1763,7 +1763,7 @@
               <h3>✦ 解锁高阶人格使用说明书</h3>
               <p>包含：核心原动力分析、致命性格弱点破解、天命职业指南、灵魂伴侣匹配。</p>
               <div class="price">¥ 9.90 <span class="original-price">¥ 39.90</span></div>
-              <p class="price-hint">限时 1 折 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
+              <p class="price-hint">限时特价 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
               <button class="primary-action pay-btn" @click="showPayment = true">
                 立即解锁完整报告
               </button>
@@ -2127,7 +2127,7 @@
               <h3 style="color:#ff7e5f;">✦ 解锁高阶依恋救赎说明书</h3>
               <p>包含：童年创伤追溯、恋爱核心死穴破解、灵魂伴侣类型建议。</p>
               <div class="price">¥ 9.90 <span class="original-price">¥ 39.90</span></div>
-              <p class="price-hint">限时 1 折 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
+              <p class="price-hint">限时特价 · 今日已有 {{ Math.floor(Math.random() * 300 + 200) }} 人解锁</p>
               <button class="primary-action pay-btn" @click="showPayment = true" style="background: linear-gradient(135deg, #ff7e5f, #ff416c);">
                 立即解锁完整报告
               </button>
