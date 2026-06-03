@@ -926,13 +926,13 @@
           <div v-if="store.homePhase === 'hero' || store.homePhase === 'warping'" key="hero-state">
             <section class="hero" :class="{'is-warping-text': store.homePhase === 'warping'}" aria-labelledby="hero-title">
               <div class="hero-copy" :style="{ opacity: store.homePhase === 'hero' ? 1 : 0, transition: 'opacity 1s ease', pointerEvents: store.homePhase === 'hero' ? 'auto' : 'none' }">
-                <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
-                <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>
+                <p class="eyebrow" v-reveal>✦ NORTHSTAR · 命运观测站 ✦</p>
+                <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">在星辰与潜意识之间，<br>找到你的北极星。</h1>
                 <p class="lede" v-reveal style="transition-delay: 0.2s">
-                  通过塔罗牌、MBTI与星盘，以最纯粹的方式连接你的直觉。无需繁琐的注册，立即开始你的玄学之旅。
+                  塔罗占卜 · MBTI人格 · 星盘排盘 · 依恋关系 —— 四大维度解码你的灵魂蓝图。<br>无需注册，即刻开启属于你的命运探索。
                 </p>
                 <div class="actions" v-reveal style="transition-delay: 0.3s">
-                  <button class="primary-action warp-btn" @click="startWarp">探索潜意识图鉴</button>
+                  <button class="primary-action warp-btn" @click="startWarp">✦ 开启命运观测</button>
                 </div>
               </div>
 
@@ -1397,7 +1397,7 @@
         <!-- Hidden Poster DOM -->
         <div id="poster-dom" class="poster-container" v-if="hasPaid">
           <div class="poster-header">
-            <div class="poster-brand">✧ Northstar Tarot ✧</div>
+            <div class="poster-brand">✧ 北极星 · 塔罗占卜 ✧</div>
             <div class="poster-title">潜意识之境·命运启示</div>
             <div class="poster-question" v-if="question">「{{ question }}」</div>
           </div>
@@ -1798,7 +1798,7 @@
         <!-- Hidden Poster DOM -->
         <div id="mbti-poster-dom" class="poster-container" v-if="hasPaid">
           <div class="poster-header">
-            <div class="poster-brand">✧ Northstar MBTI ✧</div>
+            <div class="poster-brand">✧ 北极星 · MBTI人格 ✧</div>
             <div class="poster-title">灵魂切片·人格原理解析</div>
           </div>
           
@@ -2162,7 +2162,7 @@
         <!-- Hidden Poster DOM -->
         <div id="att-poster-dom" class="poster-container" v-if="hasPaid">
           <div class="poster-header">
-            <div class="poster-brand" style="color:#ff7e5f;">✧ Northstar Attachment ✧</div>
+            <div class="poster-brand" style="color:#ff7e5f;">✧ 北极星 · 依恋关系 ✧</div>
             <div class="poster-title">灵魂切片·亲密关系解析</div>
           </div>
           
@@ -2214,13 +2214,14 @@
     template: `
       <div class="app-wrapper">
         <header class="site-header">
-          <router-link to="/" class="brand" aria-label="Northstar">
-            <span class="brand-mark"></span>
-            <span>Northstar</span>
+          <router-link to="/" class="brand" aria-label="北极星">
+            <span class="brand-star">✦</span>
+            <span class="brand-text">北极星</span>
+            <span class="brand-sub">NORTHSTAR</span>
           </router-link>
           <nav class="nav" aria-label="主导航">
             <router-link to="/" @click="store.homePhase = 'hero'">首页</router-link>
-            <a href="#" @click.prevent="comingSoon">我的报告</a>
+            <a href="#" @click.prevent="goToBlocks">测试大厅</a>
           </nav>
         </header>
         <router-view v-slot="{ Component }">
@@ -2229,8 +2230,8 @@
           </transition>
         </router-view>
         <footer class="footer">
-          <span>Northstar Testing Platform</span>
-          <span>© 2026</span>
+          <span>✦ 北极星 Northstar · 命运观测站</span>
+          <span>© 2026 All Rights Reserved</span>
         </footer>
       </div>
     `

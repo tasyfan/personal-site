@@ -69,16 +69,45 @@ main,
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   font-size: 17px;
   font-weight: 650;
+  text-decoration: none;
 }
 
-.brand-mark {
-  width: 26px;
-  height: 24px;
-  background: conic-gradient(from 210deg, var(--blue), var(--green), var(--yellow), var(--red), var(--blue));
-  clip-path: polygon(50% 0, 100% 100%, 68% 100%, 50% 47%, 32% 100%, 0 100%);
+.brand-star {
+  font-size: 22px;
+  background: linear-gradient(135deg, #b4a0e5, #88c8f7, #b4a0e5);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: starShimmer 3s ease-in-out infinite;
+}
+@keyframes starShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.brand-text {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #b4a0e5, #88c8f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  color: var(--muted);
+  opacity: 0.6;
+  margin-left: -2px;
+  align-self: flex-end;
+  margin-bottom: 1px;
 }
 
 .nav {
@@ -126,11 +155,13 @@ main,
 .eyebrow,
 .section-kicker {
   margin: 0 0 18px;
-  color: var(--blue);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: 3px;
   text-transform: uppercase;
+  background: linear-gradient(135deg, #b4a0e5, #88c8f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 h1,
@@ -143,10 +174,14 @@ p {
 h1 {
   max-width: 780px;
   margin-bottom: 24px;
-  font-size: 86px;
-  font-weight: 680;
-  letter-spacing: 0;
-  line-height: 0.98;
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(42px, 7vw, 76px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text) 40%, #b4a0e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 h2 {
@@ -507,11 +542,14 @@ h3 {
 
 .footer {
   display: flex;
-  justify-content: space-between;
-  padding: 28px clamp(18px, 4vw, 56px);
-  border-top: 1px solid var(--soft);
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 36px clamp(18px, 4vw, 56px);
+  border-top: 1px solid rgba(180, 160, 229, 0.15);
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
+  letter-spacing: 1px;
 }
 
 @media (max-width: 860px) {
