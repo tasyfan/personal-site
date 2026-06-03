@@ -790,6 +790,30 @@
         if (heroVisual.value && !reduceMotion) heroVisual.value.style.transition = 'none'
       }
 
+      // Cosmic Energy Data Generation
+      const getDailyEnergy = () => {
+        const today = new Date()
+        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+        // Pseudo-random based on date
+        const pseudoRandom = (offset) => Math.abs(Math.sin(seed + offset))
+        
+        const moonPhases = ['新月', '峨眉月', '上弦月', '盈凸月', '满月', '亏凸月', '下弦月', '残月']
+        const phaseIndex = Math.floor(pseudoRandom(1) * 8)
+        
+        const zodiacs = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼']
+        const currentZodiac = zodiacs[today.getMonth()]
+
+        return {
+          moonPhase: moonPhases[phaseIndex],
+          sunSign: currentZodiac,
+          intuition: Math.floor(pseudoRandom(2) * 40 + 60),
+          creativity: Math.floor(pseudoRandom(3) * 50 + 50),
+          clarity: Math.floor(pseudoRandom(4) * 60 + 40),
+          crystal: ['紫水晶', '月光石', '黑曜石', '拉长石', '粉晶'][Math.floor(pseudoRandom(5) * 5)]
+        }
+      }
+      const energy = Vue.ref(getDailyEnergy())
+
       const startWarp = () => {
         if (reduceMotion) {
           store.homePhase = 'menu'
@@ -806,7 +830,7 @@
         }, 2200) // longer duration for dramatic effect
       }
 
-      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store }
+      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy }
     },
     template: `
       <main id="top" class="home-container">
@@ -827,14 +851,33 @@
 
             </section>
 
-            <section id="vision" class="section intro-section">
-              <div v-reveal>
-                <p class="section-kicker">vision</p>
-                <h2>保持足够清晰，也保留一点未知。</h2>
+            <section id="vision" class="section cosmic-dashboard" v-if="store.homePhase === 'hero'">
+              <div v-reveal class="dashboard-header">
+                <p class="section-kicker">Cosmic Energy</p>
+                <h2>今日宇宙能量场</h2>
+                <p class="dashboard-subtitle">月相: {{ energy.moonPhase }} · 太阳: {{ energy.sunSign }}</p>
               </div>
-              <p v-reveal style="transition-delay: 0.1s">
-                我们摒弃了市面上杂乱的广告与诱导，只为您提供最干净、最纯粹的测试体验。在这里，每一次点击都是与自己内心的对话。
-              </p>
+              
+              <div class="dashboard-grid" v-reveal style="transition-delay: 0.2s">
+                <div class="energy-card">
+                  <div class="energy-label"><span>直觉共鸣 (Intuition)</span><span>{{ energy.intuition }}%</span></div>
+                  <div class="energy-track"><div class="energy-fill" :style="{ width: energy.intuition + '%' }"></div></div>
+                </div>
+                <div class="energy-card">
+                  <div class="energy-label"><span>灵感涌动 (Creativity)</span><span>{{ energy.creativity }}%</span></div>
+                  <div class="energy-track"><div class="energy-fill" :style="{ width: energy.creativity + '%' }"></div></div>
+                </div>
+                <div class="energy-card">
+                  <div class="energy-label"><span>思维澄澈 (Clarity)</span><span>{{ energy.clarity }}%</span></div>
+                  <div class="energy-track"><div class="energy-fill" :style="{ width: energy.clarity + '%' }"></div></div>
+                </div>
+                <div class="energy-meta">
+                  <div class="meta-item">
+                    <span class="meta-title">今日引路矿石</span>
+                    <span class="meta-value">{{ energy.crystal }}</span>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
 
