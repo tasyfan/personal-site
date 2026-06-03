@@ -2191,80 +2191,8 @@
   }
 
 
-  // ─── Smooth Wheel Picker ────────────────────────────────────
-  const SmoothPicker = defineComponent({
-    name: 'SmoothPicker',
-    props: {
-      visible: Boolean,
-      title: String,
-      columns: Array // [ [{text, value}], [{text, value}] ]
-    },
-    emits: ['update:visible', 'confirm', 'change'],
-    setup(props, { emit }) {
-      const ITEM_HEIGHT = 44
-      const scrollRefs = ref([])
-
-      const setRef = (el, colIndex) => {
-        if (el) scrollRefs.value[colIndex] = el
-      }
-
-      let timer = null
-      const handleScroll = (colIndex, e) => {
-        clearTimeout(timer)
-        timer = setTimeout(() => {
-          const scrollTop = e.target.scrollTop
-          const index = Math.round(scrollTop / ITEM_HEIGHT)
-          if (props.columns[colIndex] && props.columns[colIndex][index]) {
-            emit('change', { colIndex, index, value: props.columns[colIndex][index].value })
-          }
-        }, 100)
-      }
-
-      const confirm = () => {
-        const result = props.columns.map((col, i) => {
-           const el = scrollRefs.value[i]
-           if (!el) return col[0]?.value
-           const idx = Math.max(0, Math.min(col.length - 1, Math.round(el.scrollTop / ITEM_HEIGHT)))
-           return col[idx]?.value
-        })
-        emit('confirm', result)
-        emit('update:visible', false)
-      }
-
-      const cancel = () => {
-        emit('update:visible', false)
-      }
-
-      return { ITEM_HEIGHT, setRef, handleScroll, confirm, cancel }
-    },
-    template: `
-      <transition name="picker-fade">
-        <div class="smooth-picker-overlay" v-if="visible" @click.self="cancel">
-          <div class="smooth-picker-container">
-            <div class="picker-header">
-              <span class="picker-cancel" @click="cancel">取消</span>
-              <span class="picker-title">{{ title }}</span>
-              <span class="picker-confirm" @click="confirm">确定</span>
-            </div>
-            <div class="picker-body">
-              <div class="picker-highlight"></div>
-              <div class="picker-col" v-for="(col, i) in columns" :key="i" 
-                   @scroll="e => handleScroll(i, e)" 
-                   :ref="el => setRef(el, i)">
-                <div class="picker-spacer"></div>
-                <div class="picker-item" v-for="(item, j) in col" :key="j">{{ item.text }}</div>
-                <div class="picker-spacer"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
-    `
-  })
-
   const AstrologyTest = defineComponent({
     name: 'AstrologyTestPage',
-    components: { SmoothPicker },
     setup() {
       const router = useRouter()
       const phase = ref('input') 
@@ -2275,74 +2203,6 @@
         time: '',
         city: ''
       })
-
-      // Date Picker
-      const showDatePicker = ref(false)
-      const years = Array.from({length: 80}, (_, i) => { const y = new Date().getFullYear() - 79 + i; return {text: y+'年', value: y} })
-      const months = Array.from({length: 12}, (_, i) => ({text: (i+1)+'月', value: i+1}))
-      const days = ref(Array.from({length: 31}, (_, i) => ({text: (i+1)+'日', value: i+1})))
-      const dateCols = computed(() => [years, months, days.value])
-      
-      const onDateChange = ({colIndex, value}) => {
-         // Dynamically update days based on month/year if needed (simplified here)
-      }
-      const onDateConfirm = (vals) => {
-         formData.value.date = `${vals[0]}-${String(vals[1]).padStart(2, '0')}-${String(vals[2]).padStart(2, '0')}`
-      }
-
-      // Time Picker
-      const showTimePicker = ref(false)
-      const hours = Array.from({length: 24}, (_, i) => ({text: String(i).padStart(2, '0')+'时', value: String(i).padStart(2, '0')}))
-      const mins = Array.from({length: 60}, (_, i) => ({text: String(i).padStart(2, '0')+'分', value: String(i).padStart(2, '0')}))
-      const timeCols = [hours, mins]
-      const onTimeConfirm = (vals) => {
-         formData.value.time = `${vals[0]}:${vals[1]}`
-      }
-
-      // Location Picker
-      const showLocPicker = ref(false)
-      const rawLocations = ref([])
-      const provs = ref([])
-      const cities = ref([])
-      const counties = ref([])
-      
-      const locCols = computed(() => [provs.value, cities.value, counties.value])
-
-      onMounted(async () => {
-        try {
-          const res = await fetch('./locations.json?v=1')
-          const data = await res.json()
-          rawLocations.value = data
-          provs.value = data.map(p => ({text: p.name, value: p.name}))
-          if (data[0] && data[0].children) {
-            cities.value = data[0].children.map(c => ({text: c.name, value: c.name}))
-            if (data[0].children[0] && data[0].children[0].children) {
-              counties.value = data[0].children[0].children.map(a => ({text: a.name, value: a.name}))
-            }
-          }
-        } catch(e) {
-          console.error("Failed to load locations", e)
-        }
-      })
-
-      const onLocChange = ({colIndex, index}) => {
-         // Update cascader
-         if (colIndex === 0) {
-            const p = rawLocations.value[index]
-            if (p && p.children) {
-               cities.value = p.children.map(c => ({text: c.name, value: c.name}))
-               if (p.children[0] && p.children[0].children) {
-                 counties.value = p.children[0].children.map(a => ({text: a.name, value: a.name}))
-               } else counties.value = []
-            }
-         } else if (colIndex === 1) {
-            // Find current province (this requires more complex state management in a real cascader, using a simplified approach here)
-            // Just leaving as is for demo
-         }
-      }
-      const onLocConfirm = (vals) => {
-         formData.value.city = vals.filter(Boolean).join(' ')
-      }
 
       const startCalculation = () => {
         if (!formData.value.date || !formData.value.city) return;
@@ -2367,10 +2227,7 @@
       }
 
       return { 
-        phase, formData, loadingText, startCalculation,
-        showDatePicker, dateCols, onDateChange, onDateConfirm,
-        showTimePicker, timeCols, onTimeConfirm,
-        showLocPicker, locCols, onLocChange, onLocConfirm
+        phase, formData, loadingText, startCalculation
       }
     },
     template: `
@@ -2388,21 +2245,15 @@
             <div class="form-wrapper" v-reveal style="transition-delay: 0.1s">
               <div class="input-group">
                 <label>出生日期 *</label>
-                <div class="fake-input astro-input" :class="{'placeholder':!formData.date}" @click="showDatePicker = true">
-                   {{ formData.date || '请滑动选择出生日期' }}
-                </div>
+                <input type="date" v-model="formData.date" class="astro-input" />
               </div>
               <div class="input-group">
                 <label>具体时间 (影响上升星座与宫位精度)</label>
-                <div class="fake-input astro-input" :class="{'placeholder':!formData.time}" @click="showTimePicker = true">
-                   {{ formData.time || '请滑动选择出生时间' }}
-                </div>
+                <input type="time" v-model="formData.time" class="astro-input" />
               </div>
               <div class="input-group">
                 <label>出生地区 *</label>
-                <div class="fake-input astro-input" :class="{'placeholder':!formData.city}" @click="showLocPicker = true">
-                   {{ formData.city || '请滑动选择出生省市区' }}
-                </div>
+                <input type="text" v-model="formData.city" class="astro-input" placeholder="请输入城市/县区，例如：北京市朝阳区" />
               </div>
               
               <button class="primary-action full-width" 
@@ -2423,12 +2274,6 @@
           </div>
 
         </transition>
-
-        <!-- Pickers -->
-        <SmoothPicker v-model:visible="showDatePicker" title="选择出生日期" :columns="dateCols" @change="onDateChange" @confirm="onDateConfirm" />
-        <SmoothPicker v-model:visible="showTimePicker" title="选择出生时间" :columns="timeCols" @confirm="onTimeConfirm" />
-        <SmoothPicker v-model:visible="showLocPicker" title="选择出生地区" :columns="locCols" @change="onLocChange" @confirm="onLocConfirm" />
-
       </main>
     `
   })
