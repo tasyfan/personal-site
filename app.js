@@ -821,10 +821,10 @@
         }
         store.homePhase = 'warping'
         
-        // Fast transition for minimalist layout
+        // Very fast transition for minimalist layout
         setTimeout(() => {
           store.homePhase = 'menu'
-        }, 1200) 
+        }, 600) 
       }
 
       return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy }
