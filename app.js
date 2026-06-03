@@ -2201,11 +2201,47 @@
       const formData = ref({
         date: '',
         time: '',
-        city: ''
+        prov: '',
+        city: '',
+        county: ''
+      })
+
+      const rawLocations = ref([])
+      const provList = ref([])
+      const cityList = computed(() => {
+         const p = rawLocations.value.find(x => x.name === formData.value.prov)
+         return p ? p.children : []
+      })
+      const countyList = computed(() => {
+         const c = cityList.value.find(x => x.name === formData.value.city)
+         return c ? c.children : []
+      })
+
+      watch(() => formData.value.prov, () => {
+         if (cityList.value.length > 0) formData.value.city = cityList.value[0].name
+         else formData.value.city = ''
+      })
+      watch(() => formData.value.city, () => {
+         if (countyList.value && countyList.value.length > 0) formData.value.county = countyList.value[0].name
+         else formData.value.county = ''
+      })
+
+      onMounted(async () => {
+        try {
+          const res = await fetch('./locations.json?v=1')
+          const data = await res.json()
+          rawLocations.value = data
+          provList.value = data
+          if (data.length > 0) {
+             formData.value.prov = data[0].name
+          }
+        } catch(e) {
+          console.error("Failed to load locations", e)
+        }
       })
 
       const startCalculation = () => {
-        if (!formData.value.date || !formData.value.city) return;
+        if (!formData.value.date || !formData.value.prov) return;
         phase.value = 'loading'
         
         const texts = ['计算宫位与相位...', '深度解析内行星共鸣...', '拉取流年星象...', '生成灵魂档案...']
@@ -2219,15 +2255,17 @@
 
         setTimeout(() => {
           clearInterval(interval)
+          const fullCity = formData.value.prov + formData.value.city + formData.value.county
           router.push({ 
             path: '/astrology-result', 
-            query: { d: formData.value.date, t: formData.value.time, c: formData.value.city } 
+            query: { d: formData.value.date, t: formData.value.time, c: fullCity } 
           })
         }, 4000)
       }
 
       return { 
-        phase, formData, loadingText, startCalculation
+        phase, formData, loadingText, startCalculation,
+        provList, cityList, countyList
       }
     },
     template: `
@@ -2253,11 +2291,21 @@
               </div>
               <div class="input-group">
                 <label>出生地区 *</label>
-                <input type="text" v-model="formData.city" class="astro-input" placeholder="请输入城市/县区，例如：北京市朝阳区" />
+                <div class="cascader-row">
+                   <select v-model="formData.prov" class="astro-input select-input">
+                      <option v-for="p in provList" :key="p.name" :value="p.name">{{ p.name }}</option>
+                   </select>
+                   <select v-model="formData.city" class="astro-input select-input" v-if="cityList.length">
+                      <option v-for="c in cityList" :key="c.name" :value="c.name">{{ c.name }}</option>
+                   </select>
+                   <select v-model="formData.county" class="astro-input select-input" v-if="countyList && countyList.length">
+                      <option v-for="c in countyList" :key="c.name" :value="c.name">{{ c.name }}</option>
+                   </select>
+                </div>
               </div>
               
               <button class="primary-action full-width" 
-                      :disabled="!formData.date || !formData.city" 
+                      :disabled="!formData.date || !formData.prov" 
                       @click="startCalculation">开始推演星盘</button>
             </div>
           </div>
