@@ -2201,14 +2201,12 @@
         city: ''
       })
       const loadingText = ref('对齐黄道十二宫...')
-      const report = ref(null)
-      const isGenerating = ref(false)
 
       const startCalculation = () => {
         if (!formData.value.date || !formData.value.city) return;
         phase.value = 'loading'
         
-        const texts = ['计算宫位与相位...', '深度解析内行星共鸣...', '拉取流年星象...', '生成灵魂星图...']
+        const texts = ['计算宫位与相位...', '深度解析内行星共鸣...', '拉取流年星象...', '生成灵魂档案...']
         let i = 0
         const interval = setInterval(() => {
           if (i < texts.length) {
@@ -2219,81 +2217,15 @@
 
         setTimeout(() => {
           clearInterval(interval)
-          generateReport()
-          phase.value = 'result'
+          // Route to the result page with seed data
+          router.push({ 
+            path: '/astrology-result', 
+            query: { d: formData.value.date, t: formData.value.time, c: formData.value.city } 
+          })
         }, 4000)
       }
 
-      const generateReport = () => {
-        const seed = formData.value.date + formData.value.time + formData.value.city;
-        const h = hashString(seed);
-        
-        const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
-        const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
-
-        const buildPlanet = (key, offset) => {
-          const sign = getZodiac(offset);
-          const domain = PLANET_DOMAINS[key];
-          const interpretation = domain.prefix + ZODIAC_TRAITS[sign];
-          return { id: key, sign, interpretation, ...domain };
-        }
-
-        report.value = {
-          bigThree: [
-            buildPlanet('sun', 0),
-            buildPlanet('moon', 3),
-            buildPlanet('ascendant', 7)
-          ],
-          innerPlanets: [
-            buildPlanet('venus', 2),
-            buildPlanet('mars', 5),
-            buildPlanet('mercury', 8),
-            buildPlanet('jupiter', 11)
-          ],
-          transits: [
-            { label: '短期焦点', ...getTransit(1) },
-            { label: '长期课题', ...getTransit(4) }
-          ],
-          synthesis: SYNTHESIS_DICT[h % SYNTHESIS_DICT.length],
-          sunSign: getZodiac(0),
-          moonSign: getZodiac(3),
-          ascSign: getZodiac(7)
-        }
-      }
-
-      const downloadPoster = () => {
-        const posterEl = document.getElementById('astral-poster')
-        if (!posterEl) return
-        
-        isGenerating.value = true
-        posterEl.style.display = 'block' // make visible for canvas
-        
-        setTimeout(() => {
-          html2canvas(posterEl, { 
-            scale: 2, 
-            backgroundColor: '#050505',
-            useCORS: true
-          }).then(canvas => {
-            const link = document.createElement('a')
-            link.download = `Northstar_Astral_Blueprint_${formData.value.date}.png`
-            link.href = canvas.toDataURL('image/png')
-            link.click()
-            posterEl.style.display = 'none'
-            isGenerating.value = false
-          }).catch(err => {
-            console.error('Canvas error:', err)
-            posterEl.style.display = 'none'
-            isGenerating.value = false
-            alert("生成海报失败，请重试")
-          })
-        }, 100)
-      }
-
-      const goHome = () => {
-        router.push('/')
-      }
-
-      return { phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating }
+      return { phase, formData, loadingText, startCalculation }
     },
     template: `
       <main class="test-container astro-test">
@@ -2338,8 +2270,70 @@
             <p class="loading-sub">Astral Calculations in progress...</p>
           </div>
 
-          <!-- Result Phase -->
-          <div v-else-if="phase === 'result'" key="result" class="astro-result-container">
+        </transition>
+      </main>
+    `
+  })
+
+  const AstrologyResult = defineComponent({
+    name: 'AstrologyResultPage',
+    setup() {
+      const router = useRouter()
+      const route = useRoute()
+      const report = ref(null)
+
+      onMounted(() => {
+        const d = route.query.d || ''
+        const t = route.query.t || ''
+        const c = route.query.c || ''
+        
+        if (!d || !c) {
+          router.replace('/')
+          return
+        }
+
+        const seed = d + t + c
+        const h = hashString(seed)
+        
+        const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
+        const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
+
+        const buildPlanet = (key, offset) => {
+          const sign = getZodiac(offset);
+          const domain = PLANET_DOMAINS[key];
+          const interpretation = domain.prefix + ZODIAC_TRAITS[sign];
+          return { id: key, sign, interpretation, ...domain };
+        }
+
+        report.value = {
+          bigThree: [
+            buildPlanet('sun', 0),
+            buildPlanet('moon', 3),
+            buildPlanet('ascendant', 7)
+          ],
+          innerPlanets: [
+            buildPlanet('venus', 2),
+            buildPlanet('mars', 5),
+            buildPlanet('mercury', 8),
+            buildPlanet('jupiter', 11)
+          ],
+          transits: [
+            { label: '短期焦点', ...getTransit(1) },
+            { label: '长期课题', ...getTransit(4) }
+          ],
+          synthesis: SYNTHESIS_DICT[h % SYNTHESIS_DICT.length]
+        }
+      })
+
+      const goHome = () => {
+        router.push('/')
+      }
+
+      return { report, goHome }
+    },
+    template: `
+      <main class="test-container astro-test" v-if="report">
+          <div class="astro-result-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">Your Astral Blueprint</p>
               <h2>灵魂蓝图深度解析</h2>
@@ -2396,56 +2390,10 @@
             </section>
 
             <!-- Actions -->
-            <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center; gap: 20px; flex-wrap: wrap;">
-               <button class="primary-action" :disabled="isGenerating" @click="downloadPoster">
-                  {{ isGenerating ? '正在生成宇宙影像...' : '生成灵魂星图海报' }}
-               </button>
+            <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center;">
                <button class="secondary-action" @click="goHome">返回探索大厅</button>
             </div>
           </div>
-        </transition>
-
-        <!-- Hidden Poster Template -->
-        <div v-if="report" id="astral-poster" class="astral-poster-v2">
-           <img src="./astral_poster_bg.png" class="poster-bg-img" crossorigin="anonymous" />
-           <div class="poster-v2-overlay">
-             <div class="poster-v2-header">
-                <h2>ASTRAL<br>BLUEPRINT</h2>
-                <p class="sub-brand">NORTHSTAR SUBCONSCIOUS</p>
-             </div>
-             
-             <div class="poster-v2-data">
-                <div class="data-group">
-                   <span class="data-label">DATE OF BIRTH</span>
-                   <strong class="data-val">{{ formData.date }} {{ formData.time }}</strong>
-                </div>
-                <div class="data-group">
-                   <span class="data-label">LOCATION</span>
-                   <strong class="data-val">{{ formData.city }}</strong>
-                </div>
-             </div>
-
-             <div class="poster-v2-bigthree">
-                <div class="bt-item">
-                   <span class="bt-label">SUN</span>
-                   <span class="bt-sign">{{ report.sunSign }}</span>
-                </div>
-                <div class="bt-item">
-                   <span class="bt-label">MOON</span>
-                   <span class="bt-sign">{{ report.moonSign }}</span>
-                </div>
-                <div class="bt-item">
-                   <span class="bt-label">RISING</span>
-                   <span class="bt-sign">{{ report.ascSign }}</span>
-                </div>
-             </div>
-             
-             <div class="poster-v2-footer">
-                <p>"The cosmos is within us. We are made of star-stuff."</p>
-             </div>
-           </div>
-        </div>
-
       </main>
     `
   })
@@ -2461,7 +2409,8 @@
       { path: '/mbti-result', component: MBTIResult },
       { path: '/attachment', component: AttachmentTest },
       { path: '/attachment-result', component: AttachmentResult },
-      { path: '/astrology', component: AstrologyTest }
+      { path: '/astrology', component: AstrologyTest },
+      { path: '/astrology-result', component: AstrologyResult }
     ],
     scrollBehavior() { return { top: 0 } }
   })
