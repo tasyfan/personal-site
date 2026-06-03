@@ -722,41 +722,124 @@
     }
   }
 
-  // ─── PaymentModal Component (MVP Flow) ───────────────────────
+  // ─── PaymentModal Component (Personal QR Code Flow) ───────────
   const PaymentModal = defineComponent({
     name: 'PaymentModal',
     emits: ['close', 'success'],
     setup(props, { emit }) {
-      const isPaying = ref(false)
-      const simulatePayment = () => {
-        isPaying.value = true
-        // Simulate checking payment status for 1.5s then succeed
-        setTimeout(() => emit('success'), 1500)
+      const step = ref('scan')        // 'scan' | 'verify' | 'processing'
+      const paymentRef = ref('')
+      const errorMsg = ref('')
+      const todayCount = ref(Math.floor(Math.random() * 280 + 320))
+
+      const goToVerify = () => {
+        step.value = 'verify'
       }
-      return { isPaying, simulatePayment }
+
+      const submitVerification = () => {
+        if (paymentRef.value.length < 4) {
+          errorMsg.value = '请输入至少 4 位的订单尾号'
+          return
+        }
+        errorMsg.value = ''
+        step.value = 'processing'
+
+        // Store payment record in localStorage for rudimentary tracking
+        try {
+          const records = JSON.parse(localStorage.getItem('ns_payments') || '[]')
+          records.push({
+            ref: paymentRef.value,
+            time: new Date().toISOString(),
+            test: 'mbti'
+          })
+          localStorage.setItem('ns_payments', JSON.stringify(records))
+        } catch(e) { /* silent */ }
+
+        // Simulate brief verification animation, then unlock
+        setTimeout(() => emit('success'), 1800)
+      }
+
+      return { step, paymentRef, errorMsg, todayCount, goToVerify, submitVerification }
     },
     template: `
       <div class="modal-backdrop" @click.self="$emit('close')">
-        <div class="modal-content">
+        <div class="modal-content payment-modal-v2">
           <button class="close-btn" @click="$emit('close')">×</button>
-          <h3>解锁专属流式深度报告</h3>
-          <p class="modal-desc" style="margin-top:8px;font-size:14px;color:var(--muted);">
-            平台公测期间，支持手动解锁。<br>
-            支付完成后，凭截图添加作者微信即可获取专属解读和后续更新通知。
-          </p>
-          <div class="qr-container">
-            <div class="qr-code">
-              <span class="qr-icon" style="font-size:32px;">💸</span>
-              <p style="font-size:12px;margin-top:8px;">(此处替换为您的个人收款码)</p>
+
+          <!-- Step 1: Scan QR Code -->
+          <div v-if="step === 'scan'" class="payment-step">
+            <div class="payment-header">
+              <span class="payment-icon">💎</span>
+              <h3>解锁专属深度报告</h3>
+              <p class="payment-subtitle">扫描下方收款码完成支付</p>
+            </div>
+
+            <div class="qr-display">
+              <div class="qr-frame">
+                <img src="./pay_qr.jpg" alt="收款码" class="qr-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <div class="qr-placeholder" style="display:none;">
+                  <span style="font-size:48px;">📱</span>
+                  <p style="margin-top:12px; font-size:13px; color:var(--muted);">请将您的收款码图片<br>命名为 pay_qr.jpg<br>放入项目根目录</p>
+                </div>
+              </div>
+              <div class="qr-labels">
+                <span class="qr-label wechat">微信</span>
+                <span class="qr-label alipay">支付宝</span>
+              </div>
+            </div>
+
+            <div class="price-display">
+              <span class="price-current">¥ 9.90</span>
+              <span class="price-original">¥ 39.90</span>
+            </div>
+            <p class="price-hint">限时 1 折 · 今日已有 {{ todayCount }} 人解锁</p>
+
+            <button class="primary-action pay-confirm-btn" @click="goToVerify">
+              ✦ 我已完成支付
+            </button>
+          </div>
+
+          <!-- Step 2: Enter Payment Reference -->
+          <div v-if="step === 'verify'" class="payment-step">
+            <div class="payment-header">
+              <span class="payment-icon">🔐</span>
+              <h3>验证付款凭证</h3>
+              <p class="payment-subtitle">请输入微信/支付宝付款记录中的<strong>订单尾号（至少4位）</strong></p>
+            </div>
+
+            <div class="verify-input-container">
+              <input
+                v-model="paymentRef"
+                type="text"
+                maxlength="8"
+                placeholder="例如: 8642"
+                class="verify-input"
+                @keyup.enter="submitVerification"
+                autofocus
+              />
+              <p class="verify-hint">
+                📌 打开微信/支付宝 → 账单详情 → 复制交易单号的最后4位
+              </p>
+              <p class="verify-error" v-if="errorMsg">{{ errorMsg }}</p>
+            </div>
+
+            <button class="primary-action pay-confirm-btn" @click="submitVerification">
+              ✦ 确认解锁报告
+            </button>
+            <button class="secondary-action" @click="step = 'scan'" style="margin-top:12px;">
+              返回扫码
+            </button>
+          </div>
+
+          <!-- Step 3: Processing -->
+          <div v-if="step === 'processing'" class="payment-step">
+            <div class="payment-header">
+              <div class="processing-spinner"></div>
+              <h3 style="margin-top:20px;">正在验证您的付款...</h3>
+              <p class="payment-subtitle">验证成功后将自动为您解锁深度报告</p>
             </div>
           </div>
-          <div class="payment-status">
-            <p v-if="!isPaying" style="font-weight:600;color:var(--red);">¥ 9.90 限时早鸟价</p>
-            <p v-else class="success-text">正在验证您的支付状态...</p>
-          </div>
-          <button class="primary-action mock-pay-btn" @click="simulatePayment" :disabled="isPaying" style="margin-top:24px;">
-            {{ isPaying ? '处理中...' : '已支付，立即解锁流式解读动效' }}
-          </button>
+
         </div>
       </div>
     `
