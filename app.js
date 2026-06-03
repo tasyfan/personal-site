@@ -728,6 +728,7 @@
     emits: ['close', 'success'],
     setup(props, { emit }) {
       const step = ref('scan')        // 'scan' | 'verify' | 'processing'
+      const payMethod = ref('wechat') // 'wechat' | 'alipay'
       const paymentRef = ref('')
       const errorMsg = ref('')
       const todayCount = ref(Math.floor(Math.random() * 280 + 320))
@@ -749,6 +750,7 @@
           const records = JSON.parse(localStorage.getItem('ns_payments') || '[]')
           records.push({
             ref: paymentRef.value,
+            method: payMethod.value,
             time: new Date().toISOString(),
             test: 'mbti'
           })
@@ -759,7 +761,7 @@
         setTimeout(() => emit('success'), 1800)
       }
 
-      return { step, paymentRef, errorMsg, todayCount, goToVerify, submitVerification }
+      return { step, payMethod, paymentRef, errorMsg, todayCount, goToVerify, submitVerification }
     },
     template: `
       <div class="modal-backdrop" @click.self="$emit('close')">
@@ -771,20 +773,33 @@
             <div class="payment-header">
               <span class="payment-icon">💎</span>
               <h3>解锁专属深度报告</h3>
-              <p class="payment-subtitle">扫描下方收款码完成支付</p>
+              <p class="payment-subtitle">请选择支付方式并扫码</p>
             </div>
 
-            <div class="qr-display">
+            <div class="qr-labels" style="justify-content: center; margin-bottom: 16px;">
+              <span class="qr-label" 
+                    :class="{ wechat: payMethod === 'wechat' }" 
+                    @click="payMethod = 'wechat'" 
+                    style="cursor: pointer; transition: 0.3s; font-size: 14px; padding: 6px 20px;"
+                    :style="{ opacity: payMethod === 'wechat' ? 1 : 0.4, border: payMethod === 'wechat' ? '' : '1px solid rgba(255,255,255,0.2)' }">
+                微信支付
+              </span>
+              <span class="qr-label" 
+                    :class="{ alipay: payMethod === 'alipay' }" 
+                    @click="payMethod = 'alipay'" 
+                    style="cursor: pointer; transition: 0.3s; font-size: 14px; padding: 6px 20px;"
+                    :style="{ opacity: payMethod === 'alipay' ? 1 : 0.4, border: payMethod === 'alipay' ? '' : '1px solid rgba(255,255,255,0.2)' }">
+                支付宝
+              </span>
+            </div>
+
+            <div class="qr-display" style="margin-top: 0;">
               <div class="qr-frame">
-                <img src="./pay_qr.jpg" alt="收款码" class="qr-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                <img :key="payMethod" :src="payMethod === 'wechat' ? './wechat_qr.jpg' : './alipay_qr.jpg'" alt="收款码" class="qr-image" onerror="this.onerror=null; this.src='./pay_qr.jpg';" />
                 <div class="qr-placeholder" style="display:none;">
                   <span style="font-size:48px;">📱</span>
-                  <p style="margin-top:12px; font-size:13px; color:var(--muted);">请将您的收款码图片<br>命名为 pay_qr.jpg<br>放入项目根目录</p>
+                  <p style="margin-top:12px; font-size:13px; color:var(--muted);">请将收款码命名为<br>wechat_qr.jpg / alipay_qr.jpg<br>放入项目根目录</p>
                 </div>
-              </div>
-              <div class="qr-labels">
-                <span class="qr-label wechat">微信</span>
-                <span class="qr-label alipay">支付宝</span>
               </div>
             </div>
 
