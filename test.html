@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="./astronomy.browser.js"></script>
+</head>
+<body>
+    <script>
+        console.log(window.Astronomy);
+        const time = Astronomy.MakeTime(new Date());
+        console.log("Sun Lon:", Astronomy.EclipticLongitude(Astronomy.Body.Sun, time));
+    </script>
+</body>
+</html>

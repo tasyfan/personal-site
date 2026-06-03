@@ -2843,3 +2843,128 @@ h3 {
   to { transform: rotate(360deg); }
 }
 
+
+/* ─── Poster Styling ─── */
+.astral-poster {
+  display: none; /* hidden by default */
+  width: 600px;
+  background: #050505;
+  color: #fff;
+  padding: 40px;
+  box-sizing: border-box;
+  position: fixed;
+  top: -9999px; left: -9999px;
+  z-index: -1;
+  font-family: inherit;
+}
+
+.poster-border {
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 40px;
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.poster-border::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, rgba(136, 200, 247, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.poster-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+.poster-header h2 {
+  font-size: 28px;
+  letter-spacing: 8px;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #b4a0e5, #88c8f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.poster-header p {
+  font-size: 12px;
+  letter-spacing: 4px;
+  opacity: 0.5;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.poster-chart {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto 50px;
+}
+
+.astral-wheel {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border: 2px dashed rgba(255,255,255,0.3);
+  border-radius: 50%;
+}
+.astral-wheel::before, .astral-wheel::after {
+  content: '';
+  position: absolute;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.astral-wheel::before { width: 80%; height: 80%; }
+.astral-wheel::after { width: 60%; height: 60%; }
+
+.astral-center-info {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  z-index: 2;
+}
+
+.ac-item span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+.ac-item strong {
+  display: block;
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.poster-details {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 30px;
+  margin-bottom: 40px;
+}
+
+.pd-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+.pd-row span:first-child {
+  opacity: 0.5;
+  text-transform: uppercase;
+}
+
+.poster-footer {
+  text-align: center;
+  font-size: 12px;
+  font-style: italic;
+  opacity: 0.4;
+  letter-spacing: 1px;
+}
+.planet-desc { white-space: pre-wrap; }
