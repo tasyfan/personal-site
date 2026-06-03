@@ -2356,12 +2356,14 @@
            let lon = 0
            try {
              if (bodyName === 'Ascendant') {
-               const sunLon = Astronomy.EclipticLongitude(Astronomy.Body.Sun, astroTime)
+               const geoSun = Astronomy.GeoVector(Astronomy.Body.Sun, astroTime, true)
+               const sunLon = Astronomy.Ecliptic(geoSun).elon
                const hour = dObj.getHours() + dObj.getMinutes() / 60
                lon = (sunLon + (hour - 6) * 15 + 360) % 360
              } else {
                const body = Astronomy.Body[bodyName]
-               lon = Astronomy.EclipticLongitude(body, astroTime)
+               const geoVec = Astronomy.GeoVector(body, astroTime, true)
+               lon = Astronomy.Ecliptic(geoVec).elon
              }
            } catch (e) {
              console.error('Astronomy error for', bodyName, e)
