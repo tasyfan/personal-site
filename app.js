@@ -820,14 +820,11 @@
           return
         }
         store.homePhase = 'warping'
-        // Remove inline transition to let CSS handle it
-        if (heroVisual.value) {
-          heroVisual.value.style.transition = ''
-        }
         
+        // Fast transition for minimalist layout
         setTimeout(() => {
           store.homePhase = 'menu'
-        }, 2200) // longer duration for dramatic effect
+        }, 1200) 
       }
 
       return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy }
@@ -837,7 +834,7 @@
         <transition name="menu-reveal" mode="out-in">
           
           <div v-if="store.homePhase === 'hero' || store.homePhase === 'warping'" key="hero-state">
-            <section class="hero" aria-labelledby="hero-title">
+            <section class="hero" :class="{'is-warping-text': store.homePhase === 'warping'}" aria-labelledby="hero-title">
               <div class="hero-copy" :style="{ opacity: store.homePhase === 'hero' ? 1 : 0, transition: 'opacity 1s ease', pointerEvents: store.homePhase === 'hero' ? 'auto' : 'none' }">
                 <p class="eyebrow" v-reveal>Explore Your Subconscious</p>
                 <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">探索潜意识，预见未知的自我。</h1>

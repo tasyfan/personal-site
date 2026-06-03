@@ -1956,3 +1956,11 @@ h3 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Text Warping Animation */
+.hero.is-warping-text {
+  transform: scale(0.9);
+  filter: blur(10px);
+  opacity: 0;
+  transition: all 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
