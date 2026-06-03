@@ -2343,7 +2343,8 @@
       { path: '/mbti', component: MBTITest },
       { path: '/mbti-result', component: MBTIResult },
       { path: '/attachment', component: AttachmentTest },
-      { path: '/attachment-result', component: AttachmentResult }
+      { path: '/attachment-result', component: AttachmentResult },
+      { path: '/astrology', component: AstrologyTest }
     ],
     scrollBehavior() { return { top: 0 } }
   })
