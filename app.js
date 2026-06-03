@@ -2140,15 +2140,30 @@
 
 
   // ─── Astrology Test Page ──────────────────────────────────────
-  const ZODIACS = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼'];
-  const PLANETS = {
-    sun: { name: '太阳', desc: '核心自我与意志' },
-    moon: { name: '月亮', desc: '潜意识与情感需求' },
-    ascendant: { name: '上升', desc: '人格面具与外在表现' },
-    venus: { name: '金星', desc: '爱情观与审美' },
-    mars: { name: '火星', desc: '行动力与欲望' },
-    mercury: { name: '水星', desc: '思维逻辑与沟通' },
-    jupiter: { name: '木星', desc: '幸运与扩张' }
+  const ZODIAC_TRAITS = {
+    '白羊': '你骨子里流淌着开拓者的血液，直接、勇敢、不加掩饰。你像一团燃烧的火焰，从不畏惧从零开始。',
+    '金牛': '你散发着一种沉稳而坚定的力量。你对物质与美的感知极度敏锐，渴望建立坚不可摧的安全感。',
+    '双子': '你的灵魂如同变幻莫测的微风，充满好奇心与极致的智慧。你渴望信息与交流，讨厌一成不变。',
+    '巨蟹': '你拥有一颗柔软而极具共情力的心，像海绵一样感知周遭的情绪。家与绝对的安全感是你灵魂的避风港。',
+    '狮子': '你天生自带耀眼的光芒与戏剧张力。你渴望被看见、被认可，拥有无与伦比的创造力与领导力。',
+    '处女': '你拥有一种近乎神圣的秩序感。你追求极致的完美与实用性，擅长在混乱中建立规则，灵魂细腻。',
+    '天秤': '你一生的课题都在寻找极致的平衡与美感。你拥有极高的社交天赋，渴望在关系中照见真实的自己。',
+    '天蝎': '你拥有一种深邃到令人战栗的洞察力。你拒绝表象，渴望触碰绝对的真实，拥有浴火重生的极致力量。',
+    '射手': '你的灵魂永远在路上，追寻着更高维度的真理与自由。你乐观、宏大，像一支射向星辰的利箭。',
+    '摩羯': '你拥有令人敬畏的世俗野心与绝对的纪律性。你就像一位攀登险峰的苦行僧，最终必将构筑自己的帝国。',
+    '水瓶': '你是站在未来俯视现在的独立观察者。你极度理智、叛逆且人道主义，你的灵魂拒绝被任何传统框架定义。',
+    '双鱼': '你的灵魂没有边界，如同浩瀚无垠的宇宙之海。你拥有极致的艺术天赋与直觉力，总在现实与梦境间穿梭。'
+  };
+  const ZODIAC_KEYS = Object.keys(ZODIAC_TRAITS);
+
+  const PLANET_DOMAINS = {
+    sun: { name: '太阳', title: '核心自我与生命力', prefix: '你的核心人格表现为：' },
+    moon: { name: '月亮', title: '潜意识与情感需求', prefix: '在隐秘的内心深处，你需要通过以下方式获得安全感：' },
+    ascendant: { name: '上升', title: '人格面具与外在表现', prefix: '在这个世界上，你展现给众人的第一印象是：' },
+    venus: { name: '金星', title: '爱与美的法则', prefix: '在亲密关系中，让你心动并感到被爱的法则是：' },
+    mars: { name: '火星', title: '欲望与行动力', prefix: '当你渴望某个目标时，你的行动模式是：' },
+    mercury: { name: '水星', title: '思维逻辑与沟通', prefix: '你思考问题以及与外界沟通的逻辑是：' },
+    jupiter: { name: '木星', title: '幸运与扩张领域', prefix: '宇宙为你安排的独特幸运领域与成长方式是：' }
   };
 
   const TRANSITS = [
@@ -2171,7 +2186,7 @@
     name: 'AstrologyTestPage',
     setup() {
       const router = useRouter()
-      const phase = ref('input') // input -> loading -> result
+      const phase = ref('input') 
       const formData = ref({
         date: '',
         time: '',
@@ -2179,12 +2194,13 @@
       })
       const loadingText = ref('对齐黄道十二宫...')
       const report = ref(null)
+      const isGenerating = ref(false)
 
       const startCalculation = () => {
         if (!formData.value.date || !formData.value.city) return;
         phase.value = 'loading'
         
-        const texts = ['计算宫位与相位...', '读取个人行星坐标...', '拉取流年星象...', '生成星盘报告...']
+        const texts = ['计算宫位与相位...', '深度解析内行星共鸣...', '拉取流年星象...', '生成灵魂星图...']
         let i = 0
         const interval = setInterval(() => {
           if (i < texts.length) {
@@ -2204,33 +2220,71 @@
         const seed = formData.value.date + formData.value.time + formData.value.city;
         const h = hashString(seed);
         
-        const getZodiac = (offset) => ZODIACS[(h + offset) % 12];
+        const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
         const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
+
+        const buildPlanet = (key, offset) => {
+          const sign = getZodiac(offset);
+          const domain = PLANET_DOMAINS[key];
+          const interpretation = domain.prefix + ZODIAC_TRAITS[sign];
+          return { id: key, sign, interpretation, ...domain };
+        }
 
         report.value = {
           bigThree: [
-            { id: 'sun', sign: getZodiac(0), ...PLANETS.sun },
-            { id: 'moon', sign: getZodiac(3), ...PLANETS.moon },
-            { id: 'ascendant', sign: getZodiac(7), ...PLANETS.ascendant }
+            buildPlanet('sun', 0),
+            buildPlanet('moon', 3),
+            buildPlanet('ascendant', 7)
           ],
           innerPlanets: [
-            { id: 'venus', sign: getZodiac(2), ...PLANETS.venus },
-            { id: 'mars', sign: getZodiac(5), ...PLANETS.mars },
-            { id: 'mercury', sign: getZodiac(8), ...PLANETS.mercury },
-            { id: 'jupiter', sign: getZodiac(11), ...PLANETS.jupiter }
+            buildPlanet('venus', 2),
+            buildPlanet('mars', 5),
+            buildPlanet('mercury', 8),
+            buildPlanet('jupiter', 11)
           ],
           transits: [
             { label: '短期焦点', ...getTransit(1) },
             { label: '长期课题', ...getTransit(4) }
-          ]
+          ],
+          sunSign: getZodiac(0),
+          moonSign: getZodiac(3),
+          ascSign: getZodiac(7)
         }
+      }
+
+      const downloadPoster = () => {
+        const posterEl = document.getElementById('astral-poster')
+        if (!posterEl) return
+        
+        isGenerating.value = true
+        posterEl.style.display = 'block' // make visible for canvas
+        
+        setTimeout(() => {
+          html2canvas(posterEl, { 
+            scale: 2, 
+            backgroundColor: '#050505',
+            useCORS: true
+          }).then(canvas => {
+            const link = document.createElement('a')
+            link.download = `Northstar_Astral_Blueprint_${formData.value.date}.png`
+            link.href = canvas.toDataURL('image/png')
+            link.click()
+            posterEl.style.display = 'none'
+            isGenerating.value = false
+          }).catch(err => {
+            console.error('Canvas error:', err)
+            posterEl.style.display = 'none'
+            isGenerating.value = false
+            alert("生成海报失败，请重试")
+          })
+        }, 100)
       }
 
       const goHome = () => {
         router.push('/')
       }
 
-      return { phase, formData, loadingText, report, startCalculation, goHome }
+      return { phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating }
     },
     template: `
       <main class="test-container astro-test">
@@ -2279,8 +2333,8 @@
           <div v-else-if="phase === 'result'" key="result" class="astro-result-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">Your Astral Blueprint</p>
-              <h2>个人星盘解析</h2>
-              <p>宇宙在你降生时，为你刻下的灵魂蓝图。</p>
+              <h2>灵魂蓝图深度解析</h2>
+              <p>宇宙在你降生时，为你刻下的灵魂轨迹。</p>
             </div>
 
             <!-- The Big Three -->
@@ -2289,24 +2343,24 @@
               <div class="planet-grid">
                 <div class="planet-card" v-for="p in report.bigThree" :key="p.id">
                   <div class="planet-header">
-                    <span class="planet-name">{{ p.name }}</span>
+                    <span class="planet-name">{{ p.name }} ({{ p.title }})</span>
                     <span class="planet-sign">{{ p.sign }}</span>
                   </div>
-                  <p class="planet-desc">{{ p.desc }}</p>
+                  <p class="planet-desc">{{ p.interpretation }}</p>
                 </div>
               </div>
             </section>
 
             <!-- Inner Planets -->
             <section class="astro-section" v-reveal style="transition-delay: 0.2s">
-              <h3 class="section-title">内行星 <span>(Inner Planets)</span></h3>
+              <h3 class="section-title">内驱动力 <span>(Inner Planets)</span></h3>
               <div class="planet-grid inner-planets">
                 <div class="planet-card" v-for="p in report.innerPlanets" :key="p.id">
                   <div class="planet-header">
-                    <span class="planet-name">{{ p.name }}</span>
+                    <span class="planet-name">{{ p.name }} ({{ p.title }})</span>
                     <span class="planet-sign">{{ p.sign }}</span>
                   </div>
-                  <p class="planet-desc">{{ p.desc }}</p>
+                  <p class="planet-desc">{{ p.interpretation }}</p>
                 </div>
               </div>
             </section>
@@ -2323,12 +2377,44 @@
               </div>
             </section>
 
-            <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center;">
+            <!-- Actions -->
+            <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center; gap: 20px; flex-wrap: wrap;">
+               <button class="primary-action" :disabled="isGenerating" @click="downloadPoster">
+                  {{ isGenerating ? '正在生成宇宙影像...' : '生成灵魂星图海报' }}
+               </button>
                <button class="secondary-action" @click="goHome">返回探索大厅</button>
             </div>
           </div>
-
         </transition>
+
+        <!-- Hidden Poster Template -->
+        <div v-if="report" id="astral-poster" class="astral-poster">
+           <div class="poster-border">
+             <div class="poster-header">
+                <h2>ASTRAL BLUEPRINT</h2>
+                <p>Northstar Subconscious Exploration</p>
+             </div>
+             
+             <div class="poster-chart">
+                <div class="astral-wheel"></div>
+                <div class="astral-center-info">
+                   <div class="ac-item"><span>SUN</span><strong>{{ report.sunSign }}</strong></div>
+                   <div class="ac-item"><span>MOON</span><strong>{{ report.moonSign }}</strong></div>
+                   <div class="ac-item"><span>ASC</span><strong>{{ report.ascSign }}</strong></div>
+                </div>
+             </div>
+             
+             <div class="poster-details">
+                <div class="pd-row"><span>Date</span><span>{{ formData.date }} {{ formData.time }}</span></div>
+                <div class="pd-row"><span>Location</span><span>{{ formData.city }}</span></div>
+             </div>
+             
+             <div class="poster-footer">
+                <p>"The cosmos is within us. We are made of star-stuff."</p>
+             </div>
+           </div>
+        </div>
+
       </main>
     `
   })
