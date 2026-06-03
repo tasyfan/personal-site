@@ -824,11 +824,7 @@
                   <button class="primary-action warp-btn" @click="startWarp">探索潜意识图鉴</button>
                 </div>
               </div>
-              
-              <div class="hero-visual" ref="heroVisual" aria-hidden="true" :class="{ 'is-warping': store.homePhase === 'warping' }"
-                   @mousemove="onMouseMove" @mouseleave="onMouseLeave" @mouseenter="onMouseEnter">
-                <img src="./mystic-hero-light.png" alt="Mystical Crystal Prism" class="mystic-hero-image" />
-              </div>
+
             </section>
 
             <section id="vision" class="section intro-section">
