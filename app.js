@@ -2335,7 +2335,7 @@
 
       onMounted(() => {
         const d = route.query.d || ''
-        const t = route.query.t || ''
+        const t = route.query.t || '12:00'
         const c = route.query.c || ''
         
         if (!d || !c) {
@@ -2343,14 +2343,40 @@
           return
         }
 
-        const seed = d + t + c
-        const h = hashString(seed)
+        const dObj = new Date(`${d}T${t}:00+08:00`)
+        let astroTime;
+        try {
+           astroTime = Astronomy.MakeTime(dObj)
+        } catch(e) {
+           astroTime = Astronomy.MakeTime(new Date())
+        }
         
-        const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
+        const getZodiac = (bodyName) => {
+           let lon = 0
+           if (bodyName === 'Ascendant') {
+             // For Ascendant, we approximate based on the Sun's position and the time of day
+             // The Sun is on the Ascendant at sunrise (~6 AM local time). 1 hour = 15 degrees.
+             const sunLon = Astronomy.EclipticLongitude(Astronomy.Body.Sun, astroTime)
+             const hour = dObj.getHours() + dObj.getMinutes() / 60
+             lon = (sunLon + (hour - 6) * 15 + 360) % 360
+           } else {
+             const body = Astronomy.Body[bodyName]
+             lon = Astronomy.EclipticLongitude(body, astroTime)
+           }
+           const index = Math.floor(lon / 30) % 12
+           return ZODIAC_KEYS[index]
+        }
+
+        // Keep hash for transits and synthesis so they are consistent per user
+        const seed = d + t + c
+        let h = 0;
+        for (let i = 0; i < seed.length; i++) h = seed.charCodeAt(i) + ((h << 5) - h);
+        h = Math.abs(h);
+
         const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
 
-        const buildPlanet = (key, offset) => {
-          const sign = getZodiac(offset);
+        const buildPlanet = (key, bodyName) => {
+          const sign = getZodiac(bodyName);
           const domain = PLANET_DOMAINS[key];
           const interpretation = domain.prefix + ZODIAC_TRAITS[sign];
           return { id: key, sign, interpretation, ...domain };
@@ -2358,15 +2384,15 @@
 
         report.value = {
           bigThree: [
-            buildPlanet('sun', 0),
-            buildPlanet('moon', 3),
-            buildPlanet('ascendant', 7)
+            buildPlanet('sun', 'Sun'),
+            buildPlanet('moon', 'Moon'),
+            buildPlanet('ascendant', 'Ascendant')
           ],
           innerPlanets: [
-            buildPlanet('venus', 2),
-            buildPlanet('mars', 5),
-            buildPlanet('mercury', 8),
-            buildPlanet('jupiter', 11)
+            buildPlanet('venus', 'Venus'),
+            buildPlanet('mars', 'Mars'),
+            buildPlanet('mercury', 'Mercury'),
+            buildPlanet('jupiter', 'Jupiter')
           ],
           transits: [
             { label: '短期焦点', ...getTransit(1) },
@@ -2434,8 +2460,8 @@
 
             <!-- Synthesis Report - Centered -->
             <section class="astro-section synthesis-section" v-reveal style="transition-delay: 0.4s">
-              <div class="synthesis-card" style="text-align: center;">
-                 <h3 class="synthesis-title" style="justify-content: center; display: flex;">星图总纲 <span>(Cosmic Synthesis)</span></h3>
+              <div class="synthesis-card">
+                 <h3 class="synthesis-title">星图总纲 <br><span style="display:inline-block; margin-top:8px;">(Cosmic Synthesis)</span></h3>
                  <p class="synthesis-text" style="text-align: center; margin: 0 auto 30px auto; max-width: 600px;">{{ report.synthesis }}</p>
                  <div class="synthesis-signature">—— 宇宙向你发出的灵魂密语</div>
               </div>
