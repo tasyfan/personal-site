@@ -2280,6 +2280,63 @@
       })
 
       const baziResult = ref(null)
+      const baziHash = ref(0)
+
+      const expandBaziText = (baseText, hash) => {
+        let text = baseText + '\n\n';
+        
+        const stems = ['甲木', '乙木', '丙火', '丁火', '戊土', '己土', '庚金', '辛金', '壬水', '癸水'];
+        const branches = ['子水', '丑土', '寅木', '卯木', '辰土', '巳火', '午火', '未土', '申金', '酉金', '戌土', '亥水'];
+        const gods = ['正印', '偏印', '正官', '七杀', '正财', '偏财', '伤官', '食神', '比肩', '劫财'];
+        const stars = ['天乙贵人', '太极贵人', '文昌贵人', '红鸾星', '天喜星', '将星', '驿马', '华盖', '孤辰', '寡宿'];
+        
+        const seededRandom = (seed) => {
+            let t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+        
+        let seed = hash;
+        const randomItem = (arr) => {
+            seed = (seed * 16807) % 2147483647;
+            return arr[Math.floor(seededRandom(seed) * arr.length)];
+        };
+
+        text += '【八字原局五行剖析】\n';
+        for(let i=0; i<8; i++) {
+           text += `命局第${i+1}重解析：原局透出${randomItem(gods)}，地支暗藏${randomItem(branches)}，此种组合意味着你在生命早期阶段会面临${randomItem(['巨大的转折','精神的觉醒','家族的重任','财富的颠覆'])}。五行之中，你的命盘极度渴求${randomItem(stems)}的滋养，同时需要警惕${randomItem(branches)}带来的冲克。这种原局决定了你不能走寻常路，必须在动荡中建立秩序。\n\n`;
+        }
+
+        text += '【十二宫深度推演】\n';
+        const palaces = ['命宫', '兄弟宫', '夫妻宫', '子女宫', '财帛宫', '疾厄宫', '迁移宫', '交友宫', '官禄宫', '田宅宫', '福德宫', '父母宫'];
+        palaces.forEach(p => {
+            text += `✦ ${p}：落入${randomItem(stars)}与${randomItem(gods)}。这暗示了在此领域，你将经历${Math.floor(seededRandom(seed++)*5)+2}次重大的业力清洗。你的潜意识会不断吸引特定的人事物来完成你的灵魂课题。特别是在${p}的能量场中，你必须学会放弃控制欲，让宇宙的规律自然流淌。此宫位的最终走向是：${randomItem(['大破大立', '先苦后甜', '异军突起', '名利双收', '返璞归真'])}。\n\n`;
+        });
+
+        text += '【未来五十年大运批注（每十年一运）】\n';
+        for(let age=20; age<=70; age+=10) {
+            text += `▶ ${age}岁 - ${age+9}岁 (${randomItem(stems)}${randomItem(branches)} 大运)\n`;
+            text += `此十年为你人生的${randomItem(['爆发期', '蛰伏期', '转型期', '收割期', '觉醒期'])}。大运与原局形成${randomItem(['三合局', '三会局', '天克地冲', '伏吟', '反吟'])}。在这十年中，你的核心课题是处理好与【${randomItem(['权力', '金钱', '亲密关系', '内在自我', '原生家庭'])}】的关系。你将会在第${Math.floor(seededRandom(seed++)*9)+1}年迎来一个极其关键的命运分水岭。如果顺应天命，你将获得意想不到的财富跃升；若执迷不悟，则会有短期的阵痛。\n\n`;
+            for(let j=0; j<8; j++) {
+                text += `  - 细分流年推演：在流年${randomItem(stems)}${randomItem(branches)}，星象引动${randomItem(gods)}，你可能会在${randomItem(['事业发展', '投资理财', '婚姻感情', '人际圈层', '健康状态'])}方面遇到一次前所未有的机遇与挑战并存的局面。此时不可轻举妄动，需等待${randomItem(['立春', '夏至', '秋分', '冬至'])}之后的能量反转。\n`;
+            }
+            text += '\n';
+        }
+
+        text += '【前世阿卡西记录查询】\n';
+        for(let i=0; i<10; i++) {
+           text += `第${i+1}层阿卡西印记解锁：你灵魂深处的恐惧来源于前世在${randomItem(['亚特兰蒂斯', '古巴比伦', '中世纪欧洲', '古代东方', '游牧部落'])}的一次创伤体验。当时你是一位${randomItem(['祭司', '将领', '流浪者', '贵族', '医者'])}，因为${randomItem(['背叛', '牺牲', '誓言', '贪念', '无私'])}而留下了深刻的业力种子。今生你对${randomItem(['特定类型的异性', '数字和财富', '幽闭空间', '权威人士', '孤独感'])}有着莫名的执念，这正是这层印记在发挥作用。\n\n`;
+        }
+
+        text += '【终极改运指南（核心机密）】\n';
+        for(let i=0; i<20; i++) {
+            text += `秘法 ${i+1}：在接下来的修行中，建议你多接触${randomItem(['黑曜石', '紫水晶', '绿幽灵', '钛晶', '月光石'])}，并在${randomItem(['正东', '正南', '正西', '正北', '西北'])}方位布置${randomItem(['流水物件', '常绿植物', '金属摆件', '暖色灯光', '原石阵法'])}。这将极大程度化解你命局中的凶星，催旺你的本命财库。\n`;
+        }
+        
+        return text;
+      }
+
       const hasPaid = ref(false)
       const showPayment = ref(false)
       const isTyping = ref(false)
@@ -2312,6 +2369,7 @@
         const fullCity = formData.value.prov + formData.value.city + (formData.value.county || '');
         const seed = formData.value.date + formData.value.time + fullCity;
         const h = hashString(seed);
+        baziHash.value = h;
         
         const dayMasterIdx = h % 10;
         baziResult.value = BAZI_DAY_MASTERS[dayMasterIdx];
@@ -2323,7 +2381,7 @@
         isTyping.value = true
         displayedDeepText.value = ''
         
-        const fullText = baziResult.value.deep
+        const fullText = expandBaziText(baziResult.value.deep, baziHash.value)
         let i = 0
         const typeInterval = setInterval(() => {
           displayedDeepText.value += fullText.charAt(i)
@@ -2477,6 +2535,58 @@
       })
 
       const hdResult = ref(null)
+      const hdHash = ref(0)
+
+      const expandHDText = (baseText, hash) => {
+        let text = baseText + '\n\n';
+        
+        const centers = ['头脑中心', '逻辑中心', '喉咙中心', 'G中心', '意志力中心', '情绪中心', '荐骨中心', '直觉中心', '根部中心'];
+        const channels = ['1-8 灵感与表达', '2-14 炼金术士', '3-60 突变', '10-20 觉醒', '13-33 浪子', '18-58 批判与纠正', '20-34 魅力', '28-38 挣扎与冒险', '37-40 家族', '43-23 架构与表达'];
+        const gates = ['闸门1：创意', '闸门2：接纳', '闸门6：摩擦', '闸门9：专注', '闸门12：谨慎', '闸门15：极端', '闸门22：优雅', '闸门26：利己主义者', '闸门35：改变', '闸门48：深度', '闸门55：精神', '闸门61：神秘'];
+        
+        const seededRandom = (seed) => {
+            let t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+        
+        let seed = hash * 2; // Different seed
+        const randomItem = (arr) => {
+            seed = (seed * 16807) % 2147483647;
+            return arr[Math.floor(seededRandom(seed) * arr.length)];
+        };
+
+        text += '【九大能量中心深度解析】\n';
+        centers.forEach(c => {
+            const isDefined = seededRandom(seed++) > 0.5;
+            text += `✦ ${c} (${isDefined ? '有颜色/定义' : '空白/未定义'})：\n`;
+            if (isDefined) {
+                text += `你的${c}是有定义的，这意味着你在这个领域拥有固定且持续的能量输出。你不需要外界的刺激就能自主运作。但在非我状态下，你会显得过于固执和僵化。这个中心隐藏的课题是，你需要学会在发挥自己影响力的同时，给别人留出呼吸的空间。你的能量场会对周围${Math.floor(seededRandom(seed++)*5)+2}米内的人产生强制性干预。\n\n`;
+            } else {
+                text += `你的${c}是空白的。空白并不代表缺失，而是代表着无尽的潜能与智慧吸收器。你极度容易受到别人在这个中心的能量投射。非我状态下，你会为了在这个领域证明自己而过度消耗。你需要学会的智慧是：辨别哪些情绪和想法是你的，哪些是别人的。你是一个天生的共情者和能量反射面。\n\n`;
+            }
+        });
+
+        text += '【生命通道与天赋闸门激活】\n';
+        for(let i=0; i<25; i++) {
+           text += `▶ 激活潜能：${randomItem(channels)}与${randomItem(gates)}\n`;
+           text += `这一组能量的连结，赋予了你${randomItem(['在混沌中建立秩序', '用声音震撼他人灵魂', '洞悉未来趋势', '疗愈集体创伤', '颠覆传统价值体系'])}的独特天赋。在你的遗传基因中，这段编码会在你${Math.floor(seededRandom(seed++)*40)+15}岁之后彻底觉醒。当这股能量流动时，你会感受到一种无法抗拒的生命力。但如果被压抑，它将转化为${randomItem(['暴怒', '深度抑郁', '身体免疫力下降', '人际关系破裂'])}。\n\n`;
+        }
+
+        text += '【轮回交叉与灵魂使命（Incarnation Cross）】\n';
+        for(let i=0; i<15; i++) {
+            text += `你的灵魂在本次转世中承担的第${i+1}层使命，是关于“${randomItem(['意识的觉醒', '物质与精神的桥梁', '家族业力的终结', '打破集体幻象', '无条件的爱'])}”。在这个过程中，你必将经历与${randomItem(['权威', '伴侣', '父母', '社会规则'])}的激烈对抗。这是你的设计，不需要逃避。每一次对抗，都会让你的能量场变得更加纯粹。\n\n`;
+        }
+        
+        text += '【非我制约清理指南】\n';
+        for(let i=0; i<20; i++) {
+            text += `清理步骤 ${i+1}：当你感到${randomItem(['沮丧', '愤怒', '苦涩', '失望'])}时，那说明你已经偏离了你的内在权威。你需要马上停止目前正在做的事，回到独处状态。通过观察你的${randomItem(['呼吸', '太阳神经丛', '喉部紧绷感', '脊椎基底'])}，你能够把借来的能量排空。记住，你的策略永远是${randomItem(['等待回应', '告知', '被邀请', '等待28天月相周期'])}。\n`;
+        }
+
+        return text;
+      }
+
       const hasPaid = ref(false)
       const showPayment = ref(false)
       const isTyping = ref(false)
@@ -2509,6 +2619,7 @@
         const fullCity = formData.value.prov + formData.value.city + (formData.value.county || '');
         const seed = formData.value.date + formData.value.time + fullCity;
         const h = hashString(seed);
+        hdHash.value = h;
         
         // Use a different prime multiplier to ensure variety from Bazi
         const typeIdx = (h * 13) % 5; 
@@ -2521,7 +2632,7 @@
         isTyping.value = true
         displayedDeepText.value = ''
         
-        const fullText = hdResult.value.deep
+        const fullText = expandHDText(hdResult.value.deep, hdHash.value)
         let i = 0
         const typeInterval = setInterval(() => {
           displayedDeepText.value += fullText.charAt(i)
@@ -2791,6 +2902,7 @@
         const fullCity = formData.value.prov + formData.value.city + (formData.value.county || '');
         const seed = formData.value.date + formData.value.time + fullCity;
         const h = hashString(seed);
+        baziHash.value = h;
         
         const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
         const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
