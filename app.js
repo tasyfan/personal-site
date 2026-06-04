@@ -934,7 +934,7 @@
                 <p class="eyebrow" v-reveal>✦ NORTHSTAR · 命运观测站 ✦</p>
                 <h1 id="hero-title" v-reveal style="transition-delay: 0.1s">在星辰与潜意识之间，<br>找到你的北极星。</h1>
                 <p class="lede" v-reveal style="transition-delay: 0.2s">
-                  塔罗占卜 · MBTI人格 · 星盘排盘 · 依恋关系 —— 四大维度解码你的灵魂蓝图。<br>无需注册，即刻开启属于你的命运探索。
+                  塔罗占卜 · MBTI人格 · 星盘排盘 · 八字命理 · 人类图 · 依恋关系 —— 六大维度解码你的灵魂蓝图。<br>无需注册，即刻开启属于你的命运探索。
                 </p>
                 <div class="actions" v-reveal style="transition-delay: 0.3s">
                   <button class="primary-action warp-btn" @click="startWarp">✦ 开启命运观测</button>
@@ -2216,6 +2216,7 @@
   // ─── Bazi Test Page ────────────────────────────────────────
   const BaziTest = defineComponent({
     name: 'BaziTestPage',
+    components: { PaymentModal },
     setup() {
       const router = useRouter()
       const phase = ref('input') 
@@ -2412,6 +2413,7 @@
   // ─── Human Design Test Page ──────────────────────────────────
   const HumanDesignTest = defineComponent({
     name: 'HumanDesignTestPage',
+    components: { PaymentModal },
     setup() {
       const router = useRouter()
       const phase = ref('input') 
@@ -3005,7 +3007,9 @@
       { path: '/mbti-result', component: MBTIResult },
       { path: '/attachment', component: AttachmentTest },
       { path: '/attachment-result', component: AttachmentResult },
-      { path: '/astrology', component: AstrologyTest }
+      { path: '/astrology', component: AstrologyTest },
+      { path: '/bazi', component: BaziTest },
+      { path: '/human-design', component: HumanDesignTest }
     ],
     scrollBehavior() { return { top: 0 } }
   })
