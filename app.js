@@ -1570,6 +1570,16 @@
         }
       }
 
+      const prevQuestion = () => {
+        if (currentQuestionIndex.value > 0 && !isTransitioning.value) {
+          isTransitioning.value = true
+          setTimeout(() => {
+            currentQuestionIndex.value--
+            isTransitioning.value = false
+          }, 300)
+        }
+      }
+
       const finishTest = () => {
         isCompleting.value = true
         
@@ -1616,7 +1626,7 @@
 
       return {
         MBTI_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount, currentQ,
-        selectAnswer, finishTest
+        selectAnswer, prevQuestion, finishTest
       }
     },
     template: `
@@ -1653,6 +1663,9 @@
               <div class="scale-labels">
                 <span class="label-agree">完全同意</span>
                 <span class="label-disagree">完全反对</span>
+              </div>
+              <div class="back-btn-container" style="text-align: center; margin-top: 30px; height: 40px;">
+                 <button v-if="currentQuestionIndex > 0" class="secondary-action" @click="prevQuestion" :disabled="isTransitioning" style="font-size: 14px; padding: 8px 16px; min-width: 120px; border: none; background: transparent; color: #888; text-decoration: underline;">⬅ 返回上一题</button>
               </div>
             </div>
           </transition>
@@ -1944,6 +1957,16 @@
         }
       }
 
+      const prevQuestion = () => {
+        if (currentQuestionIndex.value > 0 && !isTransitioning.value) {
+          isTransitioning.value = true
+          setTimeout(() => {
+            currentQuestionIndex.value--
+            isTransitioning.value = false
+          }, 300)
+        }
+      }
+
       const finishTest = () => {
         isCompleting.value = true
         let anxietySum = 0
@@ -1988,7 +2011,7 @@
 
       return {
         ATTACHMENT_QUESTIONS, currentQuestionIndex, answers, progress, isCompleting, answeredCount, currentQ,
-        selectAnswer, finishTest
+        selectAnswer, prevQuestion, finishTest
       }
     },
     template: `
@@ -2025,6 +2048,9 @@
               <div class="scale-labels">
                 <span class="label-agree" style="color: #ff7e5f;">完全符合</span>
                 <span class="label-disagree" style="color: #556270;">完全不符</span>
+              </div>
+              <div class="back-btn-container" style="text-align: center; margin-top: 30px; height: 40px;">
+                 <button v-if="currentQuestionIndex > 0" class="secondary-action" @click="prevQuestion" :disabled="isTransitioning" style="font-size: 14px; padding: 8px 16px; min-width: 120px; border: none; background: transparent; color: #888; text-decoration: underline;">⬅ 返回上一题</button>
               </div>
             </div>
           </transition>
