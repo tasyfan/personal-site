@@ -1261,22 +1261,6 @@
         }, 50) // 50ms per character
       }
 
-      
-      const generatePoster = async () => {
-        const posterEl = document.getElementById('bazi-poster-dom')
-        if (!posterEl) return
-        try {
-          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
-          const imgUrl = canvas.toDataURL('image/png')
-          const link = document.createElement('a')
-          link.download = `Northstar_Bazi_${baziResult.value.name}.png`
-          link.href = imgUrl
-          link.click()
-        } catch (error) {
-          console.error("Failed to generate poster:", error)
-          alert("海报生成失败，请重试。")
-        }
-      }
 
       const handlePaymentSuccess = () => {
         showPayment.value = false
