@@ -723,50 +723,35 @@
   }
 
   // ─── PaymentModal Component (Personal QR Code Flow) ───────────
+
   const PaymentModal = defineComponent({
     name: 'PaymentModal',
     emits: ['close', 'success'],
     setup(props, { emit }) {
-      const step = ref('scan')        // 'scan' | 'verify' | 'processing'
+      const step = ref('scan')        // 'scan' | 'processing'
       const payMethod = ref('wechat') // 'wechat' | 'alipay'
-      const paymentRef = ref('')
-      const errorMsg = ref('')
       const todayCount = ref(Math.floor(Math.random() * 280 + 320))
 
-      const goToVerify = () => {
-        step.value = 'verify'
-      }
-
-      const submitVerification = () => {
-        if (paymentRef.value.length < 4) {
-          errorMsg.value = '请输入至少 4 位的订单尾号'
-          return
-        }
-        errorMsg.value = ''
+      const checkPaymentStatus = () => {
         step.value = 'processing'
 
-        // 【高仿真验证机制】
-        // 为了防止顾客随便输入数字白嫖报告，前端加入强校验。
-        // 测试码设为 8888。只有输入 8888 才能通过，其他均提示未查到订单。
+        // 【高仿真支付网关轮询架构】
+        // 这里是给未来接入真实支付留出的接口位置。
+        // 未来逻辑：发送请求到你的后端 -> 后端查询微信/支付宝账单状态 -> 返回 paid
+        // 当前逻辑：前端模拟 2.5 秒的真实网络延迟后直接放行。
         setTimeout(() => {
-          if (paymentRef.value !== '8888') {
-            step.value = 'verify'
-            errorMsg.value = '❌ 未查询到该笔收款，请确认尾号是否正确，或等待1-2分钟系统延迟'
-            return
-          }
-
-          // 记录订单
+          // 记录订单以供本地档案库关联
           try {
             const records = JSON.parse(localStorage.getItem('ns_payments') || '[]')
-            records.push({ ref: paymentRef.value, method: payMethod.value, time: new Date().toISOString() })
+            records.push({ ref: 'MOCK_ORDER_' + Date.now(), method: payMethod.value, time: new Date().toISOString() })
             localStorage.setItem('ns_payments', JSON.stringify(records))
           } catch(e) {}
 
           emit('success')
-        }, 1800)
+        }, 2500)
       }
 
-      return { step, payMethod, paymentRef, errorMsg, todayCount, goToVerify, submitVerification }
+      return { step, payMethod, todayCount, checkPaymentStatus }
     },
     template: `
       <div class="modal-backdrop" @click.self="$emit('close')">
@@ -801,10 +786,6 @@
             <div class="qr-display" style="margin-top: 0;">
               <div class="qr-frame">
                 <img :key="payMethod" :src="payMethod === 'wechat' ? './wechat_qr.jpg' : './alipay_qr.jpg'" alt="收款码" class="qr-image" onerror="this.onerror=null; this.src='./pay_qr.jpg';" />
-                <div class="qr-placeholder" style="display:none;">
-                  <span style="font-size:48px;">📱</span>
-                  <p style="margin-top:12px; font-size:13px; color:var(--muted);">请将收款码命名为<br>wechat_qr.jpg / alipay_qr.jpg<br>放入项目根目录</p>
-                </div>
               </div>
             </div>
 
@@ -814,58 +795,23 @@
             </div>
             <p class="price-hint">限时特价 · 今日已有 {{ todayCount }} 人解锁</p>
 
-            <button class="primary-action pay-confirm-btn" @click="goToVerify">
-              ✦ 我已完成支付
+            <button class="primary-action pay-confirm-btn" @click="checkPaymentStatus">
+              ✦ 我已完成支付，查询订单
             </button>
+            <p style="font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 15px; text-align: center;">支付架构准备完毕 (Phase 5 Mock)</p>
           </div>
 
-          <!-- Step 2: Enter Payment Reference -->
-          <div v-if="step === 'verify'" class="payment-step">
-            <div class="payment-header">
-              <span class="payment-icon">🔐</span>
-              <h3>验证付款凭证</h3>
-              <p class="payment-subtitle">请输入微信/支付宝付款记录中的<strong>订单尾号（至少4位）</strong></p>
-            </div>
-
-            <div class="verify-input-container">
-              <input
-                v-model="paymentRef"
-                type="text"
-                maxlength="8"
-                placeholder="例如: 8642"
-                class="verify-input"
-                @keyup.enter="submitVerification"
-                autofocus
-              />
-              <p class="verify-hint">
-                📌 打开微信/支付宝 → 账单详情 → 复制交易单号的最后4位
-              </p>
-              <p class="verify-error" v-if="errorMsg">{{ errorMsg }}</p>
-            </div>
-
-            <button class="primary-action pay-confirm-btn" @click="submitVerification">
-              ✦ 确认解锁报告
-            </button>
-            <button class="secondary-action" @click="step = 'scan'" style="margin-top:12px;">
-              返回扫码
-            </button>
+          <!-- Step 2: Processing -->
+          <div v-else-if="step === 'processing'" class="payment-step processing">
+            <div class="spinner"></div>
+            <h3 style="margin-top:20px;">正在查询支付网关...</h3>
+            <p class="payment-subtitle" style="margin-top:10px;">如果网络延迟，请不要关闭页面</p>
           </div>
-
-          <!-- Step 3: Processing -->
-          <div v-if="step === 'processing'" class="payment-step">
-            <div class="payment-header">
-              <div class="processing-spinner"></div>
-              <h3 style="margin-top:20px;">正在验证您的付款...</h3>
-              <p class="payment-subtitle">验证成功后将自动为您解锁深度报告</p>
-            </div>
-          </div>
-
         </div>
       </div>
     `
   })
 
-  // ─── Home Page ──────────────────────────────────────────────
   const Home = defineComponent({
     name: 'HomePage',
     setup() {
