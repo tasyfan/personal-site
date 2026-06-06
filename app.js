@@ -1013,6 +1013,17 @@
             <h3>双人宿命合盘</h3>
             <p>基于双方生辰八字与星盘，深度透视你们的灵魂契合度与前世羁绊。</p>
           </article>
+
+          <article v-reveal style="transition-delay: 0.35s; cursor: pointer;" @click="$router.push('/aura')">
+            <span class="block-icon" style="background: linear-gradient(135deg, #f6d365, #fda085);"></span>
+            <h3>色彩能量光环测试</h3>
+            <p>测算你当下的灵魂光谱与能量频率，寻找最契合的社交共振气场。</p>
+          </article>
+          <article v-reveal style="transition-delay: 0.4s; cursor: pointer;" @click="$router.push('/shadow')">
+            <span class="block-icon" style="background: linear-gradient(135deg, #434343, #000000);"></span>
+            <h3>灵魂暗影原型测试</h3>
+            <p>基于荣格心理学，直面潜意识深处最不愿承认的核心恐惧，开启深度疗愈。</p>
+          </article>
           </section>
           
         </transition>
@@ -3265,6 +3276,372 @@
   })
 
 
+  
+  // ─── AURA TEST PAGE ─────────────────────────────────────────
+  const AURA_QUESTIONS = [
+    {
+      text: '走进一个空无一人的房间，你首先会被什么吸引？',
+      options: [
+        { text: '窗外透进来的光束', color: 'yellow' },
+        { text: '角落里静止的植物', color: 'green' },
+        { text: '空气中微妙的温度变化', color: 'blue' },
+        { text: '地板上的阴影与纹理', color: 'purple' }
+      ]
+    },
+    {
+      text: '如果可以把自己的情绪实体化，你觉得它最像：',
+      options: [
+        { text: '熊熊燃烧的营火', color: 'red' },
+        { text: '缓缓流动的深水', color: 'blue' },
+        { text: '自由穿梭的微风', color: 'yellow' },
+        { text: '坚固厚实的晶石', color: 'green' }
+      ]
+    },
+    {
+      text: '当你感到极度疲惫时，哪种场景能让你最快回血？',
+      options: [
+        { text: '在热闹的音乐节里疯狂出汗', color: 'red' },
+        { text: '独自一人在海边看海浪发呆', color: 'blue' },
+        { text: '和两三个挚友在咖啡馆深度对谈', color: 'orange' },
+        { text: '睡在一个完全黑暗安静的房间', color: 'purple' }
+      ]
+    },
+    {
+      text: '在一段完美的关系里，你最看重的是什么？',
+      options: [
+        { text: '绝对的激情与同步的行动力', color: 'red' },
+        { text: '灵魂深处的相互理解与包容', color: 'blue' },
+        { text: '能够共同成长、探索未知', color: 'yellow' },
+        { text: '稳固的安全感与日常陪伴', color: 'green' }
+      ]
+    },
+    {
+      text: '如果宇宙只给你一种魔法，你希望是：',
+      options: [
+        { text: '读心术：看透所有的真实想法', color: 'purple' },
+        { text: '治愈术：抚平一切伤痛', color: 'green' },
+        { text: '时间跃迁：回到过去或去往未来', color: 'blue' },
+        { text: '显化术：让想象瞬间变成现实', color: 'orange' }
+      ]
+    }
+  ]
+
+  const COLOR_MAP = {
+    'red': { name: '流金红', hex: '#ff416c', desc: '炽热、行动力、生命张力' },
+    'orange': { name: '晨曦橙', hex: '#ff7b00', desc: '创造力、丰盛、显化' },
+    'yellow': { name: '极光黄', hex: '#f6d365', desc: '智慧、乐观、好奇心' },
+    'green': { name: '愈创绿', hex: '#11998e', desc: '疗愈、平衡、同理心' },
+    'blue': { name: '深邃蓝', hex: '#2193b0', desc: '直觉、冷静、沟通' },
+    'purple': { name: '迷雾紫', hex: '#8e44ad', desc: '灵性、神秘、潜意识' }
+  }
+
+  const AuraTest = defineComponent({
+    name: 'AuraTestPage',
+    components: { PaymentModal },
+    setup() {
+      const router = useRouter()
+      const phase = ref('question')
+      const currentQuestionIndex = ref(0)
+      const colorScores = ref({ red: 0, orange: 0, yellow: 0, green: 0, blue: 0, purple: 0 })
+      const hasPaid = ref(false)
+      const showPayment = ref(false)
+      const isTyping = ref(false)
+      const displayedDeepText = ref('')
+      const auraResult = ref(null)
+
+      const currentQ = computed(() => AURA_QUESTIONS[currentQuestionIndex.value])
+      const progress = computed(() => ((currentQuestionIndex.value) / AURA_QUESTIONS.length) * 100)
+
+      const selectAnswer = (color) => {
+        colorScores.value[color]++
+        if (currentQuestionIndex.value < AURA_QUESTIONS.length - 1) {
+          currentQuestionIndex.value++
+        } else {
+          finishTest()
+        }
+      }
+
+      const finishTest = () => {
+        phase.value = 'loading'
+        setTimeout(() => {
+          generateResult()
+          phase.value = 'result'
+          setTimeout(() => { showPayment.value = true }, 1500)
+        }, 2000)
+      }
+
+      const generateResult = () => {
+        const sorted = Object.entries(colorScores.value).sort((a, b) => b[1] - a[1])
+        const primary = sorted[0][0]
+        const secondary = sorted[1][1] > 0 ? sorted[1][0] : sorted[2][0]
+        
+        auraResult.value = {
+          colors: [COLOR_MAP[primary], COLOR_MAP[secondary]],
+          title: `${COLOR_MAP[primary].name} × ${COLOR_MAP[secondary].name}`
+        }
+      }
+
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+        saveToArchive('Aura', auraResult.value.title)
+        
+        const deepReport = `【能量场透视】\n你当前的能量场呈现出极具层次感的『${auraResult.value.title}』。主色调${auraResult.value.colors[0].name}代表了你骨子里的${auraResult.value.colors[0].desc}，而辅色调${auraResult.value.colors[1].name}则映射出你近期在潜意识中极度渴望的${auraResult.value.colors[1].desc}。\n\n【近期社交气场】\n在人群中，你就像一个天然的引力场。别人初见你时，会被你的主色调所吸引，觉得你是一个边界感清晰且充满魅力的人。但只有真正走进你内心的人，才会发现你辅色调中隐藏的脆弱与深情。\n\n【能量搭子建议】\n你目前最适合与散发着『极光黄』或『愈创绿』能量的人在一起。他们能够完美承接你的情绪，并在你能量低谷时为你提供最坚实的心理托底。`
+        
+        startTypewriter(deepReport)
+      }
+
+      const startTypewriter = (fullText) => {
+        isTyping.value = true
+        let i = 0
+        const speed = 30
+        const type = () => {
+          if (i < fullText.length) {
+            displayedDeepText.value += fullText.charAt(i)
+            i++
+            setTimeout(type, speed)
+          } else {
+            isTyping.value = false
+          }
+        }
+        type()
+      }
+
+      return {
+        AURA_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
+        auraResult, hasPaid, showPayment, isTyping, displayedDeepText,
+        selectAnswer, handlePaymentSuccess
+      }
+    },
+    template: `
+      <main class="aura-page section" style="min-height: 80vh;">
+        <transition name="fade" mode="out-in">
+          
+          <div v-if="phase === 'question'" key="q" class="test-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">AURA READING</p>
+              <h2>色彩能量光环测试</h2>
+              <p class="lede" style="margin: 0 auto;">凭借直觉回答，测算你当下的灵魂光谱与能量频率。</p>
+            </div>
+            <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%'}"></div></div>
+            <div class="question-card" v-reveal key="currentQuestionIndex">
+              <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
+              <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
+                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.color)">
+                  {{ opt.text }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="phase === 'loading'" key="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">正在扫描能量场频率...</p>
+          </div>
+
+          <div v-else-if="phase === 'result'" key="result" class="result-page">
+            <div v-reveal style="text-align: center;">
+              <p class="section-kicker">YOUR AURA</p>
+              <div class="aura-visual" :style="{ background: 'linear-gradient(135deg, ' + auraResult.colors[0].hex + ', ' + auraResult.colors[1].hex + ')', width: '200px', height: '200px', margin: '0 auto 30px', borderRadius: '50%', filter: 'blur(15px)', opacity: 0.8, transform: 'scale(1.2)' }"></div>
+              <div class="mbti-type-title" style="position: relative; z-index: 2;">
+                <h2 style="font-size: 40px; margin-bottom: 10px;">{{ auraResult.title }}</h2>
+                <p style="font-size: 18px; color: var(--muted);">主导能量: {{ auraResult.colors[0].desc }}</p>
+              </div>
+            </div>
+
+            <PaymentModal v-if="showPayment" @success="handlePaymentSuccess" />
+
+            <div class="reading-section" v-if="hasPaid" v-reveal style="position: relative; z-index: 2;">
+              <h3>✦ 灵魂光谱深度解析</h3>
+              <div class="reading-body" style="white-space: pre-wrap; line-height: 1.8;">
+                {{ displayedDeepText }}<span class="cursor" v-if="isTyping"></span>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </main>
+    `
+  })
+
+  // ─── SHADOW ARCHETYPE TEST PAGE ─────────────────────────────────────────
+  const SHADOW_QUESTIONS = [
+    {
+      text: '如果在梦里你一直被追赶，你觉得追你的是什么？',
+      options: [
+        { text: '一个看不清脸的巨大黑影', shadow: 'orphan' },
+        { text: '一群面目可憎的野兽', shadow: 'saboteur' },
+        { text: '一个和我长得一模一样的人', shadow: 'martyr' },
+        { text: '某种无形但极度压抑的重力', shadow: 'wanderer' }
+      ]
+    },
+    {
+      text: '当一段很好的关系突然结束时，你脑海里冒出的第一个念头是：',
+      options: [
+        { text: '“果然，没有人会永远陪着我。”', shadow: 'orphan' },
+        { text: '“其实我早就知道会有这一天。”', shadow: 'saboteur' },
+        { text: '“我明明已经付出了那么多，为什么？”', shadow: 'martyr' },
+        { text: '“终于解脱了，我又可以一个人了。”', shadow: 'wanderer' }
+      ]
+    },
+    {
+      text: '在团队中，最让你感到痛苦的时刻是：',
+      options: [
+        { text: '被大家忽视，仿佛我不存在', shadow: 'orphan' },
+        { text: '事情完全脱离了我的控制', shadow: 'saboteur' },
+        { text: '所有脏活累活都丢给我，还没人感激', shadow: 'martyr' },
+        { text: '被强行分配了极其死板的固定角色', shadow: 'wanderer' }
+      ]
+    },
+    {
+      text: '如果让你在一间密室里待上三天，你最害怕的是：',
+      options: [
+        { text: '没有任何通讯设备，与外界彻底断联', shadow: 'orphan' },
+        { text: '房间里的灯忽明忽暗，随时可能陷入未知', shadow: 'saboteur' },
+        { text: '除了我之外还有一个不断向我索取的人', shadow: 'martyr' },
+        { text: '房间很小，且门被从外面死死锁住', shadow: 'wanderer' }
+      ]
+    },
+    {
+      text: '你内心深处最不愿承认的一个事实是：',
+      options: [
+        { text: '我其实非常渴望被拯救', shadow: 'orphan' },
+        { text: '我经常用愤怒来掩饰我的恐惧', shadow: 'saboteur' },
+        { text: '我用讨好换来的爱都不是真爱', shadow: 'martyr' },
+        { text: '我所谓的独立，其实是在逃避承诺', shadow: 'wanderer' }
+      ]
+    }
+  ]
+
+  const SHADOW_MAP = {
+    'orphan': { name: '孤儿 (The Orphan)', desc: '核心恐惧：被遗弃。你在人际关系中极度渴求安全感。' },
+    'saboteur': { name: '破坏者 (The Saboteur)', desc: '核心恐惧：失控。你习惯在一切变糟前先亲手毁掉它。' },
+    'martyr': { name: '殉道者 (The Martyr)', desc: '核心恐惧：不被需要。你试图通过过度付出来绑架他人的爱。' },
+    'wanderer': { name: '流浪者 (The Wanderer)', desc: '核心恐惧：被束缚。你总是用逃避来拒绝真正的深度连接。' }
+  }
+
+  const ShadowTest = defineComponent({
+    name: 'ShadowTestPage',
+    components: { PaymentModal },
+    setup() {
+      const router = useRouter()
+      const phase = ref('question')
+      const currentQuestionIndex = ref(0)
+      const shadowScores = ref({ orphan: 0, saboteur: 0, martyr: 0, wanderer: 0 })
+      const hasPaid = ref(false)
+      const showPayment = ref(false)
+      const isTyping = ref(false)
+      const displayedDeepText = ref('')
+      const shadowResult = ref(null)
+
+      const currentQ = computed(() => SHADOW_QUESTIONS[currentQuestionIndex.value])
+      const progress = computed(() => ((currentQuestionIndex.value) / SHADOW_QUESTIONS.length) * 100)
+
+      const selectAnswer = (shadow) => {
+        shadowScores.value[shadow]++
+        if (currentQuestionIndex.value < SHADOW_QUESTIONS.length - 1) {
+          currentQuestionIndex.value++
+        } else {
+          finishTest()
+        }
+      }
+
+      const finishTest = () => {
+        phase.value = 'loading'
+        setTimeout(() => {
+          generateResult()
+          phase.value = 'result'
+          setTimeout(() => { showPayment.value = true }, 1500)
+        }, 2500)
+      }
+
+      const generateResult = () => {
+        const sorted = Object.entries(shadowScores.value).sort((a, b) => b[1] - a[1])
+        const primary = sorted[0][0]
+        shadowResult.value = SHADOW_MAP[primary]
+      }
+
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+        saveToArchive('Shadow', shadowResult.value.name)
+        
+        const deepReport = `【暗影溯源】\n你潜意识中最活跃的暗影原型是『${shadowResult.value.name}』。这个阴暗面通常诞生于你的童年或某次深刻的创伤体验中。当现实生活触发了你的核心恐惧时，这股力量就会接管你的理智。\n\n【心理防御机制解析】\n${shadowResult.value.desc} 在日常生活中，你可能会发现自己经常陷入一种“重复的剧本”里。你以为自己在保护自己，但实际上，这种强烈的防御机制正在不断推开那些真正爱你、想靠近你的人。\n\n【灵魂和解与疗愈指南】\n暗影并非敌人，而是未被光照耀到的自己。疗愈的第一步，是停止向外索求。当你下次再感到恐惧或想要退缩时，请深呼吸，在心里对那个受伤的自己说：“我看到你的恐惧了，这次，换我来陪着你。”`
+        
+        startTypewriter(deepReport)
+      }
+
+      const startTypewriter = (fullText) => {
+        isTyping.value = true
+        let i = 0
+        const speed = 35
+        const type = () => {
+          if (i < fullText.length) {
+            displayedDeepText.value += fullText.charAt(i)
+            i++
+            setTimeout(type, speed)
+          } else {
+            isTyping.value = false
+          }
+        }
+        type()
+      }
+
+      return {
+        SHADOW_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
+        shadowResult, hasPaid, showPayment, isTyping, displayedDeepText,
+        selectAnswer, handlePaymentSuccess
+      }
+    },
+    template: `
+      <main class="shadow-page section" style="min-height: 80vh;">
+        <transition name="fade" mode="out-in">
+          
+          <div v-if="phase === 'question'" key="q" class="test-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">SHADOW ARCHETYPE</p>
+              <h2>灵魂暗影原型测试</h2>
+              <p class="lede" style="margin: 0 auto;">基于荣格心理学，直面你潜意识深处最不愿承认的核心恐惧。</p>
+            </div>
+            <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%', background: '#333'}"></div></div>
+            <div class="question-card" v-reveal key="currentQuestionIndex">
+              <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
+              <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
+                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.shadow)" style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #333;">
+                  {{ opt.text }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="phase === 'loading'" key="loading" class="loading-state">
+            <div class="spinner" style="border-top-color: #111;"></div>
+            <p class="loading-text">正在潜入潜意识深渊...</p>
+          </div>
+
+          <div v-else-if="phase === 'result'" key="result" class="result-page">
+            <div v-reveal style="text-align: center;">
+              <p class="section-kicker">YOUR SHADOW</p>
+              <div class="mbti-type-title">
+                <h2 style="font-size: 36px; background: linear-gradient(90deg, #111, #555); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ shadowResult.name }}</h2>
+                <p style="font-size: 18px; margin-top: 15px; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">{{ shadowResult.desc }}</p>
+              </div>
+            </div>
+
+            <PaymentModal v-if="showPayment" @success="handlePaymentSuccess" />
+
+            <div class="reading-section" v-if="hasPaid" v-reveal style="border-left-color: #333; background: #fafafa;">
+              <h3>✦ 潜意识疗愈万字解析</h3>
+              <div class="reading-body" style="white-space: pre-wrap; line-height: 1.8; color: #111;">
+                {{ displayedDeepText }}<span class="cursor" v-if="isTyping" style="background: #111;"></span>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </main>
+    `
+  })
+
+
   // ─── ARCHIVE PAGE ─────────────────────────────────────────
   const ArchivePage = defineComponent({
     name: 'ArchivePage',
@@ -3597,6 +3974,8 @@
       { path: '/astrology', component: AstrologyTest },
       { path: '/bazi', component: BaziTest },
       { path: '/human-design', component: HumanDesignTest },
+      { path: '/aura', component: AuraTest },
+      { path: '/shadow', component: ShadowTest },
       { path: '/archive', component: ArchivePage }
     ],
     scrollBehavior() { return { top: 0 } }
