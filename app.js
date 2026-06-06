@@ -3227,45 +3227,69 @@
     `
   })
 
-  // ─── Router ─────────────────────────────────────────────────
-  const router = createRouter({
-    history: createWebHashHistory(),
-    routes: [
-      { path: '/', component: Home },
-      { path: '/tarot', component: TarotTest },
-      { path: '/result', component: Result },
-      { path: '/mbti', component: MBTITest },
-      { path: '/mbti-result', component: MBTIResult },
-      { path: '/attachment', component: AttachmentTest },
-      { path: '/synastry', component: SynastryTest },
-      { path: '/attachment-result', component: AttachmentResult },
-      { path: '/astrology', component: AstrologyTest },
-      { path: '/bazi', component: BaziTest },
-      { path: '/human-design', component: HumanDesignTest }
-    ],
-    scrollBehavior() { return { top: 0 } }
+
+  // ─── ARCHIVE PAGE ─────────────────────────────────────────
+  const ArchivePage = defineComponent({
+    name: 'ArchivePage',
+    setup() {
+      const archives = ref([])
+      const router = useRouter()
+
+      onMounted(() => {
+        try {
+          archives.value = JSON.parse(localStorage.getItem('northstar_archives') || '[]')
+        } catch(e) {}
+      })
+
+      const viewArchive = (arc) => {
+        arc.expanded = !arc.expanded;
+      }
+
+      const clearArchive = () => {
+        if(confirm('确定要清空所有档案吗？')) {
+          localStorage.removeItem('northstar_archives')
+          archives.value = []
+        }
+      }
+
+      return { archives, viewArchive, clearArchive }
+    },
+    template: `
+      <main class="archive-page section" style="min-height: 80vh;">
+        <div class="test-header" v-reveal>
+          <p class="section-kicker">SOUL ARCHIVE</p>
+          <h2>我的星象馆</h2>
+          <p class="lede">这里永久保存着你已解锁的全部灵魂密码与宿命报告。</p>
+        </div>
+        
+        <div class="archive-list" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
+          <div v-if="archives.length === 0" style="text-align: center; color: rgba(255,255,255,0.4); padding: 50px;">
+            空空如也。去测试并解锁你的第一份报告吧。
+          </div>
+          <div v-else>
+            <div v-for="arc in archives" :key="arc.id" class="archive-card" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 20px; padding: 20px; cursor: pointer; transition: all 0.3s;" @click="viewArchive(arc)">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 12px; color: #ff7e5f; letter-spacing: 2px; margin-bottom: 5px;">{{ arc.type.toUpperCase() }}</div>
+                  <div style="font-size: 20px; font-weight: 600;">{{ arc.title }}</div>
+                </div>
+                <div style="color: rgba(255,255,255,0.4); font-size: 14px;">{{ arc.date }}</div>
+              </div>
+              
+              <div v-if="arc.expanded" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); white-space: pre-wrap; line-height: 1.8; font-size: 15px; color: rgba(255,255,255,0.8);">
+                {{ arc.data }}
+              </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 40px;">
+              <button @click="clearArchive" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); padding: 8px 16px; border-radius: 20px; cursor: pointer;">清空档案</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    `
   })
 
-  // ─── Create & Mount ─────────────────────────────────────────
-  const app = createApp(App)
-  app.directive('reveal', {
-    mounted(el) {
-      el.classList.add('reveal')
-      var observer = new IntersectionObserver(function (entries, obs) {
-        entries.forEach(function (entry) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('active')
-            obs.unobserve(entry.target)
-          }
-        })
-      }, { threshold: 0.1 })
-      observer.observe(el)
-    }
-  })
-  app.use(router)
-  app.mount('#app')
-  console.log('[Northstar] App v2.0 mounted ✓')
-})()
   // ─── SYNASTRY TEST (双人合盘) ─────────────────────────────
   const SynastryTest = defineComponent({
     name: 'SynastryTestPage',
@@ -3519,3 +3543,45 @@
   })
 
   
+
+
+  // ─── Router ─────────────────────────────────────────────────
+  const router = createRouter({
+    history: createWebHashHistory(),
+    routes: [
+      { path: '/', component: Home },
+      { path: '/tarot', component: TarotTest },
+      { path: '/result', component: Result },
+      { path: '/mbti', component: MBTITest },
+      { path: '/mbti-result', component: MBTIResult },
+      { path: '/attachment', component: AttachmentTest },
+      { path: '/synastry', component: SynastryTest },
+      { path: '/attachment-result', component: AttachmentResult },
+      { path: '/astrology', component: AstrologyTest },
+      { path: '/bazi', component: BaziTest },
+      { path: '/human-design', component: HumanDesignTest },
+      { path: '/archive', component: ArchivePage }
+    ],
+    scrollBehavior() { return { top: 0 } }
+  })
+
+  // ─── Create & Mount ─────────────────────────────────────────
+  const app = createApp(App)
+  app.directive('reveal', {
+    mounted(el) {
+      el.classList.add('reveal')
+      var observer = new IntersectionObserver(function (entries, obs) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active')
+            obs.unobserve(entry.target)
+          }
+        })
+      }, { threshold: 0.1 })
+      observer.observe(el)
+    }
+  })
+  app.use(router)
+  app.mount('#app')
+  console.log('[Northstar] App v2.0 mounted ✓')
+})()
