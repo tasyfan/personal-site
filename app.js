@@ -915,7 +915,9 @@
         store.homePhase = 'menu'
       }
 
-      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy }
+      const router = useRouter()
+
+      return { heroVisual, onMouseMove, onMouseLeave, onMouseEnter, startWarp, store, energy, router }
     },
     template: `
       <main id="top" class="home-container">
