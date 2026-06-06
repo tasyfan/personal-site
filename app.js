@@ -1277,6 +1277,23 @@
         }, 50) // 50ms per character
       }
 
+      
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('bazi-poster-dom')
+        if (!posterEl) return
+        try {
+          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
+          const imgUrl = canvas.toDataURL('image/png')
+          const link = document.createElement('a')
+          link.download = `Northstar_Bazi_${baziResult.value.name}.png`
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
       const handlePaymentSuccess = () => {
         showPayment.value = false
         hasPaid.value = true
@@ -2429,6 +2446,23 @@
         }, 30)
       }
 
+      
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('bazi-poster-dom')
+        if (!posterEl) return
+        try {
+          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
+          const imgUrl = canvas.toDataURL('image/png')
+          const link = document.createElement('a')
+          link.download = `Northstar_Bazi_${baziResult.value.name}.png`
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
       return {
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, baziResult,
@@ -2522,6 +2556,27 @@
           </div>
 
         </transition>
+      
+        <div id="bazi-poster-dom" style="position: absolute; left: -9999px; width: 375px; padding: 40px; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; border-radius: 20px; font-family: 'PingFang SC', sans-serif;">
+          <div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 20px;">
+            <p style="font-size: 14px; color: #ff7e5f; letter-spacing: 4px;">NORTHSTAR DESTINY</p>
+            <h1 style="font-size: 32px; margin: 10px 0;">{{ baziResult?.name || '未知' }}</h1>
+            <p style="font-size: 16px; color: rgba(255,255,255,0.6);">{{ baziResult?.element || '' }}</p>
+          </div>
+          <div style="font-size: 18px; line-height: 1.6; text-align: justify;">
+            "{{ baziResult?.keywords?.join(' · ') || '' }}"
+          </div>
+          <div style="margin-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.3);">
+            <p>北极星玄学档案库</p>
+          </div>
+        </div>
+
+        <div class="action-area" v-if="hasPaid && !isTyping" style="margin-top: 40px;">
+          <button class="primary-action" @click="generatePoster" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: #000;">
+            ✧ 生成我的命局海报
+          </button>
+        </div>
+    
       </main>
     `
   })
@@ -2681,6 +2736,23 @@
         }, 30)
       }
 
+      
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('hd-poster-dom')
+        if (!posterEl) return
+        try {
+          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
+          const imgUrl = canvas.toDataURL('image/png')
+          const link = document.createElement('a')
+          link.download = `Northstar_HD_${hdResult.value.name}.png`
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
       return {
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, hdResult,
@@ -2774,6 +2846,27 @@
           </div>
 
         </transition>
+      
+        <div id="hd-poster-dom" style="position: absolute; left: -9999px; width: 375px; padding: 40px; background: linear-gradient(135deg, #2a0845, #6441A5); color: white; border-radius: 20px; font-family: 'PingFang SC', sans-serif;">
+          <div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 20px;">
+            <p style="font-size: 14px; color: #ffb88e; letter-spacing: 4px;">HUMAN DESIGN</p>
+            <h1 style="font-size: 32px; margin: 10px 0;">{{ hdResult?.name || '未知' }}</h1>
+            <p style="font-size: 16px; color: rgba(255,255,255,0.6);">能量类型设计图</p>
+          </div>
+          <div style="font-size: 18px; line-height: 1.6; text-align: justify;">
+            核心策略: {{ hdResult?.strategy || '' }}
+          </div>
+          <div style="margin-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.3);">
+            <p>北极星玄学档案库</p>
+          </div>
+        </div>
+
+        <div class="action-area" v-if="hasPaid && !isTyping" style="margin-top: 40px;">
+          <button class="primary-action" @click="generatePoster" style="background: linear-gradient(135deg, #ffb88e, #ea5753); color: #fff;">
+            ✧ 生成我的人类图海报
+          </button>
+        </div>
+    
       </main>
     `
   })
