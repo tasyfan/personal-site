@@ -2480,8 +2480,11 @@
         <transition name="fade" mode="out-in">
           
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
-            <h2 class="section-title">东方八字排盘</h2>
-            <p class="section-subtitle">精确至出生地的真太阳时，洞察你的前世今生与财富密码</p>
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">BAZI CHART</p>
+              <h2>东方八字排盘</h2>
+              <p class="lede" style="margin: 0 auto;">精确至出生地的真太阳时，洞察你的前世今生与财富密码</p>
+            </div>
             
             <div class="form-wrapper">
               <div class="input-group">
@@ -2771,8 +2774,11 @@
         <transition name="fade" mode="out-in">
           
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
-            <h2 class="section-title">人类图能量图鉴</h2>
-            <p class="section-subtitle">结合西方占星与东方易经，找到你唯一的出厂设置</p>
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">HUMAN DESIGN</p>
+              <h2>人类图能量图鉴</h2>
+              <p class="lede" style="margin: 0 auto;">结合西方占星与东方易经，找到你唯一的出厂设置</p>
+            </div>
             
             <div class="form-wrapper">
               <div class="input-group">
@@ -3865,32 +3871,32 @@
             <div class="test-form" v-reveal style="transition-delay: 0.1s; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 30px;">
               <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,126,95,0.3);">
                 <h3 style="color: #ff7e5f; margin-bottom: 20px;">✧ Person A (你)</h3>
-                <div class="form-group">
+                <div class="input-group">
                   <label>姓名 / 昵称</label>
-                  <input type="text" v-model="formDataA.name" placeholder="输入姓名">
+                  <input type="text" v-model="formDataA.name" placeholder="输入姓名" class="astro-input">
                 </div>
-                <div class="form-group">
+                <div class="input-group">
                   <label>出生日期 (阳历)</label>
-                  <input type="date" v-model="formDataA.date">
+                  <input type="date" v-model="formDataA.date" class="astro-input">
                 </div>
-                <div class="form-group">
+                <div class="input-group">
                   <label>出生时间 (大致即可)</label>
-                  <input type="time" v-model="formDataA.time">
+                  <input type="time" v-model="formDataA.time" class="astro-input">
                 </div>
               </div>
               <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(254,180,123,0.3);">
                 <h3 style="color: #feb47b; margin-bottom: 20px;">✧ Person B (Ta)</h3>
-                <div class="form-group">
+                <div class="input-group">
                   <label>姓名 / 昵称</label>
-                  <input type="text" v-model="formDataB.name" placeholder="输入姓名">
+                  <input type="text" v-model="formDataB.name" placeholder="输入姓名" class="astro-input">
                 </div>
-                <div class="form-group">
+                <div class="input-group">
                   <label>出生日期 (阳历)</label>
-                  <input type="date" v-model="formDataB.date">
+                  <input type="date" v-model="formDataB.date" class="astro-input">
                 </div>
-                <div class="form-group">
+                <div class="input-group">
                   <label>出生时间 (大致即可)</label>
-                  <input type="time" v-model="formDataB.time">
+                  <input type="time" v-model="formDataB.time" class="astro-input">
                 </div>
               </div>
               <div style="width: 100%; text-align: center; margin-top: 20px;">
