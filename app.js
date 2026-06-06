@@ -969,6 +969,11 @@
                   </div>
                 </div>
               </div>
+              <div class="dashboard-actions" style="text-align: center; margin-top: 30px;" v-reveal style="transition-delay: 0.3s;">
+                <button class="secondary-action" @click="router.push('/archive')" style="font-size: 14px; padding: 10px 20px;">
+                  ✦ 进入我的星象馆 (本地档案) ✦
+                </button>
+              </div>
             </section>
           </div>
 
@@ -1002,6 +1007,11 @@
             <span class="block-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);"></span>
             <h3>人类图能量图鉴</h3>
             <p>西方占星与东方易经的融合，找到你灵魂独一无二的出厂设置。</p>
+          </article>
+          <article v-reveal style="transition-delay: 0.3s; cursor: pointer;" @click="$router.push('/synastry')">
+            <span class="block-icon" style="background: linear-gradient(135deg, #ff416c, #ff4b2b);"></span>
+            <h3>双人宿命合盘</h3>
+            <p>基于双方生辰八字与星盘，深度透视你们的灵魂契合度与前世羁绊。</p>
           </article>
           </section>
           
