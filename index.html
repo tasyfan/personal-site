@@ -28,12 +28,21 @@
     <!-- Astronomy Engine for True Ephemeris Calculation -->
     <script src="./astronomy.browser.js"></script>
 
-    <!-- Vue 3 & Vue Router 4: LOCAL global builds (no network needed) -->
-    <script src="./vue.global.prod.js"></script>
-    <script src="./vue-router.global.prod.js"></script>
+    <!-- Vue 3 & Vue Router 4 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue-router@4"></script>
+
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        document.body.innerHTML += '<div style="color:red; background:white; padding:20px; z-index:9999; position:fixed; top:0; left:0; right:0;"><b>Error:</b> ' + msg + '<br><b>Line:</b> ' + line + '<br><b>Col:</b> ' + col + '</div>';
+        return false;
+      };
+    </script>
+
+    <!-- 引入 html2canvas 库 -->
     <script src="./html2canvas.min.js"></script>
 
     <!-- All app code in one file -->
-    <script src="./app.js?v=112"></script>
+    <script src="./app.js?v=113"></script>
   </body>
 </html>
