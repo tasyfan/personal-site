@@ -3148,9 +3148,9 @@
           <!-- Input Phase -->
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
             <div class="test-header" v-reveal>
-              <p class="section-kicker">Natal Chart</p>
+              <p class="section-kicker">NATAL CHART</p>
               <h2>绘制本命星盘</h2>
-              <p>精确的天体坐标需要你降生那一刻的时间与空间。</p>
+              <p class="lede" style="margin: 0 auto;">精确的天体坐标需要你降生那一刻的时间与空间。</p>
             </div>
             
             <div class="form-wrapper" v-reveal style="transition-delay: 0.1s">
@@ -3197,9 +3197,9 @@
           <!-- Result Phase -->
           <div v-else-if="phase === 'result'" key="result" class="astro-result-container">
             <div class="test-header" v-reveal>
-              <p class="section-kicker">Your Astral Blueprint</p>
+              <p class="section-kicker">ASTRAL BLUEPRINT</p>
               <h2>灵魂蓝图深度解析</h2>
-              <p>宇宙在你降生时，为你刻下的灵魂轨迹。</p>
+              <p class="lede" style="margin: 0 auto;">宇宙在你降生时，为你刻下的灵魂轨迹。</p>
             </div>
 
             <!-- The Big Three -->
@@ -3612,7 +3612,7 @@
             <div class="question-card" v-reveal key="currentQuestionIndex">
               <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
               <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
-                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.shadow)" style="background: rgba(0,0,0,0.8); color: white; border: 1px solid #333;">
+                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.shadow)">
                   {{ opt.text }}
                 </button>
               </div>
