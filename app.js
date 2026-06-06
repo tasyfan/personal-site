@@ -896,8 +896,25 @@
       // Cosmic Energy Data Generation
       const getDailyEnergy = () => {
         const today = new Date()
-        const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
-        // Pseudo-random based on date
+        let personalSeed = 0
+        let hasArchive = false
+        
+        try {
+          const archives = JSON.parse(localStorage.getItem('northstar_archives') || '[]')
+          if (archives.length > 0) {
+            hasArchive = true
+            // Generate a personal seed based on their first archive title
+            const str = archives[0].title
+            for(let i=0; i<str.length; i++) {
+              personalSeed = Math.imul(31, personalSeed) + str.charCodeAt(i) | 0
+            }
+          }
+        } catch(e) {}
+
+        const baseSeed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+        const seed = baseSeed + personalSeed
+        
+        // Pseudo-random based on date + personal seed
         const pseudoRandom = (offset) => Math.abs(Math.sin(seed + offset))
         
         const moonPhases = ['新月', '峨眉月', '上弦月', '盈凸月', '满月', '亏凸月', '下弦月', '残月']
@@ -905,6 +922,21 @@
         
         const zodiacs = ['白羊', '金牛', '双子', '巨蟹', '狮子', '处女', '天秤', '天蝎', '射手', '摩羯', '水瓶', '双鱼']
         const currentZodiac = zodiacs[today.getMonth()]
+        
+        const dailyQuotes = [
+            "今日宜向内收敛能量，不要试图去说服任何人。",
+            "宇宙正在为你清理不必要的社交，顺其自然。",
+            "今日塔罗指引：【愚人正位】—— 勇敢踏出第一步，无视周围的杂音。",
+            "财运暗涌，留意下午3点后收到的灵感或信息。",
+            "今日宜佩戴水晶或进行10分钟冥想，你的直觉极度敏锐。",
+            "会有某个旧人或旧事重提，这是你彻底斩断业力的机会。",
+            "今日塔罗指引：【女祭司正位】—— 保持高贵的沉默，答案已经在你心中。",
+            "今日宜破局：打破一项你坚持了很久的无效习惯。",
+            "你的能量场今日极其吸引贵人，展现出你真实脆弱的一面。",
+            "今日塔罗指引：【命运之轮正位】—— 命运齿轮开始咬合，接受所有的意外转折。"
+        ]
+        const quoteIndex = Math.floor(pseudoRandom(99) * dailyQuotes.length)
+        const fortuneQuote = hasArchive ? dailyQuotes[quoteIndex] : "解锁任意深度报告，开启每日专属高维箴言。"
 
         return {
           moonPhase: moonPhases[phaseIndex],
@@ -912,7 +944,9 @@
           intuition: Math.floor(pseudoRandom(2) * 40 + 60),
           creativity: Math.floor(pseudoRandom(3) * 50 + 50),
           clarity: Math.floor(pseudoRandom(4) * 60 + 40),
-          crystal: ['紫水晶', '月光石', '黑曜石', '拉长石', '粉晶'][Math.floor(pseudoRandom(5) * 5)]
+          crystal: ['紫水晶', '月光石', '黑曜石', '拉长石', '粉晶', '钛晶', '绿幽灵', '海蓝宝'][Math.floor(pseudoRandom(5) * 8)],
+          fortune: fortuneQuote,
+          hasArchive: hasArchive
         }
       }
       const energy = Vue.ref(getDailyEnergy())
@@ -963,10 +997,14 @@
                   <div class="energy-label"><span>思维澄澈 (Clarity)</span><span>{{ energy.clarity }}%</span></div>
                   <div class="energy-track"><div class="energy-fill" :style="{ width: energy.clarity + '%' }"></div></div>
                 </div>
-                <div class="energy-meta">
-                  <div class="meta-item">
+                <div class="energy-meta" style="display: flex; flex-direction: column; gap: 15px;">
+                  <div class="meta-item" style="display: flex; justify-content: space-between; align-items: center;">
                     <span class="meta-title">今日引路矿石</span>
                     <span class="meta-value">{{ energy.crystal }}</span>
+                  </div>
+                  <div class="meta-item" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 3px solid #ff7e5f;">
+                    <span class="meta-title" style="display: block; margin-bottom: 5px; color: #ff7e5f;">✧ 今日专属运势箴言</span>
+                    <span class="meta-value" style="font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.9); font-weight: normal;">{{ energy.fortune }}</span>
                   </div>
                 </div>
               </div>
