@@ -3291,6 +3291,7 @@
       { path: '/mbti', component: MBTITest },
       { path: '/mbti-result', component: MBTIResult },
       { path: '/attachment', component: AttachmentTest },
+      { path: '/synastry', component: SynastryTest },
       { path: '/attachment-result', component: AttachmentResult },
       { path: '/astrology', component: AstrologyTest },
       { path: '/bazi', component: BaziTest },
@@ -3319,3 +3320,256 @@
   app.mount('#app')
   console.log('[Northstar] App v2.0 mounted ✓')
 })()
+  // ─── SYNASTRY TEST (双人合盘) ─────────────────────────────
+  const SynastryTest = defineComponent({
+    name: 'SynastryTestPage',
+    components: { PaymentModal },
+    setup() {
+      const formDataA = ref({ name: '', date: '', time: '', prov: '', city: '' })
+      const formDataB = ref({ name: '', date: '', time: '', prov: '', city: '' })
+      const phase = ref('form') // form, loading, result
+      const loadingText = ref('')
+      
+      const synResult = ref(null)
+      const synHash = ref(0)
+      
+      const hasPaid = ref(false)
+      const showPayment = ref(false)
+      const isTyping = ref(false)
+      const displayedDeepText = ref('')
+
+      const expandSynastryText = (hash, nameA, nameB) => {
+        const seededRandom = (seed) => {
+            let t = seed += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+        let seed = hash;
+        
+        const banks = {
+            karmic: [
+                `【前世羁绊追踪】\n${nameA} 与 ${nameB} 的相遇，绝非偶然。在命盘的星轨深处，你们呈现出一种典型的‘宿命债’结构。在某一个古老的时空里，你们可能曾经是处于敌对阵营的战友，或是因为某种不可抗力而被迫分离的爱人。这种强烈的未完结感，导致你们在今生初次相见时，就会有一种莫名的熟悉感与拉扯感。这辈子，你们是来互相还债、互相完整对方灵魂碎片的。`,
+                `【能量纠缠法则】\n从你们的交叉哈希能量场来看，这是一段‘水乳交融又相爱相杀’的极致关系。${nameA} 身上带有一种强烈的突破性能量，而 ${nameB} 则像是一片能够包容一切的深海。在灵魂层面上，你们签订了一份极其深刻的契约：通过激烈的碰撞，逼迫对方看清自己内心最深处的恐惧。只要你们不逃避这种痛感，这段关系将把你们的认知维度提升到一个难以置信的高度。`,
+                `【灵魂蓝图对接】\n当 ${nameA} 的星盘与 ${nameB} 的星盘重叠时，天顶星区爆发出了一股极强的共振。你们是彼此命局中的‘催化剂’。在遇到对方之前，你们可能都在某种浑浑噩噩的状态中摸索，但对方的出现，就像是突然按下了一个加速键。你们注定要一起经历一些颠覆三观的事件，在这个过程中，你们会慢慢剥离掉那些虚假的社会面具，看到彼此最赤裸、最纯粹的灵魂本质。`
+            ],
+            complement: [
+                `【五行与能量互补度】\n在能量层面上，你们形成了完美的‘拼图效应’。${nameA} 最欠缺的那种果断与执行力，恰恰是 ${nameB} 命局中最满溢的能量；而 ${nameB} 潜意识里极度渴望的温情与情绪价值，只有 ${nameA} 能够完美提供。你们只要在一起，即使什么都不做，能量场也会自动进入一种自我修复的循环。你们是彼此最好的‘充电宝’。`,
+                `【心智维度的博弈】\n你们的互补并不是体现在生活琐事上，而是体现在对世界底层逻辑的认知上。${nameA} 擅长构建宏大的愿景，而 ${nameB} 则是那个能精准计算出每一步落地细节的人。如果你们能够把这段关系当作一个‘创业项目’来经营，你们的合盘将爆发出惊人的世俗成就。不要把精力浪费在争吵谁对谁错上，去向外掠夺资源，你们就是雌雄同体的顶级掠食者。`
+            ],
+            minefield: [
+                `【核心沟通雷区预警】\n这段关系最大的隐患，在于你们对‘安全感’的定义截然不同。当冲突发生时，${nameA} 习惯用沉默和冷战来防御，这会瞬间激发出 ${nameB} 潜意识里的遗弃创伤，导致 ${nameB} 采取极其激烈的试探和攻击。这是你们的死穴！唯一的破解之道，是当 ${nameA} 想要退缩时，必须明确告诉对方“我需要半小时冷静，但我依然爱你”。`,
+                `【权力争夺与控制欲】\n在你们的合盘中，有一颗代表着‘绝对控制权’的冥王星在剧烈闪烁。你们骨子里都是不愿轻易服输的人。这导致你们的相处有时像是一场无声的权力游戏，谁先低头谁就输了。你们必须明白，真正的爱是交出自己的软肋。如果你们继续维持这种高高在上的自尊心防御，这段极其珍贵的缘分就会在无尽的内耗中被彻底消磨殆尽。`
+            ]
+        };
+
+        let result = "";
+        result += banks.karmic[Math.floor(seededRandom(seed++) * banks.karmic.length)] + "\n\n";
+        result += banks.complement[Math.floor(seededRandom(seed++) * banks.complement.length)] + "\n\n";
+        result += banks.minefield[Math.floor(seededRandom(seed++) * banks.minefield.length)];
+
+        return result;
+      }
+
+      const hashString = (str) => {
+        let hash = 5381;
+        for (let i = 0; i < str.length; i++) {
+          hash = ((hash << 5) + hash) + str.charCodeAt(i);
+        }
+        return hash >>> 0;
+      }
+
+      const startCalculation = () => {
+        if (!formDataA.value.date || !formDataB.value.date || !formDataA.value.name || !formDataB.value.name) return;
+        phase.value = 'loading'
+        
+        const texts = ['正在提取双方天干地支...', '碰撞灵魂哈希矩阵...', '分析前世因果羁绊...', '计算能量场契合度...']
+        let i = 0
+        loadingText.value = texts[i]
+        const intv = setInterval(() => {
+          i++
+          if (i < texts.length) {
+            loadingText.value = texts[i]
+          } else {
+            clearInterval(intv)
+            generateReport()
+            phase.value = 'result'
+            setTimeout(() => {
+              showPayment.value = true
+            }, 1500)
+          }
+        }, 800)
+      }
+
+      const generateReport = () => {
+        const seedA = formDataA.value.name + formDataA.value.date + formDataA.value.time;
+        const seedB = formDataB.value.name + formDataB.value.date + formDataB.value.time;
+        const hA = hashString(seedA);
+        const hB = hashString(seedB);
+        synHash.value = (hA + hB) >>> 0;
+        
+        // Compute pseudo-random score between 65 and 99
+        let score = (synHash.value % 35) + 65; 
+        
+        const adjectives = ['灵魂伴侣', '宿命纠缠', '欢喜冤家', '天作之合', '致命邂逅'];
+        const adj = adjectives[synHash.value % adjectives.length];
+        
+        synResult.value = {
+            score: score,
+            title: adj,
+            deep: expandSynastryText(synHash.value, formDataA.value.name, formDataB.value.name)
+        }
+      }
+
+      const startTypewriter = (fullText) => {
+        isTyping.value = true
+        displayedDeepText.value = ''
+        let i = 0
+        const interval = setInterval(() => {
+          if (i < fullText.length) {
+            displayedDeepText.value += fullText.charAt(i)
+            i++
+            const container = document.documentElement
+            container.scrollTop = container.scrollHeight
+          } else {
+            clearInterval(interval)
+            isTyping.value = false
+          }
+        }, 20)
+      }
+
+      const handlePaymentSuccess = () => {
+        showPayment.value = false
+        hasPaid.value = true
+        saveToArchive('Synastry', `${formDataA.value.name} & ${formDataB.value.name} 合盘报告`, `契合度：${synResult.value.score}%\n\n${synResult.value.deep}`);
+        startTypewriter(synResult.value.deep);
+      }
+
+      const generatePoster = async () => {
+        const posterEl = document.getElementById('syn-poster-dom')
+        if (!posterEl) return
+        try {
+          const canvas = await html2canvas(posterEl, { scale: 2, useCORS: true, backgroundColor: '#16213e' })
+          const imgUrl = canvas.toDataURL('image/png')
+          const link = document.createElement('a')
+          link.download = `Northstar_Synastry_${formDataA.value.name}_${formDataB.value.name}.png`
+          link.href = imgUrl
+          link.click()
+        } catch (error) {
+          console.error("Failed to generate poster:", error)
+          alert("海报生成失败，请重试。")
+        }
+      }
+
+      return {
+        formDataA, formDataB, phase, loadingText, synResult,
+        hasPaid, showPayment, isTyping, displayedDeepText,
+        startCalculation, handlePaymentSuccess, generatePoster
+      }
+    },
+    template: `
+      <main class="synastry-page section" style="min-height: 80vh;">
+        <transition name="fade" mode="out-in">
+          
+          <!-- Phase 1: FORM -->
+          <div v-if="phase === 'form'" key="form">
+            <div class="test-header" v-reveal>
+              <p class="section-kicker">SYNASTRY COMPATIBILITY</p>
+              <h2>双人宿命合盘</h2>
+              <p class="lede">输入你们两人的出生信息，揭示前世羁绊与今生灵魂契合度。</p>
+            </div>
+            <div class="test-form" v-reveal style="transition-delay: 0.1s; max-width: 800px; display: flex; flex-wrap: wrap; gap: 30px;">
+              <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,126,95,0.3);">
+                <h3 style="color: #ff7e5f; margin-bottom: 20px;">✧ Person A (你)</h3>
+                <div class="form-group">
+                  <label>姓名 / 昵称</label>
+                  <input type="text" v-model="formDataA.name" placeholder="输入姓名">
+                </div>
+                <div class="form-group">
+                  <label>出生日期 (阳历)</label>
+                  <input type="date" v-model="formDataA.date">
+                </div>
+                <div class="form-group">
+                  <label>出生时间 (大致即可)</label>
+                  <input type="time" v-model="formDataA.time">
+                </div>
+              </div>
+              <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(254,180,123,0.3);">
+                <h3 style="color: #feb47b; margin-bottom: 20px;">✧ Person B (Ta)</h3>
+                <div class="form-group">
+                  <label>姓名 / 昵称</label>
+                  <input type="text" v-model="formDataB.name" placeholder="输入姓名">
+                </div>
+                <div class="form-group">
+                  <label>出生日期 (阳历)</label>
+                  <input type="date" v-model="formDataB.date">
+                </div>
+                <div class="form-group">
+                  <label>出生时间 (大致即可)</label>
+                  <input type="time" v-model="formDataB.time">
+                </div>
+              </div>
+              <div style="width: 100%; text-align: center; margin-top: 20px;">
+                <button class="primary-action" @click="startCalculation" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);">
+                  ✦ 开始灵魂合盘推演
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 2: LOADING -->
+          <div v-else-if="phase === 'loading'" key="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p class="loading-text">{{ loadingText }}</p>
+          </div>
+
+          <!-- Phase 3: RESULT -->
+          <div v-else-if="phase === 'result'" key="result" class="result-page">
+            <div v-reveal>
+              <p class="section-kicker">KARMIC CONNECTION</p>
+              <div class="mbti-type-title">
+                <h2 style="font-size: 48px; background: linear-gradient(90deg, #ff7e5f, #feb47b); -webkit-background-clip: text;">{{ synResult.score }}%</h2>
+                <p style="font-size: 20px; margin-top: 10px; color: #feb47b;">{{ synResult.title }}</p>
+              </div>
+            </div>
+
+            <PaymentModal v-if="showPayment" @success="handlePaymentSuccess" />
+
+            <div class="reading-section" v-if="hasPaid" v-reveal>
+              <h3>✦ 宿命羁绊万字报告</h3>
+              <div class="reading-body">
+                {{ displayedDeepText }}
+                <span class="cursor" v-if="isTyping"></span>
+              </div>
+            </div>
+
+            <div id="syn-poster-dom" class="poster-container" v-if="hasPaid" style="position: absolute; left: -9999px; width: 375px; padding: 40px; background: linear-gradient(135deg, #16213e, #0f3460); color: white; border-radius: 20px; font-family: 'PingFang SC', sans-serif;">
+              <div style="text-align: center; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 20px; margin-bottom: 20px;">
+                <p style="font-size: 14px; color: #ff7e5f; letter-spacing: 4px;">NORTHSTAR SYNASTRY</p>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0;">
+                    <div style="font-size: 24px; font-weight: bold;">{{ formDataA.name }}</div>
+                    <div style="font-size: 20px; color: #ff7e5f;">❤️</div>
+                    <div style="font-size: 24px; font-weight: bold;">{{ formDataB.name }}</div>
+                </div>
+                <div style="font-size: 64px; font-weight: 800; background: linear-gradient(135deg, #ff7e5f, #feb47b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ synResult.score }}%
+                </div>
+                <p style="font-size: 18px; color: rgba(255,255,255,0.8); margin-top: 10px;">{{ synResult.title }}</p>
+              </div>
+              <div style="margin-top: 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.3);">
+                <p>北极星玄学双人合盘</p>
+              </div>
+            </div>
+
+            <div class="action-area" v-if="hasPaid && !isTyping" style="margin-top: 40px;">
+              <button class="primary-action" @click="generatePoster" style="background: linear-gradient(135deg, #ff7e5f, #feb47b); color: #fff;">
+                ✧ 生成双人合盘海报
+              </button>
+            </div>
+          </div>
+        </transition>
+      </main>
+    `
+  })
+
+  
