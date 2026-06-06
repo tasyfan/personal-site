@@ -3000,7 +3000,6 @@
         const fullCity = formData.value.prov + formData.value.city + (formData.value.county || '');
         const seed = formData.value.date + formData.value.time + fullCity;
         const h = hashString(seed);
-        baziHash.value = h;
         
         const getZodiac = (offset) => ZODIAC_KEYS[(h + offset) % 12];
         const getTransit = (offset) => TRANSITS[(h + offset) % TRANSITS.length];
