@@ -1724,6 +1724,7 @@
         const intro = `系统已接通潜意识深层数据库。\n正在为您生成【${typeData.value.type} ${typeData.value.name}】的专属深度分析报告...\n\n`
         const body = typeData.value.deep
         
+        saveToArchive('MBTI', typeData.value.type + ' 人格深度报告', body)
         startTypewriter(intro + body)
       }
 
@@ -2109,6 +2110,7 @@
         const intro = `系统已接通潜意识深层数据库。\n正在为您生成【${typeData.value.name}】的专属深度情感修复报告...\n\n`
         const body = typeData.value.deep
         
+        saveToArchive('Attachment', typeData.value.name + ' 依恋深度报告', body)
         startTypewriter(intro + body)
       }
 
@@ -2413,6 +2415,7 @@
         showPayment.value = false
         isTyping.value = true
         displayedDeepText.value = ''
+        saveToArchive('Bazi', formData.value.name + '的八字报告', expandBaziText(baziResult.value.deep, baziHash.value));
         
         const fullText = expandBaziText(baziResult.value.deep, baziHash.value)
         let i = 0
@@ -2664,6 +2667,7 @@
         showPayment.value = false
         isTyping.value = true
         displayedDeepText.value = ''
+        saveToArchive('Human Design', formData.value.name + '的人类图报告', expandHDText(hdResult.value.deep, hdHash.value));
         
         const fullText = expandHDText(hdResult.value.deep, hdHash.value)
         let i = 0
