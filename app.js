@@ -2448,6 +2448,7 @@
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, baziResult,
         hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText,
+        generatePoster,
         restart: () => phase.value = 'input'
       }
     },
@@ -2738,6 +2739,7 @@
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, hdResult,
         hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText,
+        generatePoster,
         restart: () => phase.value = 'input'
       }
     },
@@ -3006,6 +3008,7 @@
           clearInterval(interval)
           generateReport()
           phase.value = 'result'
+          setTimeout(() => { showPayment.value = true }, 1500)
         }, 4000)
       }
 
@@ -3078,7 +3081,36 @@
         router.push('/')
       }
 
-      return { phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating, provList, cityList, countyList }
+      const showPayment = ref(false)
+      const hasPaid = ref(false)
+      const isTyping = ref(false)
+      const displayedDeepText = ref('')
+
+      const handlePaymentSuccess = () => {
+        hasPaid.value = true
+        showPayment.value = false
+        isTyping.value = true
+        displayedDeepText.value = ''
+        
+        const fullText = `【内驱动力解析】\n\n金星（${report.value.innerPlanets[0].sign}）：${report.value.innerPlanets[0].interpretation}\n\n火星（${report.value.innerPlanets[1].sign}）：${report.value.innerPlanets[1].interpretation}\n\n水星（${report.value.innerPlanets[2].sign}）：${report.value.innerPlanets[2].interpretation}\n\n木星（${report.value.innerPlanets[3].sign}）：${report.value.innerPlanets[3].interpretation}\n\n【流年运势推演】\n\n${report.value.transits[0].label} - ${report.value.transits[0].title}：\n${report.value.transits[0].desc}\n\n${report.value.transits[1].label} - ${report.value.transits[1].title}：\n${report.value.transits[1].desc}`;
+
+        saveToArchive('Astrology', '本命星盘报告', fullText);
+        
+        let i = 0
+        const typeInterval = setInterval(() => {
+          displayedDeepText.value += fullText.charAt(i)
+          i++
+          if (i >= fullText.length) {
+            clearInterval(typeInterval)
+            isTyping.value = false
+          }
+        }, 30)
+      }
+
+      return { 
+        phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating, provList, cityList, countyList,
+        showPayment, hasPaid, isTyping, displayedDeepText, handlePaymentSuccess
+      }
     },
     template: `
       <main class="test-container astro-test">
@@ -3155,31 +3187,28 @@
               </div>
             </section>
 
-            <!-- Inner Planets -->
-            <section class="astro-section" v-reveal style="transition-delay: 0.2s">
-              <h3 class="section-title">内驱动力 <span>(Inner Planets)</span></h3>
-              <div class="planet-grid inner-planets">
-                <div class="planet-card" v-for="p in report.innerPlanets" :key="p.id">
-                  <div class="planet-header">
-                    <span class="planet-name">{{ p.name }} ({{ p.title }})</span>
-                    <span class="planet-sign">{{ p.sign }}</span>
-                  </div>
-                  <p class="planet-desc">{{ p.interpretation }}</p>
+            <!-- Paywall / Deep Content -->
+            <div class="deep-result-container" style="margin-top: 40px;">
+              <div class="paywall-overlay" v-if="!hasPaid">
+                <div class="paywall-content">
+                  <h3>✦ 解锁星盘深层密码</h3>
+                  <p>包含：内驱动力（金火水木星）解析、近期流年运势推演、灵魂课题指导。</p>
+                  <div class="price">¥ 9.90 <span class="original-price">¥ 88.00</span></div>
+                  <button class="primary-action pay-btn" @click="showPayment = true">解锁完整星盘报告</button>
                 </div>
               </div>
-            </section>
 
-            <!-- Transits -->
-            <section class="astro-section" v-reveal style="transition-delay: 0.3s">
-              <h3 class="section-title">流年运势 <span>(Current Transits)</span></h3>
-              <div class="transit-list">
-                <div class="transit-card" v-for="(t, i) in report.transits" :key="i">
-                  <div class="transit-label">{{ t.label }}</div>
-                  <h4>{{ t.title }}：{{ t.subtitle }}</h4>
-                  <p>{{ t.desc }}</p>
-                </div>
+              <div class="deep-content ai-mode" v-if="hasPaid">
+                 <h3 style="color:var(--blue);margin-bottom:16px;">
+                   <span class="qr-icon" style="font-size:18px;">✨</span> 宇宙深层感应已建立...
+                 </h3>
+                 <div class="reading-block deep-block ai-response" style="min-height:300px;">
+                    <p class="reading-text deep-text" style="white-space:pre-wrap;">{{ displayedDeepText }}<span class="typewriter-cursor" v-if="isTyping"></span></p>
+                 </div>
               </div>
-            </section>
+            </div>
+
+            <PaymentModal v-if="showPayment" @close="showPayment = false" @success="handlePaymentSuccess" />
 
             <!-- Actions -->
             <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center; gap: 20px; flex-wrap: wrap;">
