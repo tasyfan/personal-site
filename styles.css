@@ -432,6 +432,13 @@ h3 {
   gap: 30px;
 }
 
+@media (min-width: 861px) {
+  /* Center the last card if it's the only one in the row (e.g. 7th card) */
+  .block-grid article:last-child:nth-child(3n + 1) {
+    grid-column: 2;
+  }
+}
+
 .block-grid article {
   min-height: 250px;
   padding: 28px;
