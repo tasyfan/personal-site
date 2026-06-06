@@ -3485,7 +3485,7 @@
               <h2>双人宿命合盘</h2>
               <p class="lede">输入你们两人的出生信息，揭示前世羁绊与今生灵魂契合度。</p>
             </div>
-            <div class="test-form" v-reveal style="transition-delay: 0.1s; max-width: 800px; display: flex; flex-wrap: wrap; gap: 30px;">
+            <div class="test-form" v-reveal style="transition-delay: 0.1s; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 30px;">
               <div style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; border: 1px solid rgba(255,126,95,0.3);">
                 <h3 style="color: #ff7e5f; margin-bottom: 20px;">✧ Person A (你)</h3>
                 <div class="form-group">
