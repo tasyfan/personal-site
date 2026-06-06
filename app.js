@@ -724,6 +724,19 @@
 
   // ─── PaymentModal Component (Personal QR Code Flow) ───────────
 
+  // ─── ARCHIVE HELPER ──────────────────────────────────────────
+  const saveToArchive = (type, title, data) => {
+    try {
+      const archives = JSON.parse(localStorage.getItem('northstar_archives') || '[]')
+      archives.unshift({
+        id: Date.now().toString(),
+        type, title, data,
+        date: new Date().toLocaleDateString()
+      })
+      localStorage.setItem('northstar_archives', JSON.stringify(archives))
+    } catch(e) {}
+  }
+
   const PaymentModal = defineComponent({
     name: 'PaymentModal',
     emits: ['close', 'success'],
