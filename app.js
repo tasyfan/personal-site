@@ -1632,7 +1632,7 @@
         <div class="test-header" v-reveal>
           <p class="section-kicker">PERSONALITY ASSESSMENT</p>
           <h2>MBTI 性格原型解析</h2>
-          <p class="lede">请凭直觉回答以下 12 个问题，探索你最深层的灵魂密码。</p>
+          <p class="lede">请凭直觉回答以下 {{ MBTI_QUESTIONS.length }} 个问题，探索你最深层的灵魂密码。</p>
         </div>
 
         <div class="mbti-progress-container" v-reveal>
