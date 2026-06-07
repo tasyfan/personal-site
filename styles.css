@@ -2016,19 +2016,20 @@ h3 {
 }
 
 .form-wrapper {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
   padding: 40px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
   .form-wrapper {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -2046,19 +2047,20 @@ h3 {
 
 .astro-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   padding: 14px 16px;
   font-size: 16px;
   font-family: inherit;
   color: var(--text);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 .astro-input:focus {
   outline: none;
   border-color: var(--blue);
-  background: rgba(0, 0, 0, 0.01);
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(110, 86, 207, 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -2069,6 +2071,7 @@ h3 {
   .astro-input:focus {
     border-color: var(--blue);
     background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
   }
 }
 
