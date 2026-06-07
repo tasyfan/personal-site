@@ -3358,13 +3358,19 @@
       const currentQ = computed(() => AURA_QUESTIONS[currentQuestionIndex.value])
       const progress = computed(() => ((currentQuestionIndex.value) / AURA_QUESTIONS.length) * 100)
 
+      const selectedAnswer = ref(null)
       const selectAnswer = (color) => {
+        if (selectedAnswer.value !== null) return // prevent double click
+        selectedAnswer.value = color
         colorScores.value[color]++
-        if (currentQuestionIndex.value < AURA_QUESTIONS.length - 1) {
-          currentQuestionIndex.value++
-        } else {
-          finishTest()
-        }
+        setTimeout(() => {
+          if (currentQuestionIndex.value < AURA_QUESTIONS.length - 1) {
+            currentQuestionIndex.value++
+            selectedAnswer.value = null
+          } else {
+            finishTest()
+          }
+        }, 400)
       }
 
       const finishTest = () => {
@@ -3416,7 +3422,7 @@
       return {
         AURA_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
         auraResult, hasPaid, showPayment, isTyping, displayedDeepText,
-        selectAnswer, handlePaymentSuccess
+        selectedAnswer, selectAnswer, handlePaymentSuccess
       }
     },
     template: `
@@ -3430,14 +3436,19 @@
               <p class="lede" style="margin: 0 auto;">凭借直觉回答，测算你当下的灵魂光谱与能量频率。</p>
             </div>
             <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%'}"></div></div>
-            <div class="question-card" v-reveal key="currentQuestionIndex">
-              <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
-              <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
-                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.color)">
-                  {{ opt.text }}
-                </button>
+            <transition name="slide-up" mode="out-in">
+              <div class="question-card active" :key="'q-' + currentQuestionIndex">
+                <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
+                <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
+                  <button v-for="(opt, idx) in currentQ.options" :key="idx" 
+                          class="premium-option-btn" 
+                          :class="{ selected: selectedAnswer === opt.color }"
+                          @click="selectAnswer(opt.color)">
+                    {{ opt.text }}
+                  </button>
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
 
           <div v-else-if="phase === 'loading'" key="loading" class="loading-state">
@@ -3542,13 +3553,19 @@
       const currentQ = computed(() => SHADOW_QUESTIONS[currentQuestionIndex.value])
       const progress = computed(() => ((currentQuestionIndex.value) / SHADOW_QUESTIONS.length) * 100)
 
+      const selectedAnswer = ref(null)
       const selectAnswer = (shadow) => {
+        if (selectedAnswer.value !== null) return
+        selectedAnswer.value = shadow
         shadowScores.value[shadow]++
-        if (currentQuestionIndex.value < SHADOW_QUESTIONS.length - 1) {
-          currentQuestionIndex.value++
-        } else {
-          finishTest()
-        }
+        setTimeout(() => {
+          if (currentQuestionIndex.value < SHADOW_QUESTIONS.length - 1) {
+            currentQuestionIndex.value++
+            selectedAnswer.value = null
+          } else {
+            finishTest()
+          }
+        }, 400)
       }
 
       const finishTest = () => {
@@ -3595,7 +3612,7 @@
       return {
         SHADOW_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
         shadowResult, hasPaid, showPayment, isTyping, displayedDeepText,
-        selectAnswer, handlePaymentSuccess
+        selectedAnswer, selectAnswer, handlePaymentSuccess
       }
     },
     template: `
@@ -3609,14 +3626,19 @@
               <p class="lede" style="margin: 0 auto;">基于荣格心理学，直面你潜意识深处最不愿承认的核心恐惧。</p>
             </div>
             <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%', background: '#333'}"></div></div>
-            <div class="question-card" v-reveal key="currentQuestionIndex">
-              <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
-              <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
-                <button v-for="(opt, idx) in currentQ.options" :key="idx" class="mbti-option" @click="selectAnswer(opt.shadow)">
-                  {{ opt.text }}
-                </button>
+            <transition name="slide-up" mode="out-in">
+              <div class="question-card active" :key="'q-' + currentQuestionIndex">
+                <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
+                <div class="options-grid" style="display: flex; flex-direction: column; gap: 15px;">
+                  <button v-for="(opt, idx) in currentQ.options" :key="idx" 
+                          class="premium-option-btn" 
+                          :class="{ selected: selectedAnswer === opt.shadow }"
+                          @click="selectAnswer(opt.shadow)">
+                    {{ opt.text }}
+                  </button>
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
 
           <div v-else-if="phase === 'loading'" key="loading" class="loading-state">

@@ -2969,3 +2969,38 @@ h3 {
   letter-spacing: 1px;
 }
 .planet-desc { white-space: pre-wrap; }
+
+/* Premium Option Button for Aura & Shadow Tests */
+.premium-option-btn {
+  display: block;
+  width: 100%;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.premium-option-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.premium-option-btn.selected {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+  transform: scale(0.98);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+}
