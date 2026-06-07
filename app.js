@@ -3285,51 +3285,16 @@
   
   // ─── AURA TEST PAGE ─────────────────────────────────────────
   const AURA_QUESTIONS = [
-    {
-      text: '走进一个空无一人的房间，你首先会被什么吸引？',
-      options: [
-        { text: '窗外透进来的光束', color: 'yellow' },
-        { text: '角落里静止的植物', color: 'green' },
-        { text: '空气中微妙的温度变化', color: 'blue' },
-        { text: '地板上的阴影与纹理', color: 'purple' }
-      ]
-    },
-    {
-      text: '如果可以把自己的情绪实体化，你觉得它最像：',
-      options: [
-        { text: '熊熊燃烧的营火', color: 'red' },
-        { text: '缓缓流动的深水', color: 'blue' },
-        { text: '自由穿梭的微风', color: 'yellow' },
-        { text: '坚固厚实的晶石', color: 'green' }
-      ]
-    },
-    {
-      text: '当你感到极度疲惫时，哪种场景能让你最快回血？',
-      options: [
-        { text: '在热闹的音乐节里疯狂出汗', color: 'red' },
-        { text: '独自一人在海边看海浪发呆', color: 'blue' },
-        { text: '和两三个挚友在咖啡馆深度对谈', color: 'orange' },
-        { text: '睡在一个完全黑暗安静的房间', color: 'purple' }
-      ]
-    },
-    {
-      text: '在一段完美的关系里，你最看重的是什么？',
-      options: [
-        { text: '绝对的激情与同步的行动力', color: 'red' },
-        { text: '灵魂深处的相互理解与包容', color: 'blue' },
-        { text: '能够共同成长、探索未知', color: 'yellow' },
-        { text: '稳固的安全感与日常陪伴', color: 'green' }
-      ]
-    },
-    {
-      text: '如果宇宙只给你一种魔法，你希望是：',
-      options: [
-        { text: '读心术：看透所有的真实想法', color: 'purple' },
-        { text: '治愈术：抚平一切伤痛', color: 'green' },
-        { text: '时间跃迁：回到过去或去往未来', color: 'blue' },
-        { text: '显化术：让想象瞬间变成现实', color: 'orange' }
-      ]
-    }
+    { text: '走进一个空无一人的房间，你首先会被什么吸引？', options: [ { text: '窗外透进来的光束', color: 'yellow' }, { text: '角落里静止的植物', color: 'green' }, { text: '空气中微妙的温度变化', color: 'blue' }, { text: '地板上的阴影与纹理', color: 'purple' } ] },
+    { text: '如果可以把自己的情绪实体化，你觉得它最像：', options: [ { text: '熊熊燃烧的营火', color: 'red' }, { text: '缓缓流动的深水', color: 'blue' }, { text: '自由穿梭的微风', color: 'yellow' }, { text: '坚固厚实的晶石', color: 'green' } ] },
+    { text: '当你感到极度疲惫时，哪种场景能让你最快回血？', options: [ { text: '在热闹的音乐节里疯狂出汗', color: 'red' }, { text: '独自一人在海边看海浪发呆', color: 'blue' }, { text: '和两三个挚友在咖啡馆深度对谈', color: 'orange' }, { text: '睡在一个完全黑暗安静的房间', color: 'purple' } ] },
+    { text: '在一段完美的关系里，你最看重的是什么？', options: [ { text: '绝对的激情与同步的行动力', color: 'red' }, { text: '灵魂深处的相互理解与包容', color: 'blue' }, { text: '能够共同成长、探索未知', color: 'yellow' }, { text: '稳固的安全感与日常陪伴', color: 'green' } ] },
+    { text: '如果宇宙只给你一种魔法，你希望是：', options: [ { text: '读心术：看透所有的真实想法', color: 'purple' }, { text: '治愈术：抚平一切伤痛', color: 'green' }, { text: '时间跃迁：回到过去或去往未来', color: 'blue' }, { text: '显化术：让想象瞬间变成现实', color: 'orange' } ] },
+    { text: '当你置身于森林中，你首先听到的声音是：', options: [ { text: '踩在落叶上的清脆声', color: 'orange' }, { text: '远处传来的流水声', color: 'blue' }, { text: '树叶在风中沙沙作响', color: 'yellow' }, { text: '某种不知名动物的低鸣', color: 'purple' } ] },
+    { text: '朋友遇到挫折向你倾诉，你的第一反应是：', options: [ { text: '立刻帮TA分析问题并给出解决方案', color: 'red' }, { text: '给TA一个大大的拥抱，静静陪伴', color: 'green' }, { text: '带TA去吃顿好的，或者出去嗨', color: 'orange' }, { text: '引导TA换个角度思考，寻找深层意义', color: 'purple' } ] },
+    { text: '如果你是一座建筑，你会是：', options: [ { text: '一座历史悠久、充满藏书的古老城堡', color: 'purple' }, { text: '一座四面透明、阳光充足的玻璃房', color: 'yellow' }, { text: '一座依山傍水、融于自然的木屋', color: 'green' }, { text: '一座现代感十足、功能齐全的摩天大楼', color: 'red' } ] },
+    { text: '当你在处理一项复杂的工作时，你的工作台通常是：', options: [ { text: '井井有条，每个物品都有固定的位置', color: 'green' }, { text: '看似杂乱，但我总能精准找到需要的东西', color: 'orange' }, { text: '只放最必要的几件东西，极其极简', color: 'blue' }, { text: '摆满了各种能给我灵感的小物件', color: 'yellow' } ] },
+    { text: '面对突如其来的变化，你的内心独白更接近：', options: [ { text: '“太棒了，终于有新鲜事发生了！”', color: 'orange' }, { text: '“有点慌，但我能迅速调整计划。”', color: 'red' }, { text: '“无所谓，顺其自然吧。”', color: 'blue' }, { text: '“这背后一定有什么更深的寓意。”', color: 'purple' } ] }
   ]
 
   const COLOR_MAP = {
