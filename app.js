@@ -3356,7 +3356,12 @@
       const auraResult = ref(null)
 
       const currentQ = computed(() => AURA_QUESTIONS[currentQuestionIndex.value])
-      const progress = computed(() => ((currentQuestionIndex.value) / AURA_QUESTIONS.length) * 100)
+      const answeredCount = computed(() => {
+        let count = currentQuestionIndex.value
+        if (selectedAnswer.value !== null) count += 1
+        return count
+      })
+      const progress = computed(() => (answeredCount.value / AURA_QUESTIONS.length) * 100)
 
       const selectedAnswer = ref(null)
       const selectAnswer = (color) => {
@@ -3560,7 +3565,12 @@
       const shadowResult = ref(null)
 
       const currentQ = computed(() => SHADOW_QUESTIONS[currentQuestionIndex.value])
-      const progress = computed(() => ((currentQuestionIndex.value) / SHADOW_QUESTIONS.length) * 100)
+      const answeredCount = computed(() => {
+        let count = currentQuestionIndex.value
+        if (selectedAnswer.value !== null) count += 1
+        return count
+      })
+      const progress = computed(() => (answeredCount.value / SHADOW_QUESTIONS.length) * 100)
 
       const selectedAnswer = ref(null)
       const selectAnswer = (shadow) => {
@@ -3634,7 +3644,12 @@
               <h2>灵魂暗影原型测试</h2>
               <p class="lede" style="margin: 0 auto;">基于荣格心理学，直面你潜意识深处最不愿承认的核心恐惧。</p>
             </div>
-            <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%', background: '#333'}"></div></div>
+            <div class="mbti-progress-container" style="margin-top: 30px; margin-bottom: 30px;">
+              <div class="mbti-progress-bar">
+                <div class="mbti-progress-fill" :style="{ width: progress + '%', background: 'linear-gradient(90deg, #556270, #2c3e50)' }"></div>
+              </div>
+              <div class="mbti-progress-text" style="text-align: center; margin-top: 10px;">已完成 {{ answeredCount }} / {{ SHADOW_QUESTIONS.length }}</div>
+            </div>
             <transition name="slide-up" mode="out-in">
               <div class="question-card active" :key="'q-' + currentQuestionIndex">
                 <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
