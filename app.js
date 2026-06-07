@@ -15,10 +15,75 @@
   }
 
   const { createApp, ref, reactive, computed, defineComponent, watch, onMounted, nextTick } = Vue
+  
+  // Apply external content data
+  setTimeout(() => {
+    try {
+      if (window.TAROT_DATA) {
+        Object.keys(window.TAROT_DATA.cards).forEach(key => {
+          if (MAJOR_ARCANA[key]) {
+            MAJOR_ARCANA[key].deep = {
+              upright: window.TAROT_DATA.cards[key].upright,
+              reversed: window.TAROT_DATA.cards[key].reversed
+            };
+          }
+        });
+      }
+      if (window.MBTI_DATA && window.MBTI_DATA.types) {
+        Object.keys(window.MBTI_DATA.types).forEach(k => {
+          if (MBTI_PROFILES[k]) {
+            MBTI_PROFILES[k].deep = window.MBTI_DATA.types[k].deep;
+            if(window.MBTI_DATA.types[k].desc) MBTI_PROFILES[k].desc = window.MBTI_DATA.types[k].desc;
+          }
+        });
+      }
+      if (window.ATTACHMENT_DATA && window.ATTACHMENT_DATA.types) {
+        Object.keys(window.ATTACHMENT_DATA.types).forEach(k => {
+          let pk = k === 'secure' ? '安全型' : k === 'anxious' ? '焦虑型' : k === 'avoidant' ? '回避型' : '恐惧型';
+          if (ATTACHMENT_PROFILES[pk]) ATTACHMENT_PROFILES[pk].deep = window.ATTACHMENT_DATA.types[k].deep;
+        });
+      }
+      if (window.BAZI_DATA && window.BAZI_DATA.dayMasters && typeof BAZI_DAY_MASTERS !== 'undefined') {
+        const names = Object.keys(window.BAZI_DATA.dayMasters);
+        names.forEach((name, idx) => {
+          if (BAZI_DAY_MASTERS[idx]) BAZI_DAY_MASTERS[idx].deep = window.BAZI_DATA.dayMasters[name].deep;
+        });
+      }
+      if (window.HD_DATA && window.HD_DATA.types && typeof HD_TYPES !== 'undefined') {
+        // HD_TYPES is an array in old code? Let's check how HD_TYPES is used.
+        // Actually earlier grep showed "let HD_TYPES = ["
+        // Let's just merge by matching names
+        Object.keys(window.HD_DATA.types).forEach(k => {
+          let name = window.HD_DATA.types[k].name;
+          let target = HD_TYPES.find(t => t.name === name || name.includes(t.name) || t.name.includes(name.split(' ')[0]));
+          if (target) target.deep = window.HD_DATA.types[k].deep;
+        });
+      }
+      if (window.ASTROLOGY_DATA && window.ASTROLOGY_DATA.zodiacs && typeof ZODIAC_TRAITS !== 'undefined') {
+        Object.keys(window.ASTROLOGY_DATA.zodiacs).forEach(k => {
+          let baseName = k.split(' ')[0];
+          let targetKey = Object.keys(ZODIAC_TRAITS).find(z => z.includes(baseName) || baseName.includes(z));
+          if (targetKey) ZODIAC_TRAITS[targetKey].deep = window.ASTROLOGY_DATA.zodiacs[k].deep;
+        });
+      }
+      if (window.AURA_DATA && window.AURA_DATA.colors) {
+        Object.keys(window.AURA_DATA.colors).forEach(k => {
+          if (COLOR_MAP[k]) COLOR_MAP[k].deep = window.AURA_DATA.colors[k].deep;
+        });
+      }
+      if (window.SHADOW_DATA && window.SHADOW_DATA.archetypes) {
+        Object.keys(window.SHADOW_DATA.archetypes).forEach(k => {
+          if (SHADOW_MAP[k]) SHADOW_MAP[k].deep = window.SHADOW_DATA.archetypes[k].deep;
+        });
+      }
+    } catch (e) {
+      console.error("Content Merge Error: ", e);
+    }
+  }, 0);
   const { createRouter, createWebHashHistory, useRouter, useRoute } = VueRouter
 
   // ─── TAROT DATABASE: 22 Major Arcana ────────────────────────
-  const MAJOR_ARCANA = [
+  let MAJOR_ARCANA = [
     {
       id: 0, name: '愚者', nameEn: 'The Fool', numeral: '0', symbol: '🌟',
       keywords: { upright: '新的开始、纯真、自由、冒险', reversed: '鲁莽、冲动、不计后果' },
@@ -643,7 +708,25 @@
     question: '',
     selectedCards: [],   // [{card, isReversed, position}]
     mbtiResult: null,
-    attachmentResult: null
+    attachmentResult: null,
+    async createOrder(testType, payload) {
+      try {
+        const res = await fetch('/api/tests/' + testType + '/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        return data.orderId;
+      } catch(e) { console.error(e); return null; }
+    },
+    async fetchResult(orderId) {
+      try {
+        const res = await fetch('/api/tests/result/' + orderId);
+        const data = await res.json();
+        return data;
+      } catch(e) { console.error(e); return null; }
+    }
   })
 
   // ─── Utility: shuffle array ─────────────────────────────────
@@ -739,6 +822,7 @@
 
   const PaymentModal = defineComponent({
     name: 'PaymentModal',
+    props: ['orderId'],
     emits: ['close', 'success'],
     setup(props, { emit }) {
       const step = ref('scan')        // 'scan' | 'processing'
@@ -747,21 +831,21 @@
 
       const checkPaymentStatus = () => {
         step.value = 'processing'
-
-        // 【高仿真支付网关轮询架构】
-        // 这里是给未来接入真实支付留出的接口位置。
-        // 未来逻辑：发送请求到你的后端 -> 后端查询微信/支付宝账单状态 -> 返回 paid
-        // 当前逻辑：前端模拟 2.5 秒的真实网络延迟后直接放行。
-        setTimeout(() => {
-          // 记录订单以供本地档案库关联
-          try {
-            const records = JSON.parse(localStorage.getItem('ns_payments') || '[]')
-            records.push({ ref: 'MOCK_ORDER_' + Date.now(), method: payMethod.value, time: new Date().toISOString() })
-            localStorage.setItem('ns_payments', JSON.stringify(records))
-          } catch(e) {}
-
-          emit('success')
-        }, 2500)
+        
+        // 调用后端沙盒支付接口
+        fetch('/api/payment/mock-webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderId: props.orderId })
+        }).then(() => {
+          setTimeout(() => {
+            emit('success')
+          }, 1500);
+        }).catch(e => {
+          console.error(e);
+          // Fallback just in case
+          setTimeout(() => { emit('success') }, 1500);
+        });
       }
 
       return { step, payMethod, todayCount, checkPaymentStatus }
@@ -1250,6 +1334,7 @@
     setup() {
       const router = useRouter()
       const showPayment = ref(false)
+      const orderId = ref(null)
       const hasPaid = ref(false)
 
       // If no cards selected, redirect
@@ -1276,7 +1361,8 @@
       const getDeepMeaning = (item) => {
         const dir = item.isReversed ? 'reversed' : 'upright'
         const pos = item.position === '过去' ? 'past' : item.position === '现在' ? 'present' : 'future'
-        return item.card.deep[dir][pos]
+        if (typeof item.card.deep[dir] === 'string') return item.card.deep[dir];
+        return item.card.deep[dir][pos];
       }
 
       const startTypewriter = (fullText) => {
@@ -1541,7 +1627,7 @@
     { id: 60, trait: 'J_P', text: '在我看来，一个混乱或未完结的状态是难以忍受的，我需要及时的“闭环”。' }
   ]
 
-  const MBTI_PROFILES = {
+  let MBTI_PROFILES = {
     INTJ: { name: '建筑师', en: 'Architect', desc: '富有想象力和战略性的思想家，一切皆在计划之中。', deep: '【核心人格解码】作为INTJ，你的主导功能是内倾直觉（Ni），辅助功能是外倾思考（Te）。这意味着你拥有极其罕见的“战略透视”能力——你能同时看到事物的本质与未来趋势，并迅速制定出最优路径。你的大脑像一台精密的国际象棋引擎，永远在推演后续的五步棋。这种能力让你在人群中既显得孤独又无比强大。\n\n【潜意识驱动力】你的第三功能内倾情感（Fi）和劣势功能外倾感觉（Se）揭示了你内心深处的秘密：你其实比任何人都渴望被理解，但你的高标准让你很难找到“配得上”与你交心的人。你的潜意识驱动力是“证明自己的愿景是正确的”，这让你在被质疑时格外痛苦。\n\n【职场天命指南】最佳赛道：战略咨询、人工智能、投资分析、建筑设计、科学研究。你天生适合需要长期独立深度思考的岗位，讨厌没有意义的社交和会议。你的赚钱天赋在于“看到别人看不到的趋势”——无论是投资、创业还是技术革新。理想工作环境：高自主权、结果导向、远离办公室政治。\n\n【灵魂伴侣图谱】最佳灵魂伴侣：ENFP（竞选者）和ENTP（辩论家）。ENFP能用温暖和热情融化你理性的外壳，而ENTP能在智力上与你旗鼓相当。你在关系中需要的是一个既尊重你独处空间、又能偶尔把你拉出思维迷宫的人。避开过度依赖型的伴侣——窒息感是你的关系杀手。\n\n【致命弱点与破解】你最大的盲区是“情感盲”——你容易把他人的情感需求视为“不理性”而忽略。破解方法：每天花5分钟问自己“今天身边的人感受如何”，刻意训练共情肌肉。\n\n【本月能量预测】本月你的Ni直觉将异常敏锐，可能会收到一个关于未来方向的重要灵感。建议在月中前将它落地为具体计划——否则它会和其他被搁置的想法一样消散。' },
     INTP: { name: '逻辑学家', en: 'Logician', desc: '具有创造力的发明家，对知识有着不可遏制的渴望。', deep: '【核心人格解码】作为INTP，你的主导功能内倾思考（Ti）赋予了你对逻辑一致性的极致追求。你的大脑就像一台永不休眠的超级计算机，时刻在分析、解构和重组接收到的信息。辅助功能外倾直觉（Ne）又给了你跳跃性的创造力——你能在看似毫无关联的概念之间找到隐秘的联系，这种能力让你在科学、哲学或编程领域往往能产生突破性的洞见。\n\n【潜意识驱动力】你的劣势功能外倾情感（Fe）揭示了一个秘密：你其实非常在意他人的看法，只是你用“我不在乎”来掩饰这种脆弱。你的潜意识驱动力是“寻找宇宙运行的终极逻辑”——这种对真理的执着既是你的天赋，也是让你在凌晨三点还在想问题的诅咒。\n\n【职场天命指南】最佳赛道：软件架构师、数据科学家、哲学教授、量化分析师、独立游戏开发者。你需要一个允许“探索性思考”的环境，讨厌僵化的流程和无意义的汇报。你的赚钱天赋在于“将复杂问题简化为优雅的解决方案”。警告：远离销售和行政类工作，那会慢慢杀死你的灵魂。\n\n【灵魂伴侣图谱】最佳灵魂伴侣：ENTJ（指挥官）和ENFJ（主人公）。ENTJ能帮你把脑海中的理论变为现实，ENFJ则能教会你如何与自己的情感和解。你需要一个既欣赏你的智慧、又不会因为你的心不在焉而受伤的伴侣。\n\n【致命弱点与破解】你最大的敌人是“分析瘫痪”——你会在脑海中构建了宏大的理论体系，却迟迟无法迈出第一步。破解方法：设定72小时行动法则——任何想法如果72小时内没有开始执行，就强制启动最小可行版本。\n\n【本月能量预测】本月适合深入钻研一个你长期感兴趣的课题。你的Ne功能将带来一次顿悟时刻，但请立刻记录下来——你的短期记忆远不如你的长期洞察力可靠。' },
     ENTJ: { name: '指挥官', en: 'Commander', desc: '大胆、富有想象力且意志强大的领导者，总能找到或创造解决方法。', deep: '【核心人格解码】作为ENTJ，你天生散发着掌控全局的王者气场。外倾思考（Te）作为你的主导功能，让你在面对复杂局面时能够迅速制定战略、分配资源并高效执行。辅助功能内倾直觉（Ni）又赋予你精准的预判力——你总能提前看到别人看不到的趋势。你是16型人格中最具领导力的类型，天生就是为了指挥千军万马而来。\n\n【潜意识驱动力】你的劣势功能内倾情感（Fi）是你灵魂深处最柔软的角落。你潜意识中最大的恐惧是失控和“被证明是无能的”。这驱使你不断追求更高的效率和更大的权力，但也让你在极端情况下变得专制和不近人情。理解这一点，是你走向成熟的关键。\n\n【职场天命指南】最佳赛道：CEO、创业者、投资银行家、管理咨询师、律师事务所合伙人。你天生适合站在权力的顶端做决策。你的赚钱天赋在于“整合资源、优化系统、创造规模效应”。忠告：不要只做管理者，要做愿景缔造者——前者让人服从，后者让人追随。\n\n【灵魂伴侣图谱】最佳灵魂伴侣：INFP（调停者）和INTP（逻辑学家）。INFP的温柔和理想主义能治愈你内心深处不愿示人的脆弱，INTP的智慧深度能让你在思想上找到真正的对手。你需要一个不被你的气场吓退、敢于挑战你的人。\n\n【致命弱点与破解】你最大的盲区是“把人当棋子”——你容易在追求目标时忽略团队成员的情感需求。破解方法：每周安排一次不谈工作的一对一沟通，真诚地问对方“你最近感觉怎么样”。\n\n【本月能量预测】本月你的Te效率将达到巅峰，是推进重大项目的黄金期。但宇宙也提醒你：在做出一个重要决定之前，花30分钟独处，听听你内心那个微弱但重要的Fi声音。' },
@@ -1708,6 +1794,7 @@
     setup() {
       const router = useRouter()
       const showPayment = ref(false)
+      const orderId = ref(null)
       const hasPaid = ref(false)
       const displayedDeepText = ref('')
       const isTyping = ref(false)
@@ -1923,7 +2010,7 @@
     { id: 36, trait: 'anxiety', text: '如果伴侣一段时间没有回我信息，我就会忍不住胡思乱想。' }
   ]
 
-    const ATTACHMENT_PROFILES = {
+    let ATTACHMENT_PROFILES = {
     secure: {
       name: '安全型依恋',
       en: 'Secure',
@@ -2094,6 +2181,7 @@
     setup() {
       const router = useRouter()
       const showPayment = ref(false)
+      const orderId = ref(null)
       const hasPaid = ref(false)
       const displayedDeepText = ref('')
       const isTyping = ref(false)
@@ -2263,7 +2351,7 @@
   // ─── App Shell ──────────────────────────────────────────────
 
 
-  const BAZI_DAY_MASTERS = [
+  let BAZI_DAY_MASTERS = [
     { id: 0, name: '甲木', symbol: '🌳', short: '参天大树，倔强不屈', deep: '【日主：甲木】\n你的命元是甲木，代表参天大树。在你的潜意识深处，有着一种极强的向上的原始驱动力。你性格刚直，有着极高的道德感和原则性。然而，过刚易折，你的灵魂课题是学习“妥协的艺术”。在感情中，你往往是撑起一片天的那个人，但也容易因为过于强势而让伴侣感到压力。\n\n【财运格局】\n你的财富密码在于“扎根”。你不适合赚快钱，你需要在一个领域深耕3到5年，当你的根系足够发达时，财富会呈现爆炸式增长。\n\n【前世业力与今生课题】\n前世的你可能是一位将军或领袖，背负了太多的责任。今生你需要学会的是：允许自己脆弱，允许别人来照顾你。' },
     { id: 1, name: '乙木', symbol: '🌿', short: '藤蔓花草，柔韧圆融', deep: '【日主：乙木】\n你的命元是乙木，代表藤蔓花草。你的生存能力极强，擅长以柔克刚，借力打力。你的灵魂充满了同理心和艺术直觉。你的课题是“边界感”。因为太容易共情他人，你经常会消耗自己的能量。\n\n【财运格局】\n你的财富密码是“人脉圈层”。通过缠绕更高的树木（贵人），你可以轻松攀登到财富的顶端。你非常适合做连接者、平台或艺术相关的工作。\n\n【前世业力与今生课题】\n前世的你可能是一个和平主义者或医者。今生你需要学会的课题是：在爱别人之前，先学会狠狠地爱自己。' },
     { id: 2, name: '丙火', symbol: '☀️', short: '初升太阳，光芒万丈', deep: '【日主：丙火】\n你的命元是丙火，如同天上的太阳。你天生自带光芒，热情、慷慨、充满感染力。你习惯于照亮别人，是人群中的绝对核心。但太阳也有落山的时候，你的内心偶尔会感到一种深刻的孤独。\n\n【财运格局】\n你的财富来源于“影响力”。你越是无私地分享、展现自己，财富就越容易被你吸引。你不适合做幕后工作，你需要站在舞台中央。\n\n【前世业力与今生课题】\n前世的你可能是一位精神导师或祭司。今生你的课题是：接受自己的阴暗面。太阳不需要永远普照大地，你也有悲伤和索取的权利。' },
@@ -2276,7 +2364,7 @@
     { id: 9, name: '癸水', symbol: '🌧️', short: '雨露之水，润物无声', deep: '【日主：癸水】\n你的命元是癸水，代表雨露和云雾。你是所有日主中最空灵、最富有灵性的。你的直觉和第六感强得可怕，经常能预知事物的走向。你情感细腻，容易悲观。\n\n【财运格局】\n你的财富来源于“无形”。你适合从事玄学、心理学、企划或任何需要极强洞察力的工作。你能看到别人看不到的商机。\n\n【前世业力与今生课题】\n前世的你可能是一位巫师或修行者。今生的课题是：落地。你的灵魂经常漂浮在半空中，你需要通过运动、接触大自然来建立与地球的连接。' }
   ]
 
-  const HD_TYPES = [
+  let HD_TYPES = [
     { id: 0, name: '生产者', en: 'Generator', symbol: '🔋', short: '建造世界的基石，荐骨的绝对力量', deep: '【能量类型：生产者】\n你是占据人类70%的生产者。不要觉得普通，你是这个世界真正的引擎。你的核心动力中心（荐骨）是开启不竭能量的钥匙。然而，如果你在做自己不喜欢的事情，你会感到极度的“挫败感”。\n\n【内在权威与策略】\n你的策略是“等待回应”。不要主动发起，而是等待生命把选项带到你面前，然后听从你肚子里的“荐骨声音”（嗯/嗯-嗯）。当你违背荐骨的声音去做事，就是在消耗你的灵魂电量。\n\n【非我主题：挫败感】\n当你感到极度挫败、疲惫、想放弃时，这就是宇宙在提醒你：你走偏了。真正的你，在投入热爱的事物时，是完全不知疲倦的。' },
     { id: 1, name: '显示者', en: 'Manifestor', symbol: '⚡', short: '打破规则的先锋，纯粹的显化力量', deep: '【能量类型：显示者】\n你是极其罕见的显示者（仅占9%）。你是天生的发起人，你的气场是封闭且具有冲击力的。你来这个世界不是为了“工作”，而是为了“发起”。你可以无中生有，将想法瞬间显化。\n\n【内在权威与策略】\n你的策略是“告知”。因为你的能量太强，如果不提前告知身边的人你的决定，他们会本能地阻碍你。告知不是为了请求许可，而是为了清除你前进道路上的障碍。\n\n【非我主题：愤怒】\n当你感到无比愤怒、觉得周围人都在拖你后腿时，这就是你的“非我”状态。你需要属于自己的绝对空间。' },
     { id: 2, name: '投射者', en: 'Projector', symbol: '👁️', short: '洞察一切的向导，等待被邀请的智者', deep: '【能量类型：投射者】\n你是占据20%的投射者。你不是来做苦力的，你是来指导别人如何更好地使用能量的。你拥有看透他人灵魂深处的天赋，你的气场是聚焦且吸收的。\n\n【内在权威与策略】\n你的策略是“等待被邀请”。如果别人没有主动邀请你，你的建议只会招来反感和拒绝。当你在爱情、事业、重大选择中被正式邀请时，你的才华才能真正绽放。\n\n【非我主题：苦涩】\n当你感到不被认可、觉得“为什么他们都不懂我”时，苦涩感就会吞噬你。学会后退，打磨自己的专业，对的人自然会来邀请你。' },
@@ -2322,7 +2410,7 @@
       })
 
       onMounted(() => {
-        const data = typeof LOCATIONS_DATA !== 'undefined' ? LOCATIONS_DATA : []
+        const data = typeof LOCATIONS_DATA !== 'undefined' ? LOCATIONS_DATA : (window.LOCATIONS_DATA || []);
         rawLocations.value = data
         provList.value = data
         if (data.length > 0) formData.value.prov = data[0].name
@@ -2395,6 +2483,7 @@
       }
       const hasPaid = ref(false)
       const showPayment = ref(false)
+      const orderId = ref(null)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
 
@@ -2470,7 +2559,7 @@
       return {
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, baziResult,
-        hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText,
+        hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText, orderId,
         generatePoster,
         restart: () => phase.value = 'input'
       }
@@ -2560,7 +2649,7 @@
               <router-link class="secondary-action" to="/">返回首页</router-link>
             </div>
 
-            <PaymentModal v-if="showPayment" @close="showPayment = false" @success="handlePaymentSuccess" />
+            <PaymentModal v-if="showPayment" :orderId="orderId" @close="showPayment = false" @success="handlePaymentSuccess" />
           </div>
 
         </transition>
@@ -2627,7 +2716,7 @@
       })
 
       onMounted(() => {
-        const data = typeof LOCATIONS_DATA !== 'undefined' ? LOCATIONS_DATA : []
+        const data = typeof LOCATIONS_DATA !== 'undefined' ? LOCATIONS_DATA : (window.LOCATIONS_DATA || []);
         rawLocations.value = data
         provList.value = data
         if (data.length > 0) formData.value.prov = data[0].name
@@ -2688,6 +2777,7 @@
       }
       const hasPaid = ref(false)
       const showPayment = ref(false)
+      const orderId = ref(null)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
 
@@ -2764,7 +2854,7 @@
       return {
         phase, formData, loadingText, startCalculation,
         provList, cityList, countyList, hdResult,
-        hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText,
+        hasPaid, showPayment, handlePaymentSuccess, isTyping, displayedDeepText, orderId,
         generatePoster,
         restart: () => phase.value = 'input'
       }
@@ -2854,7 +2944,7 @@
               <router-link class="secondary-action" to="/">返回首页</router-link>
             </div>
 
-            <PaymentModal v-if="showPayment" @close="showPayment = false" @success="handlePaymentSuccess" />
+            <PaymentModal v-if="showPayment" :orderId="orderId" @close="showPayment = false" @success="handlePaymentSuccess" />
           </div>
 
         </transition>
@@ -2925,22 +3015,20 @@
 
 
   // ─── Astrology Test Page ──────────────────────────────────────
-  const ZODIAC_TRAITS = {
-    '白羊': '【灵魂蓝图：战神之火】你骨子里流淌着开拓者的血液，直接、勇敢、不加掩饰。作为黄道十二宫的第一宫，你的灵魂从不畏惧从零开始，甚至享受那种破釜沉舟的刺激感。\n\n【潜意识课业】你的优势在于惊人的行动力和感染他人的原始热情，但你的课题是学会在冲锋之前倾听。很多时候，你以为别人在针对你，其实那只是你内心的战神在寻找假想敌。\n\n【深层天赋】你拥有最纯粹的生命力。当所有人都因为恐惧而退缩时，你是那个敢于劈开荆棘的人。你的财富密码不在于精打细算，而在于凭借直觉和勇气抢占先机。\n\n【最佳拍档与克星】你最容易被天秤座的优雅所吸引，但也会被他们的犹豫不决逼疯。狮子座和射手座能与你一起燃烧，而巨蟹座的情绪化会让你感到窒息。',
-    '金牛': '【灵魂蓝图：大地之母】你散发着一种沉稳而坚定的力量，仿佛大地之母赋予了你无穷的耐心。你对物质与美的感知极度敏锐，渴望建立坚不可摧的安全感。\n\n【潜意识课业】你最大的挑战是学会拥抱变化。你讨厌失控，讨厌别人打乱你的节奏。但宇宙的法则是无常，当你过度执着于拥有某样东西时，它反而会成为困住你的枷锁。\n\n【深层天赋】你是黄道十二宫中最懂如何将无形的概念转化为有形财富的人。你的感官极其发达，这让你在艺术、美食、金融等领域有着极高的天赋。\n\n【最佳拍档与克星】处女座和摩羯座让你感到安全，天蝎座深邃的情感能触动你的灵魂。但水瓶座的飘忽不定和白羊座的急躁会让你极度没有安全感。',
-    '双子': '【灵魂蓝图：风中信使】你的灵魂如同变幻莫测的微风，充满好奇心与极致的智慧。你渴望信息与交流，讨厌一成不变。你是信息的搬运工，是打破常规的智者。\n\n【潜意识课业】你的速度太快，以至于很难在任何事物上停留太久。你的课题是如何在广度之外建立深度。不要用喋喋不休来掩饰你内心的焦虑，学会安静下来，面对真实的自己。\n\n【深层天赋】你拥有极其强大的适应力和沟通能力。你能轻易看出事物的两面性，这让你在任何需要变通、创意和传播的领域都能如鱼得水。\n\n【最佳拍档与克星】天秤座和水瓶座能跟上你的思维节奏，射手座能带你探索更广阔的世界。但处女座的吹毛求疵和双鱼座的情感泛滥会让你想要逃跑。',
-    '巨蟹': '【灵魂蓝图：深海明月】你拥有一颗柔软而极具共情力的心，像海绵一样感知周遭的情绪。家与绝对的安全感是你灵魂的避风港。你用坚硬的外壳保护着极度脆弱的内心。\n\n【潜意识课业】你的情绪如同潮汐，有时会把你彻底淹没。你的课题是学会分离“自己的情绪”和“别人的情绪”。不要用过度付出和控制来换取爱，真正的安全感只能自己给自己。\n\n【深层天赋】你拥有无与伦比的滋养能力和记忆力。你能让身边的人感到如沐春风的温暖，这让你在任何需要关怀、保护和疗愈的领域都能大放异彩。\n\n【最佳拍档与克星】天蝎座和双鱼座能理解你深沉的情感，摩羯座能给你稳定的现实支撑。但白羊座的粗线条和天秤座的冷漠会深深刺痛你。',
-    '狮子': '【灵魂蓝图：太阳之子】你天生自带耀眼的光芒与戏剧张力。你渴望被看见、被认可，拥有无与伦比的创造力与领导力。你的灵魂是高贵的，从不屑于暗箭伤人。\n\n【潜意识课业】你最大的恐惧是变得平庸和被忽视。这种恐惧有时会让你显得自大或过度需要掌声。你的课题是学会接受自己的脆弱——真正的王者不需要每一刻都戴着皇冠。\n\n【深层天赋】你拥有极其强大的个人魅力和创造力。只要你真心热爱一件事，你就能爆发出惊人的能量，并带领所有人一起前进。\n\n【最佳拍档与克星】白羊座和射手座能与你产生强烈的共鸣，水瓶座独特的视角能让你眼前一亮。但金牛座的固执和天蝎座的控制欲会引发强烈的权力斗争。',
-    '处女': '【灵魂蓝图：神圣秩序】你拥有一种近乎神圣的秩序感。你追求极致的完美与实用性，擅长在混乱中建立规则。你是一个谦逊的服务者，用细节拼凑出完美的拼图。\n\n【潜意识课业】你内心的裁判官永远在拿着放大镜寻找瑕疵，不仅对别人，更对自己。你的课题是学会放下“必须完美”的执念，接受生活本来就是由不完美组成的。\n\n【深层天赋】你拥有最高精度的分析能力和解决问题的能力。你是十二星座中的超级系统架构师，任何混乱的局面交给你，都能被梳理得井井有条。\n\n【最佳拍档与克星】金牛座和摩羯座能给你踏实的安全感，双鱼座的混沌能教会你放松。但双子座的多变和射手座的粗心大意会让你陷入抓狂。',
-    '天秤': '【灵魂蓝图：和谐天平】你一生的课题都在寻找极致的平衡与美感。你拥有极高的社交天赋，渴望在关系中照见真实的自己。你像一面镜子，反射出所有人的期待。\n\n【潜意识课业】你最大的挑战是过度讨好和优柔寡断。为了维持表面的和平，你常常压抑自己真实的愤怒。你的课题是学会说“不”，因为没有冲突的和谐只是虚伪的平静。\n\n【深层天赋】你是天生的外交家和审美大师。你能敏锐地捕捉到人际关系中的微妙张力，并用最优雅的方式化解它。你在任何需要合作和审美的领域都有着极高的天赋。\n\n【最佳拍档与克星】双子座和水瓶座是你的灵魂知音，白羊座的果断能弥补你的纠结。但巨蟹座的情绪化和摩羯座的冷酷会打破你内心的天平。',
-    '天蝎': '【灵魂蓝图：冥界行者】你拥有一种深邃到令人战栗的洞察力。你拒绝表象，渴望触碰绝对的真实，拥有浴火重生的极致力量。对你来说，要么全有，要么全无。\n\n【潜意识课业】你的掌控欲和疑心病来源于对背叛的深度恐惧。你的课题是学会信任，学会在不完全掌控的情况下依然感到安全。放下过去的仇恨，是你重生的唯一钥匙。\n\n【深层天赋】你拥有十二星座中最强大的心理韧性和洞察力。你能在绝境中爆发出惊人的能量，看穿所有的谎言与伪装，直击事物的本质。\n\n【最佳拍档与克星】巨蟹座和双鱼座能承载你深沉的情感，金牛座的稳定能给你极大的安全感。但狮子座的骄傲和水瓶座的疏离会引发你深层的焦虑。',
-    '射手': '【灵魂蓝图：星辰猎手】你的灵魂永远在路上，追寻着更高维度的真理与自由。你乐观、宏大，像一支射向星辰的利箭。你讨厌任何形式的束缚和琐碎的细节。\n\n【潜意识课业】你总是看着远方的目标，却经常忽略脚下的坑。你的逃避机制是“说走就走”。你的课题是学会面对现实的沉重，懂得自由并不是不承担责任，而是有选择地承担责任。\n\n【深层天赋】你是天生的哲学家和冒险家。你拥有极其宏大的视野和不可救药的乐观主义，这让你能在任何困境中看到希望，并激励他人。\n\n【最佳拍档与克星】白羊座和狮子座能跟上你的冒险步伐，双子座能与你进行有趣的智力激荡。但处女座的细碎和巨蟹座的羁绊会让你感到窒息。',
-    '摩羯': '【灵魂蓝图：孤高山羊】你拥有令人敬畏的世俗野心与绝对的纪律性。你就像一位攀登险峰的苦行僧，最终必将构筑自己的帝国。你相信一切都要靠实力说话。\n\n【潜意识课业】你的内心深处有一种深深的悲观底色。你太习惯于承担责任，以至于忘记了如何享受生活。你的课题是学会在攀登的过程中偶尔停下来看看风景，允许自己体验无用的快乐。\n\n【深层天赋】你拥有极其强大的忍耐力和结构化思维。你能在别人都放弃的时候坚持到最后，将最艰难的梦想一步步转化为现实。\n\n【最佳拍档与克星】金牛座和处女座是你最可靠的战友，巨蟹座的柔软能融化你的冰山。但白羊座的冲动和天秤座的散漫会严重干扰你的计划。',
-    '水瓶': '【灵魂蓝图：星际客机】你是站在未来俯视现在的独立观察者。你极度理智、叛逆且人道主义，你的灵魂拒绝被任何传统框架定义。你爱着全人类，却很难爱上具体的某个人。\n\n【潜意识课业】你经常显得冷漠而疏离，这是你保护自己独立性的方式。你的课题是学会建立深层的“一对一”情感连接，不要用宏大的理念来逃避真实具体的人际摩擦。\n\n【深层天赋】你是天生的改革者和发明家。你不受任何既定规则的束缚，能带来颠覆性的视角和创新，是推动社会进步的关键力量。\n\n【最佳拍档与克星】双子座和天秤座能理解你独特的脑回路，狮子座的热情能照亮你的理智。但天蝎座的强烈占有欲和金牛座的固执会让你迅速逃离。',
-    '双鱼': '【灵魂蓝图：宇宙深海】你的灵魂没有边界，如同浩瀚无垠的宇宙之海。你拥有极致的艺术天赋与直觉力，总在现实与梦境间穿梭。你是12星座的终结，包含了所有星座的影子。\n\n【潜意识课业】你太容易吸收别人的能量，经常模糊自己与他人的边界。你最大的挑战是逃避现实（通过幻想、成瘾或其他方式）。你的课题是学会扎根现实，建立清晰的个人边界。\n\n【深层天赋】你拥有最强大的灵性和艺术创造力。你能感知到普通人无法察觉的微妙频率，这让你在艺术、音乐、疗愈和神秘学领域拥有极高的天赋。\n\n【最佳拍档与克星】巨蟹座和天蝎座能与你在情感深处共舞，处女座的务实能把你拉回现实。但双子座的轻浮和射手座的粗心会深深伤害你敏感的神经。'
-  };
-  const ZODIAC_KEYS = Object.keys(ZODIAC_TRAITS);
-
+  let ZODIAC_TRAITS = {};
+  setTimeout(() => {
+    if (window.ASTROLOGY_DATA && window.ASTROLOGY_DATA.zodiacs) {
+      const zKeys = ["白羊座", "金牛座", "双子座", "巨蟹座", "狮子座", "处女座", "天秤座", "天蝎座", "射手座", "摩羯座", "水瓶座", "双鱼座"];
+      zKeys.forEach(k => {
+        const fullKey = Object.keys(window.ASTROLOGY_DATA.zodiacs).find(x => x.includes(k));
+        if (fullKey) {
+          ZODIAC_TRAITS[k] = window.ASTROLOGY_DATA.zodiacs[fullKey];
+        } else {
+          ZODIAC_TRAITS[k] = { desc: "神秘特质", deep: "星象被迷雾遮蔽" };
+        }
+      });
+    }
+  }, 0);
   const PLANET_DOMAINS = {
     sun: { name: '太阳', title: '核心自我与生命力', prefix: '你的核心人格表现为：' },
     moon: { name: '月亮', title: '潜意识与情感需求', prefix: '在隐秘的内心深处，你需要通过以下方式获得安全感：' },
@@ -3012,7 +3100,7 @@
       })
 
       onMounted(() => {
-        const data = LOCATIONS_DATA;
+        const data = typeof LOCATIONS_DATA !== 'undefined' ? LOCATIONS_DATA : (window.LOCATIONS_DATA || []);
         rawLocations.value = data;
         provList.value = data;
         if (data.length > 0) {
@@ -3052,8 +3140,10 @@
         const buildPlanet = (key, offset) => {
           const sign = getZodiac(offset);
           const domain = PLANET_DOMAINS[key];
-          const interpretation = domain.prefix + ZODIAC_TRAITS[sign];
-          return { id: key, sign, interpretation, ...domain };
+          const trait = ZODIAC_TRAITS[sign];
+          const interpretation = domain.prefix + (trait ? trait.desc : "");
+          const deep = trait ? trait.deep : "";
+          return { id: key, sign, interpretation, deep, ...domain };
         }
 
         report.value = {
@@ -3111,6 +3201,7 @@
       }
 
       const showPayment = ref(false)
+      const orderId = ref(null)
       const hasPaid = ref(false)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
@@ -3121,7 +3212,7 @@
         isTyping.value = true
         displayedDeepText.value = ''
         
-        const fullText = `【内驱动力解析】\n\n金星（${report.value.innerPlanets[0].sign}）：${report.value.innerPlanets[0].interpretation}\n\n火星（${report.value.innerPlanets[1].sign}）：${report.value.innerPlanets[1].interpretation}\n\n水星（${report.value.innerPlanets[2].sign}）：${report.value.innerPlanets[2].interpretation}\n\n木星（${report.value.innerPlanets[3].sign}）：${report.value.innerPlanets[3].interpretation}\n\n【流年运势推演】\n\n${report.value.transits[0].label} - ${report.value.transits[0].title}：\n${report.value.transits[0].desc}\n\n${report.value.transits[1].label} - ${report.value.transits[1].title}：\n${report.value.transits[1].desc}`;
+        const fullText = `【太阳星座高阶解析：${report.value.sunSign}】\n${report.value.bigThree[0].deep}\n\n【内驱动力解析】\n\n金星（${report.value.innerPlanets[0].sign}）：${report.value.innerPlanets[0].interpretation}\n\n火星（${report.value.innerPlanets[1].sign}）：${report.value.innerPlanets[1].interpretation}\n\n水星（${report.value.innerPlanets[2].sign}）：${report.value.innerPlanets[2].interpretation}\n\n木星（${report.value.innerPlanets[3].sign}）：${report.value.innerPlanets[3].interpretation}\n\n【流年运势推演】\n\n${report.value.transits[0].label} - ${report.value.transits[0].title}：\n${report.value.transits[0].desc}\n\n${report.value.transits[1].label} - ${report.value.transits[1].title}：\n${report.value.transits[1].desc}`;
 
         saveToArchive('Astrology', '本命星盘报告', fullText);
         
@@ -3138,7 +3229,7 @@
 
       return { 
         phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating, provList, cityList, countyList,
-        showPayment, hasPaid, isTyping, displayedDeepText, handlePaymentSuccess
+        showPayment, hasPaid, isTyping, displayedDeepText, handlePaymentSuccess, orderId
       }
     },
     template: `
@@ -3237,7 +3328,7 @@
               </div>
             </div>
 
-            <PaymentModal v-if="showPayment" @close="showPayment = false" @success="handlePaymentSuccess" />
+            <PaymentModal v-if="showPayment" :orderId="orderId" @close="showPayment = false" @success="handlePaymentSuccess" />
 
             <!-- Actions -->
             <div class="actions" v-reveal style="transition-delay: 0.4s; margin-top: 60px; justify-content: center; gap: 20px; flex-wrap: wrap;">
@@ -3297,7 +3388,7 @@
     { text: '面对突如其来的变化，你的内心独白更接近：', options: [ { text: '“太棒了，终于有新鲜事发生了！”', color: 'orange' }, { text: '“有点慌，但我能迅速调整计划。”', color: 'red' }, { text: '“无所谓，顺其自然吧。”', color: 'blue' }, { text: '“这背后一定有什么更深的寓意。”', color: 'purple' } ] }
   ]
 
-  const COLOR_MAP = {
+  let COLOR_MAP = {
     'red': { name: '流金红', hex: '#ff416c', desc: '炽热、行动力、生命张力' },
     'orange': { name: '晨曦橙', hex: '#ff7b00', desc: '创造力、丰盛、显化' },
     'yellow': { name: '极光黄', hex: '#f6d365', desc: '智慧、乐观、好奇心' },
@@ -3316,6 +3407,7 @@
       const colorScores = ref({ red: 0, orange: 0, yellow: 0, green: 0, blue: 0, purple: 0 })
       const hasPaid = ref(false)
       const showPayment = ref(false)
+      const orderId = ref(null)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
       const auraResult = ref(null)
@@ -3508,7 +3600,7 @@
     }
   ]
 
-  const SHADOW_MAP = {
+  let SHADOW_MAP = {
     'orphan': { name: '孤儿 (The Orphan)', desc: '核心恐惧：被遗弃。你在人际关系中极度渴求安全感。' },
     'saboteur': { name: '破坏者 (The Saboteur)', desc: '核心恐惧：失控。你习惯在一切变糟前先亲手毁掉它。' },
     'martyr': { name: '殉道者 (The Martyr)', desc: '核心恐惧：不被需要。你试图通过过度付出来绑架他人的爱。' },
@@ -3525,6 +3617,7 @@
       const shadowScores = ref({ orphan: 0, saboteur: 0, martyr: 0, wanderer: 0 })
       const hasPaid = ref(false)
       const showPayment = ref(false)
+      const orderId = ref(null)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
       const shadowResult = ref(null)
@@ -3736,6 +3829,7 @@
       
       const hasPaid = ref(false)
       const showPayment = ref(false)
+      const orderId = ref(null)
       const isTyping = ref(false)
       const displayedDeepText = ref('')
 

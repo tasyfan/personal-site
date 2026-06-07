@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=36" />
+    <link rel="stylesheet" href="./styles.css?v=37" />
   </head>
   <body>
     <!-- Background Canvas -->
@@ -42,7 +42,25 @@
     <!-- 引入 html2canvas 库 -->
     <script src="./html2canvas.min.js"></script>
 
+    <!-- Content Data Scripts -->
+    <script src="./content/mbti.js?v=1"></script>
+    <script src="./content/attachment.js?v=1"></script>
+    <script src="./content/astrology.js?v=1"></script>
+    <script src="./content/bazi.js?v=1"></script>
+    <script src="./content/hd.js?v=1"></script>
+    <script src="./content/tarot.js?v=1"></script>
+    <script src="./content/synastry.js?v=1"></script>
+    <script src="./content/aura.js?v=1"></script>
+    <script src="./content/shadow.js?v=1"></script>
+    <script>
+      window.LOCATIONS_DATA = [
+        { name: '北京', children: [{ name: '北京市', children: [{name:'东城区'}, {name:'西城区'}, {name:'朝阳区'}, {name:'海淀区'}]}] },
+        { name: '上海', children: [{ name: '上海市', children: [{name:'黄浦区'}, {name:'徐汇区'}, {name:'静安区'}, {name:'浦东新区'}]}] },
+        { name: '广东', children: [{ name: '广州市', children: [{name:'天河区'}, {name:'越秀区'}, {name:'海珠区'}]}, { name: '深圳市', children: [{name:'南山区'}, {name:'福田区'}, {name:'罗湖区'}]}] },
+        { name: '海外', children: [{ name: '其他国家', children: [{name:'北美'}, {name:'欧洲'}, {name:'亚洲其他'}]}] }
+      ];
+    </script>
     <!-- All app code in one file -->
-    <script src="./app.js?v=131"></script>
+    <script src="./app.js?v=139"></script>
   </body>
 </html>
