@@ -3002,7 +3002,7 @@ h3 {
   background: var(--blue);
   border-color: var(--blue);
   color: #fff;
-  transform: scale(0.98);
+  transform: scale(1.02);
   box-shadow: 0 8px 24px rgba(110, 86, 207, 0.3);
 }
 

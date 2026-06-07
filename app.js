@@ -3420,7 +3420,7 @@
       }
 
       return {
-        AURA_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
+        AURA_QUESTIONS, currentQuestionIndex, progress, answeredCount, currentQ, phase,
         auraResult, hasPaid, showPayment, isTyping, displayedDeepText,
         selectedAnswer, selectAnswer, handlePaymentSuccess
       }
@@ -3435,7 +3435,12 @@
               <h2>色彩能量光环测试</h2>
               <p class="lede" style="margin: 0 auto;">凭借直觉回答，测算你当下的灵魂光谱与能量频率。</p>
             </div>
-            <div class="progress-bar" style="margin: 30px 0;"><div class="progress-fill" :style="{width: progress + '%'}"></div></div>
+                        <div class="mbti-progress-container" style="margin-top: 30px; margin-bottom: 30px;">
+              <div class="mbti-progress-bar">
+                <div class="mbti-progress-fill" :style="{ width: progress + '%', background: 'linear-gradient(90deg, #b9935a, #e7dfa4)' }"></div>
+              </div>
+              <div class="mbti-progress-text" style="text-align: center; margin-top: 10px;">已完成 {{ answeredCount }} / {{ AURA_QUESTIONS.length }}</div>
+            </div>
             <transition name="slide-up" mode="out-in">
               <div class="question-card active" :key="'q-' + currentQuestionIndex">
                 <h3 style="margin-bottom: 30px; font-size: 22px;">{{ currentQ.text }}</h3>
@@ -3451,9 +3456,13 @@
             </transition>
           </div>
 
-          <div v-else-if="phase === 'loading'" key="loading" class="loading-state">
-            <div class="spinner"></div>
-            <p class="loading-text">正在扫描能量场频率...</p>
+          <div v-else-if="phase === 'loading'" key="loading" class="astro-loading-container" style="padding: 100px 0;">
+            <div class="astro-spinner">
+              <div class="spinner-ring outer"></div>
+              <div class="spinner-ring inner"></div>
+              <div class="spinner-center"></div>
+            </div>
+            <h3 class="loading-title">正在扫描能量场频率...</h3>
           </div>
 
           <div v-else-if="phase === 'result'" key="result" class="result-page">
@@ -3610,7 +3619,7 @@
       }
 
       return {
-        SHADOW_QUESTIONS, currentQuestionIndex, progress, currentQ, phase,
+        SHADOW_QUESTIONS, currentQuestionIndex, progress, answeredCount, currentQ, phase,
         shadowResult, hasPaid, showPayment, isTyping, displayedDeepText,
         selectedAnswer, selectAnswer, handlePaymentSuccess
       }
