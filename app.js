@@ -979,49 +979,49 @@
 
           <section id="blocks" class="section block-grid centered-menu" aria-label="内容模块" v-else-if="store.homePhase === 'menu'" key="menu-state">
           <article v-reveal style="cursor: pointer;" @click="$router.push('/mbti')">
-            <span class="block-icon blue"></span>
-            <h3>MBTI 深度解析</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);"></span>
+            <h3>MBTI 性格测试</h3>
             <p>基于荣格心理学，深度挖掘你的潜能、职场发展与灵魂伴侣匹配度。</p>
           </article>
           <article v-reveal style="cursor: pointer; transition-delay: 0.05s;" @click="$router.push('/attachment')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #ff7e5f, #feb47b);"></span>
-            <h3>四大依恋类型测试</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #ff9a9e, #fecfef);"></span>
+            <h3>恋爱依恋测试</h3>
             <p>通过心理学量表，深度剖析你在亲密关系中的焦虑与回避维度，修复恋爱安全感。</p>
           </article>
           <article v-reveal style="transition-delay: 0.1s; cursor: pointer;" @click="$router.push('/tarot')">
-            <span class="block-icon green"></span>
-            <h3>塔罗牌潜意识占卜</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);"></span>
+            <h3>塔罗牌占卜</h3>
             <p>抽出代表你过去、现在、未来的三张牌，解锁近期的运势走向与启示。</p>
           </article>
           <article v-reveal style="transition-delay: 0.15s; cursor: pointer;" @click="$router.push('/astrology')">
-            <span class="block-icon amber"></span>
-            <h3>星盘与流年运势</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);"></span>
+            <h3>本命星盘解析</h3>
             <p>输入你的出生星图，解析你生命中的重要转折点与事业财富格局。</p>
           </article>
           <article v-reveal style="transition-delay: 0.2s; cursor: pointer;" @click="$router.push('/bazi')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #111, #444);"></span>
-            <h3>东方八字排盘</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #f83600, #f9d423);"></span>
+            <h3>八字命理排盘</h3>
             <p>千年易学智慧，推演流年大运，解锁你的隐藏财富密码。</p>
           </article>
           <article v-reveal style="transition-delay: 0.25s; cursor: pointer;" @click="$router.push('/human-design')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #9b59b6, #8e44ad);"></span>
-            <h3>人类图能量图鉴</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);"></span>
+            <h3>人类图解析</h3>
             <p>西方占星与东方易经的融合，找到你灵魂独一无二的出厂设置。</p>
           </article>
           <article v-reveal style="transition-delay: 0.3s; cursor: pointer;" @click="$router.push('/synastry')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #ff416c, #ff4b2b);"></span>
-            <h3>双人宿命合盘</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #ff0844, #ffb199);"></span>
+            <h3>双人契合度合盘</h3>
             <p>基于双方生辰八字与星盘，深度透视你们的灵魂契合度与前世羁绊。</p>
           </article>
 
           <article v-reveal style="transition-delay: 0.35s; cursor: pointer;" @click="$router.push('/aura')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #f6d365, #fda085);"></span>
-            <h3>色彩能量光环测试</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #96fbc4, #f9f586);"></span>
+            <h3>灵魂光环测试</h3>
             <p>测算你当下的灵魂光谱与能量频率，寻找最契合的社交共振气场。</p>
           </article>
           <article v-reveal style="transition-delay: 0.4s; cursor: pointer;" @click="$router.push('/shadow')">
-            <span class="block-icon" style="background: linear-gradient(135deg, #434343, #000000);"></span>
-            <h3>灵魂暗影原型测试</h3>
+            <span class="block-icon" style="background: linear-gradient(135deg, #243949, #517fa4);"></span>
+            <h3>暗影原型测试</h3>
             <p>基于荣格心理学，直面潜意识深处最不愿承认的核心恐惧，开启深度疗愈。</p>
           </article>
           </section>
@@ -1128,7 +1128,7 @@
         <div v-if="phase === 'question'" class="question-phase">
           <div class="test-header" v-reveal>
             <p class="section-kicker">TAROT READING</p>
-            <h2>潜意识之境：三牌阵</h2>
+            <h2>塔罗牌占卜</h2>
             <p class="lede">在开始抽牌之前，请先在心中默念你当前最困惑的问题，然后将它写在下方。</p>
           </div>
           <div class="question-input-area" v-reveal style="transition-delay: 0.1s">
@@ -1654,7 +1654,7 @@
       <main class="mbti-test section">
         <div class="test-header" v-reveal>
           <p class="section-kicker">PERSONALITY ASSESSMENT</p>
-          <h2>MBTI 性格原型解析</h2>
+          <h2>MBTI 性格测试</h2>
           <p class="lede">请凭直觉回答以下 {{ MBTI_QUESTIONS.length }} 个问题，探索你最深层的灵魂密码。</p>
         </div>
 
@@ -2040,8 +2040,8 @@
       <main class="mbti-test section">
         <div class="test-header" v-reveal>
           <p class="section-kicker">ATTACHMENT STYLE</p>
-          <h2>亲密关系依恋模型</h2>
-          <p class="lede">通过 16 个深度问题，剖析你在恋爱与亲密关系中的底层逻辑模式。</p>
+          <h2>恋爱依恋测试</h2>
+          <p class="lede">通过 36 个深度问题，剖析你在恋爱与亲密关系中的底层逻辑模式。</p>
         </div>
 
         <div class="mbti-progress-container" v-reveal>
@@ -2482,7 +2482,7 @@
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">BAZI CHART</p>
-              <h2>东方八字排盘</h2>
+              <h2>八字命理排盘</h2>
               <p class="lede" style="margin: 0 auto;">精确至出生地的真太阳时，洞察你的前世今生与财富密码</p>
             </div>
             
@@ -2776,7 +2776,7 @@
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">HUMAN DESIGN</p>
-              <h2>人类图能量图鉴</h2>
+              <h2>人类图解析</h2>
               <p class="lede" style="margin: 0 auto;">结合西方占星与东方易经，找到你唯一的出厂设置</p>
             </div>
             
@@ -3149,7 +3149,7 @@
           <div v-if="phase === 'input'" key="input" class="astro-input-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">NATAL CHART</p>
-              <h2>绘制本命星盘</h2>
+              <h2>本命星盘解析</h2>
               <p class="lede" style="margin: 0 auto;">精确的天体坐标需要你降生那一刻的时间与空间。</p>
             </div>
             
@@ -3198,7 +3198,7 @@
           <div v-else-if="phase === 'result'" key="result" class="astro-result-container">
             <div class="test-header" v-reveal>
               <p class="section-kicker">ASTRAL BLUEPRINT</p>
-              <h2>灵魂蓝图深度解析</h2>
+              <h2>本命星盘报告</h2>
               <p class="lede" style="margin: 0 auto;">宇宙在你降生时，为你刻下的灵魂轨迹。</p>
             </div>
 
@@ -3402,7 +3402,7 @@
           <div v-if="phase === 'question'" key="q" class="test-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
             <div class="test-header" v-reveal>
               <p class="section-kicker">AURA READING</p>
-              <h2>色彩能量光环测试</h2>
+              <h2>灵魂光环测试</h2>
               <p class="lede" style="margin: 0 auto;">凭借直觉回答，测算你当下的灵魂光谱与能量频率。</p>
             </div>
                         <div class="mbti-progress-container" style="margin-top: 30px; margin-bottom: 30px;">
@@ -3606,7 +3606,7 @@
           <div v-if="phase === 'question'" key="q" class="test-container" style="max-width: 600px; margin: 0 auto; text-align: center;">
             <div class="test-header" v-reveal>
               <p class="section-kicker">SHADOW ARCHETYPE</p>
-              <h2>灵魂暗影原型测试</h2>
+              <h2>暗影原型测试</h2>
               <p class="lede" style="margin: 0 auto;">基于荣格心理学，直面你潜意识深处最不愿承认的核心恐惧。</p>
             </div>
             <div class="mbti-progress-container" style="margin-top: 30px; margin-bottom: 30px;">
@@ -3876,7 +3876,7 @@
           <div v-if="phase === 'form'" key="form">
             <div class="test-header" v-reveal>
               <p class="section-kicker">SYNASTRY COMPATIBILITY</p>
-              <h2>双人宿命合盘</h2>
+              <h2>双人契合度合盘</h2>
               <p class="lede">输入你们两人的出生信息，揭示前世羁绊与今生灵魂契合度。</p>
             </div>
             <div class="test-form" v-reveal style="transition-delay: 0.1s; max-width: 800px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 30px;">
