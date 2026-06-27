@@ -25,226 +25,381 @@ function drawConstellationPattern(ctx, name) {
   ctx.clearRect(0, 0, 512, 512);
   ctx.save();
 
-  // 1. 设置极粗的线宽和圆角，保证凝聚出的 3D 图腾厚实、明显、边界清晰
+  // Helper functions for drawing calligraphic decorations
+  const drawSparkle = (cx, cy, size) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - size);
+    ctx.quadraticCurveTo(cx, cy, cx + size, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy + size);
+    ctx.quadraticCurveTo(cx, cy, cx - size, cy);
+    ctx.quadraticCurveTo(cx, cy, cx, cy - size);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.restore();
+  };
+
+  const drawSmallCross = (cx, cy, size) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(cx - size, cy);
+    ctx.lineTo(cx + size, cy);
+    ctx.moveTo(cx, cy - size);
+    ctx.lineTo(cx, cy + size);
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  const drawDot = (cx, cy, r) => {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+    ctx.restore();
+  };
+
+  // Base styling for thick calligraphic strokes
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 32;
+  ctx.lineWidth = 22; // Balanced thickness for particle extraction and clear loop structures
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
   if (name === 'Aries') { // 白羊座 ♈
-    // 左半边角
+    // Stem
     ctx.beginPath();
-    ctx.moveTo(256, 370);
-    ctx.quadraticCurveTo(240, 210, 150, 190);
-    ctx.quadraticCurveTo(100, 180, 120, 235);
-    ctx.quadraticCurveTo(140, 275, 180, 225);
+    ctx.moveTo(256, 380);
+    ctx.lineTo(256, 250);
     ctx.stroke();
 
-    // 右半边角
+    // Left horn with curl
     ctx.beginPath();
-    ctx.moveTo(256, 370);
-    ctx.quadraticCurveTo(272, 210, 362, 190);
-    ctx.quadraticCurveTo(412, 180, 392, 235);
-    ctx.quadraticCurveTo(372, 275, 332, 225);
+    ctx.moveTo(256, 250);
+    ctx.bezierCurveTo(220, 160, 130, 150, 120, 210);
+    ctx.bezierCurveTo(110, 260, 160, 260, 180, 220);
     ctx.stroke();
+
+    // Right horn with curl
+    ctx.beginPath();
+    ctx.moveTo(256, 250);
+    ctx.bezierCurveTo(292, 160, 382, 150, 392, 210);
+    ctx.bezierCurveTo(402, 260, 352, 260, 332, 220);
+    ctx.stroke();
+
+    // Decorations
+    drawSparkle(270, 100, 18);
+    drawSparkle(130, 290, 8);
+    drawSmallCross(380, 350, 8);
+    drawDot(120, 120, 3);
+    drawDot(390, 130, 4);
+    drawDot(200, 320, 3);
 
   } else if (name === 'Taurus') { // 金牛座 ♉
-    // 头部圆圈
+    // Circle base
     ctx.beginPath();
-    ctx.arc(256, 315, 75, 0, Math.PI * 2);
+    ctx.arc(256, 310, 65, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 牛角弯弧
+    // Left horn with loop-curl
     ctx.beginPath();
-    ctx.moveTo(140, 155);
-    ctx.quadraticCurveTo(256, 260, 372, 155);
+    ctx.moveTo(200, 270);
+    ctx.bezierCurveTo(150, 200, 110, 150, 140, 110);
+    ctx.bezierCurveTo(170, 80, 210, 120, 190, 160);
     ctx.stroke();
+
+    // Right horn with loop-curl
+    ctx.beginPath();
+    ctx.moveTo(312, 270);
+    ctx.bezierCurveTo(362, 200, 402, 150, 372, 110);
+    ctx.bezierCurveTo(342, 80, 302, 120, 322, 160);
+    ctx.stroke();
+
+    // Decorations
+    drawSparkle(120, 360, 22);
+    drawSparkle(390, 260, 12);
+    drawSmallCross(130, 120, 8);
+    drawSmallCross(380, 120, 8);
+    drawDot(256, 170, 4);
+    drawDot(290, 380, 3);
 
   } else if (name === 'Gemini') { // 双子座 ♊
-    // 左、右平行竖柱
+    // Two vertical bars
     ctx.beginPath();
-    ctx.moveTo(200, 160); ctx.lineTo(200, 352);
-    ctx.moveTo(312, 160); ctx.lineTo(312, 352);
+    ctx.moveTo(210, 195);
+    ctx.lineTo(210, 325);
+    ctx.moveTo(302, 195);
+    ctx.lineTo(302, 325);
     ctx.stroke();
 
-    // 上、下装饰横弧
+    // Top horizontal bar with curls
     ctx.beginPath();
-    ctx.arc(256, 175, 90, Math.PI * 1.15, Math.PI * 1.85);
+    ctx.moveTo(150, 190);
+    ctx.bezierCurveTo(130, 230, 170, 230, 180, 190); // Left curl
+    ctx.quadraticCurveTo(256, 160, 332, 190);
+    ctx.bezierCurveTo(342, 230, 382, 230, 362, 190); // Right curl
     ctx.stroke();
 
+    // Bottom horizontal bar with curls
     ctx.beginPath();
-    ctx.arc(256, 337, 90, Math.PI * 0.15, Math.PI * 0.85);
+    ctx.moveTo(150, 330);
+    ctx.bezierCurveTo(130, 290, 170, 290, 180, 330); // Left curl
+    ctx.quadraticCurveTo(256, 360, 332, 330);
+    ctx.bezierCurveTo(342, 290, 382, 290, 362, 330); // Right curl
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(390, 160, 18);
+    drawSparkle(130, 300, 10);
+    drawSmallCross(120, 160, 10);
+    drawSmallCross(380, 340, 8);
+    drawDot(256, 210, 3);
+    drawDot(256, 310, 4);
 
   } else if (name === 'Cancer') { // 巨蟹座 ♋
-    ctx.lineWidth = 28;
-    // 右上圆圈与左伸尾巴
+    // Top 6-like part
     ctx.beginPath();
-    ctx.arc(320, 200, 48, 0, Math.PI * 2);
+    ctx.arc(310, 210, 40, 0, Math.PI * 2);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(320, 152);
-    ctx.quadraticCurveTo(160, 152, 160, 220);
+    ctx.moveTo(310, 170);
+    ctx.bezierCurveTo(180, 150, 140, 220, 190, 240); // tail curving left & curling back
     ctx.stroke();
 
-    // 左下圆圈与右伸尾巴
+    // Bottom 9-like part
     ctx.beginPath();
-    ctx.arc(192, 312, 48, 0, Math.PI * 2);
+    ctx.arc(202, 302, 40, 0, Math.PI * 2);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(192, 360);
-    ctx.quadraticCurveTo(352, 360, 352, 292);
+    ctx.moveTo(202, 342);
+    ctx.bezierCurveTo(332, 362, 372, 292, 322, 272); // tail curving right & curling back
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(390, 245, 20);
+    drawSparkle(130, 200, 10);
+    drawSmallCross(130, 350, 8);
+    drawDot(256, 140, 3);
+    drawDot(270, 380, 4);
 
   } else if (name === 'Leo') { // 狮子座 ♌
-    ctx.lineWidth = 30;
+    // Bottom-left circle
     ctx.beginPath();
-    ctx.arc(160, 300, 36, 0, Math.PI * 2);
+    ctx.arc(170, 290, 28, 0, Math.PI * 2);
     ctx.stroke();
 
+    // Main arch & tail
     ctx.beginPath();
-    ctx.moveTo(196, 300);
-    ctx.bezierCurveTo(240, 300, 240, 140, 320, 140);
-    ctx.bezierCurveTo(390, 140, 410, 350, 350, 350);
-    ctx.bezierCurveTo(320, 350, 310, 300, 330, 280);
+    ctx.moveTo(198, 290);
+    ctx.bezierCurveTo(240, 290, 240, 140, 320, 140); // up and right arch
+    ctx.bezierCurveTo(390, 140, 410, 320, 350, 340); // down-right to tail
+    ctx.bezierCurveTo(310, 350, 300, 390, 330, 390); // tail loop-back
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(390, 250, 22);
+    drawSparkle(150, 160, 10);
+    drawSmallCross(120, 340, 8);
+    drawDot(270, 110, 4);
+    drawDot(230, 370, 3);
 
   } else if (name === 'Virgo') { // 处女座 ♍
-    ctx.lineWidth = 26;
+    // Three arches
     ctx.beginPath();
-    // 第一竖
-    ctx.moveTo(140, 180);
+    // First arch (left)
+    ctx.moveTo(140, 200);
     ctx.lineTo(140, 330);
-
-    // 第二竖（拱门）
-    ctx.moveTo(140, 230);
-    ctx.quadraticCurveTo(180, 160, 210, 230);
+    // Second arch (middle)
+    ctx.moveTo(140, 250);
+    ctx.quadraticCurveTo(180, 180, 210, 250);
     ctx.lineTo(210, 330);
-
-    // 第三竖连折线（穿环尾巴）
-    ctx.moveTo(210, 230);
-    ctx.quadraticCurveTo(250, 160, 280, 230);
-    ctx.lineTo(280, 300);
-    ctx.quadraticCurveTo(280, 380, 340, 380);
-    ctx.quadraticCurveTo(380, 380, 380, 320);
-    ctx.quadraticCurveTo(380, 260, 310, 260);
-    ctx.quadraticCurveTo(270, 260, 290, 330);
-    ctx.lineTo(330, 390);
+    // Third arch (right)
+    ctx.moveTo(210, 250);
+    ctx.quadraticCurveTo(250, 180, 280, 250);
+    ctx.lineTo(280, 310);
+    // Loop tail crossing the third line
+    ctx.bezierCurveTo(280, 380, 350, 380, 350, 310);
+    ctx.bezierCurveTo(350, 250, 300, 250, 310, 330);
+    ctx.lineTo(340, 380);
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(340, 170, 18);
+    drawSparkle(120, 190, 10);
+    drawSmallCross(120, 360, 9);
+    drawDot(180, 370, 4);
 
   } else if (name === 'Libra') { // 天秤座 ♎
-    // 下底横线
+    // Upper scale
     ctx.beginPath();
-    ctx.moveTo(120, 360);
-    ctx.lineTo(392, 360);
+    ctx.moveTo(130, 280);
+    ctx.bezierCurveTo(160, 260, 180, 280, 200, 280); // left wavy entry
+    ctx.arc(256, 280, 56, Math.PI, 0, false); // central loop
+    ctx.bezierCurveTo(332, 280, 352, 260, 382, 280); // right wavy exit
     ctx.stroke();
 
-    // 上Ω拱形线
+    // Lower wave
     ctx.beginPath();
-    ctx.moveTo(120, 290);
-    ctx.lineTo(190, 290);
-    ctx.arc(256, 290, 66, Math.PI, 0, false);
-    ctx.lineTo(392, 290);
+    ctx.moveTo(130, 340);
+    ctx.bezierCurveTo(190, 310, 220, 370, 280, 340);
+    ctx.bezierCurveTo(310, 320, 350, 360, 382, 340);
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(256, 120, 20);
+    drawSparkle(130, 210, 10);
+    drawSparkle(380, 210, 10);
+    drawSmallCross(256, 380, 8);
+    drawDot(180, 220, 3);
+    drawDot(330, 220, 3);
 
   } else if (name === 'Scorpio') { // 天蝎座 ♏
-    ctx.lineWidth = 26;
+    // Arches
     ctx.beginPath();
-    // 第一竖
-    ctx.moveTo(140, 180);
-    ctx.lineTo(140, 340);
-
-    // 第二竖（拱门）
-    ctx.moveTo(140, 230);
-    ctx.quadraticCurveTo(180, 160, 210, 230);
-    ctx.lineTo(210, 340);
-
-    // 第三竖连天蝎尖刺尾巴
-    ctx.moveTo(210, 230);
-    ctx.quadraticCurveTo(250, 160, 280, 230);
-    ctx.lineTo(280, 310);
-    ctx.quadraticCurveTo(280, 370, 330, 370);
-    ctx.lineTo(360, 320);
+    // First arch (left)
+    ctx.moveTo(140, 200);
+    ctx.lineTo(140, 330);
+    // Second arch (middle)
+    ctx.moveTo(140, 250);
+    ctx.quadraticCurveTo(180, 180, 210, 250);
+    ctx.lineTo(210, 330);
+    // Third arch (right)
+    ctx.moveTo(210, 250);
+    ctx.quadraticCurveTo(250, 180, 280, 250);
+    ctx.lineTo(280, 330);
+    // Tail curving down-right and looping up
+    ctx.quadraticCurveTo(280, 380, 330, 380);
+    ctx.lineTo(360, 330);
     ctx.stroke();
 
-    // 实心锐利箭头
-    ctx.fillStyle = "#ffffff";
+    // Sharp Arrowhead pointing up-right
     ctx.beginPath();
-    ctx.moveTo(330, 330);
-    ctx.lineTo(380, 310);
-    ctx.lineTo(365, 360);
+    ctx.moveTo(340, 340);
+    ctx.lineTo(385, 315);
+    ctx.lineTo(370, 365);
     ctx.closePath();
+    ctx.fillStyle = "#ffffff";
     ctx.fill();
 
+    // Decorations
+    drawSparkle(380, 220, 18);
+    drawSparkle(120, 170, 10);
+    drawSmallCross(110, 320, 8);
+    drawDot(170, 370, 4);
+
   } else if (name === 'Sagittarius') { // 射手座 ♐
-    // 斜长箭身
+    // Arrow shaft
     ctx.beginPath();
-    ctx.moveTo(150, 362);
-    ctx.lineTo(362, 150);
+    ctx.moveTo(170, 360);
+    ctx.lineTo(360, 170);
     ctx.stroke();
 
-    // 箭头外折线
+    // Arrow head
     ctx.beginPath();
-    ctx.moveTo(300, 150);
-    ctx.lineTo(362, 150);
-    ctx.lineTo(362, 212);
+    ctx.moveTo(360, 170);
+    ctx.lineTo(300, 180);
+    ctx.moveTo(360, 170);
+    ctx.lineTo(350, 230);
     ctx.stroke();
 
-    // 横栏木
+    // Bow curve crossing shaft
     ctx.beginPath();
-    ctx.moveTo(210, 260);
-    ctx.lineTo(290, 340);
+    ctx.moveTo(190, 210);
+    ctx.quadraticCurveTo(290, 310, 320, 280);
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(180, 150, 20);
+    drawSparkle(340, 350, 14);
+    drawSmallCross(130, 280, 8);
+    drawDot(290, 160, 4);
 
   } else if (name === 'Capricorn') { // 摩羯座 ♑
-    ctx.lineWidth = 28;
+    // Stylized loops
     ctx.beginPath();
-    // 左侧的 V 字形牛角
-    ctx.moveTo(140, 200);
-    ctx.lineTo(185, 300);
-    ctx.lineTo(225, 200);
-    // 右侧向上拱起的环与交叉鱼尾
-    ctx.quadraticCurveTo(260, 130, 300, 200);
-    ctx.lineTo(300, 290);
-    ctx.quadraticCurveTo(300, 360, 350, 360);
-    ctx.quadraticCurveTo(390, 360, 390, 310);
-    ctx.quadraticCurveTo(390, 260, 345, 260);
-    ctx.quadraticCurveTo(320, 260, 330, 300);
-    ctx.lineTo(365, 370);
+    // Left stem loop
+    ctx.moveTo(150, 240);
+    ctx.bezierCurveTo(130, 270, 130, 330, 160, 330);
+    ctx.bezierCurveTo(180, 330, 190, 280, 200, 240);
+    // Middle arch
+    ctx.quadraticCurveTo(240, 180, 270, 250);
+    ctx.lineTo(270, 310);
+    // Right tail loop
+    ctx.bezierCurveTo(270, 370, 330, 370, 330, 310);
+    ctx.bezierCurveTo(330, 260, 290, 260, 300, 320);
+    ctx.quadraticCurveTo(310, 360, 340, 380);
     ctx.stroke();
+
+    // Decorations
+    drawSparkle(130, 360, 18);
+    drawSparkle(370, 280, 12);
+    drawSmallCross(370, 190, 8);
+    drawDot(250, 360, 4);
 
   } else if (name === 'Aquarius') { // 水瓶座 ♒
-    // 双道平行锯齿折线
+    // Top wavy line with loop on left and hash/sparkle on right
     ctx.beginPath();
-    ctx.moveTo(120, 210);
-    ctx.lineTo(165, 175); ctx.lineTo(210, 210);
-    ctx.lineTo(255, 175); ctx.lineTo(300, 210);
-    ctx.lineTo(345, 175); ctx.lineTo(390, 210);
-
-    ctx.moveTo(120, 300);
-    ctx.lineTo(165, 265); ctx.lineTo(210, 300);
-    ctx.lineTo(255, 265); ctx.lineTo(300, 300);
-    ctx.lineTo(345, 265); ctx.lineTo(390, 300);
+    // Left loop
+    ctx.moveTo(160, 210);
+    ctx.bezierCurveTo(140, 170, 180, 170, 190, 210);
+    // Waves
+    ctx.bezierCurveTo(210, 250, 230, 170, 250, 210);
+    ctx.bezierCurveTo(270, 250, 290, 170, 310, 210);
+    ctx.bezierCurveTo(330, 250, 350, 170, 370, 210);
     ctx.stroke();
+
+    // Hash mark on the right
+    ctx.beginPath();
+    ctx.moveTo(360, 160); ctx.lineTo(390, 190);
+    ctx.moveTo(370, 150); ctx.lineTo(400, 180);
+    ctx.moveTo(350, 180); ctx.lineTo(380, 150);
+    ctx.moveTo(370, 190); ctx.lineTo(400, 160);
+    ctx.stroke();
+
+    // Bottom wavy line
+    ctx.beginPath();
+    ctx.moveTo(150, 270);
+    ctx.bezierCurveTo(170, 310, 190, 230, 210, 270);
+    ctx.bezierCurveTo(230, 310, 250, 230, 270, 270);
+    ctx.bezierCurveTo(290, 310, 310, 230, 330, 270);
+    ctx.bezierCurveTo(350, 310, 370, 230, 390, 270);
+    ctx.stroke();
+
+    // Decorations
+    drawSparkle(395, 135, 18);
+    drawSparkle(140, 320, 10);
+    drawSmallCross(330, 340, 8);
+    drawDot(256, 130, 4);
 
   } else if (name === 'Pisces') { // 双鱼座 ♓
-    // 完美的二次贝塞尔对称弧线与中央斜插横梁，100% 呼应主流 Pisces 图腾 (圆弧向内凹陷)
+    // Left vertical curve with loops
     ctx.beginPath();
-    // 左半边圆弧 (向内/右凹陷，开口朝左)
-    ctx.moveTo(160, 130);
-    ctx.quadraticCurveTo(220, 256, 160, 382);
-    // 右半边圆弧 (向内/左凹陷，开口朝右)
-    ctx.moveTo(352, 130);
-    ctx.quadraticCurveTo(292, 256, 352, 382);
+    ctx.moveTo(180, 150);
+    ctx.bezierCurveTo(160, 180, 200, 200, 200, 240);
+    ctx.quadraticCurveTo(200, 320, 180, 350);
     ctx.stroke();
 
-    // 贯穿中轴的横向线段
+    // Right vertical curve with loops
     ctx.beginPath();
-    ctx.moveTo(105, 256);
-    ctx.lineTo(407, 256);
+    ctx.moveTo(330, 150);
+    ctx.bezierCurveTo(350, 180, 310, 200, 310, 240);
+    ctx.quadraticCurveTo(310, 320, 330, 350);
     ctx.stroke();
+
+    // Horizontal bar crossing both
+    ctx.beginPath();
+    ctx.moveTo(140, 250);
+    ctx.bezierCurveTo(200, 210, 310, 290, 370, 250);
+    ctx.stroke();
+
+    // Decorations
+    drawSparkle(256, 120, 22);
+    drawSparkle(130, 320, 10);
+    drawSmallCross(380, 320, 8);
+    drawDot(256, 360, 4);
   }
 
   ctx.restore();
