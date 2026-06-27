@@ -4488,6 +4488,10 @@
         requireResolvedLocation
       } = useBirthLocation(formData)
 
+      const hasDraft = ref(false)
+      const baziResult = ref(null)
+      const baziHash = ref(0)
+
       onMounted(() => {
         const draft = loadResultDraft('bazi')
         if (draft && draft.result && draft.formData) {
@@ -4495,12 +4499,18 @@
           baziResult.value = draft.result
           baziHash.value = Number(draft.hash || 0)
           orderId.value = draft.orderId || null
-          phase.value = 'result'
+          hasDraft.value = true
         }
       })
 
-      const baziResult = ref(null)
-      const baziHash = ref(0)
+      const viewLastResult = () => {
+        phase.value = 'result'
+        if (hasPaid.value) {
+          setTimeout(() => {
+            handlePaymentSuccess({ id: 'single', orderId: orderId.value || getStoredTestOrderId('bazi') })
+          }, 0)
+        }
+      }
 
 
       const expandBaziText = (baseText, hash) => {
@@ -4623,6 +4633,9 @@
         setTimeout(() => {
           clearInterval(interval)
           phase.value = 'result'
+          if (hasPaid.value) {
+            handlePaymentSuccess({ id: 'single', orderId: orderId.value })
+          }
         }, 4000)
       }
 
@@ -4714,10 +4727,20 @@
         generatePoster,
         locationMatches, isSearchingLocation, locationError, locationResolved, selectLocation,
         calculationError, formatBirthContext,
+        hasDraft, viewLastResult,
+        isEnglish: computed(() => activeLocale.value === 'en'),
         restart: () => {
           clearResultDraft('bazi')
           clearAIReportCache('bazi')
+          baziResult.value = null
+          baziHash.value = 0
+          hasDraft.value = false
           phase.value = 'input'
+          formData.value = {
+            date: '',
+            time: '',
+            ...createBirthLocationFields()
+          }
         },
         skipTypewriter
       }
@@ -4734,6 +4757,13 @@
             </div>
             
             <div class="form-wrapper">
+              <div v-if="hasDraft" class="draft-banner" style="margin-bottom: 24px; padding: 12px 20px; background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 14px;">
+                <span style="color: rgba(255,255,255,0.75);">{{ isEnglish ? '✦ Previous report detected' : '✦ 检测到您之前有已生成的八字报告' }}</span>
+                <div style="display: flex; gap: 10px;">
+                  <button class="primary-action" style="padding: 6px 12px; font-size: 13px;" @click="viewLastResult">{{ isEnglish ? 'View Report' : '直接查看' }}</button>
+                  <button class="secondary-action" style="padding: 6px 12px; font-size: 13px; margin: 0;" @click="restart">{{ isEnglish ? 'New Test' : '重新测试' }}</button>
+                </div>
+              </div>
               <div class="input-group">
                 <label>出生日期 (阳历) *</label>
                 <input type="date" v-model="formData.date" class="astro-input" />
@@ -4862,18 +4892,29 @@
         requireResolvedLocation
       } = useBirthLocation(formData)
 
+      const hasDraft = ref(false)
+      const hdResult = ref(null)
+      const hdHash = ref(0)
+
       onMounted(() => {
         const draft = loadResultDraft('human-design')
         if (draft && draft.result && draft.formData) {
           formData.value = { ...formData.value, ...draft.formData }
           hdResult.value = draft.result
           hdHash.value = Number(draft.hash || 0)
-          phase.value = 'result'
+          orderId.value = draft.orderId || null
+          hasDraft.value = true
         }
       })
 
-      const hdResult = ref(null)
-      const hdHash = ref(0)
+      const viewLastResult = () => {
+        phase.value = 'result'
+        if (hasPaid.value) {
+          setTimeout(() => {
+            handlePaymentSuccess({ id: 'single', orderId: orderId.value || getStoredTestOrderId('human-design') })
+          }, 0)
+        }
+      }
 
 
       const expandHDText = (baseText, hash) => {
@@ -5055,10 +5096,20 @@
         generatePoster,
         locationMatches, isSearchingLocation, locationError, locationResolved, selectLocation,
         calculationError, formatBirthContext,
+        hasDraft, viewLastResult,
+        isEnglish: computed(() => activeLocale.value === 'en'),
         restart: () => {
           clearResultDraft('human-design')
           clearAIReportCache('human-design')
+          hdResult.value = null
+          hdHash.value = 0
+          hasDraft.value = false
           phase.value = 'input'
+          formData.value = {
+            date: '',
+            time: '',
+            ...createBirthLocationFields()
+          }
         },
         skipTypewriter
       }
@@ -5075,6 +5126,13 @@
             </div>
             
             <div class="form-wrapper">
+              <div v-if="hasDraft" class="draft-banner" style="margin-bottom: 24px; padding: 12px 20px; background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 14px;">
+                <span style="color: rgba(255,255,255,0.75);">{{ isEnglish ? '✦ Previous report detected' : '✦ 检测到您之前有已生成的人类图报告' }}</span>
+                <div style="display: flex; gap: 10px;">
+                  <button class="primary-action" style="padding: 6px 12px; font-size: 13px;" @click="viewLastResult">{{ isEnglish ? 'View Report' : '直接查看' }}</button>
+                  <button class="secondary-action" style="padding: 6px 12px; font-size: 13px; margin: 0;" @click="restart">{{ isEnglish ? 'New Test' : '重新测试' }}</button>
+                </div>
+              </div>
               <div class="input-group">
                 <label>出生日期 (阳历) *</label>
                 <input type="date" v-model="formData.date" class="astro-input" />
@@ -5512,11 +5570,31 @@
         store.isImmersive = false
       })
 
+      const hasDraft = ref(false)
+
+      const viewLastResult = () => {
+        phase.value = 'result'
+        if (hasPaid.value) {
+          setTimeout(() => {
+            handlePaymentSuccess({ id: 'single', orderId: orderId.value || getStoredTestOrderId('astrology') })
+          }, 0)
+        } else {
+          showPayment.value = true
+        }
+      }
+
       const restartTest = () => {
-        localStorage.removeItem('northstar_draft_astrology')
+        clearResultDraft('astrology')
+        clearAIReportCache('astrology')
         report.value = null
+        hasDraft.value = false
         displayedDeepText.value = ''
         phase.value = 'input'
+        formData.value = {
+          date: '',
+          time: '',
+          ...createBirthLocationFields()
+        }
       }
 
       // ─── 恢复草稿与付费长报告逻辑 ───
@@ -5525,14 +5603,8 @@
         if (draft && draft.report && draft.formData) {
           formData.value = { ...formData.value, ...draft.formData }
           report.value = draft.report
-          phase.value = 'result'
-          if (hasPaid.value) {
-            setTimeout(() => {
-              handlePaymentSuccess({ id: 'single', orderId: getStoredTestOrderId('astrology') })
-            }, 0)
-          } else {
-            showPayment.value = true
-          }
+          orderId.value = draft.orderId || null
+          hasDraft.value = true
         }
       })
 
@@ -5540,7 +5612,9 @@
         phase, formData, loadingText, report, startCalculation, goHome, downloadPoster, isGenerating,
         showPayment, hasPaid, isTyping, displayedDeepText, handlePaymentSuccess, orderId,
         locationMatches, isSearchingLocation, selectLocation, calculationError, locationResolved,
-        locationError, formatBirthContext, restartTest
+        locationError, formatBirthContext, restartTest,
+        hasDraft, viewLastResult,
+        isEnglish: computed(() => activeLocale.value === 'en')
       }
     },
     template: `
@@ -5556,6 +5630,13 @@
             </div>
             
             <div class="form-wrapper" v-reveal style="transition-delay: 0.1s">
+              <div v-if="hasDraft" class="draft-banner" style="margin-bottom: 24px; padding: 12px 20px; background: rgba(255, 255, 255, 0.04); border: 1px dashed rgba(255, 255, 255, 0.15); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 14px;">
+                <span style="color: rgba(255,255,255,0.75);">{{ isEnglish ? '✦ Previous report detected' : '✦ 检测到您之前有已生成的本命星盘报告' }}</span>
+                <div style="display: flex; gap: 10px;">
+                  <button class="primary-action" style="padding: 6px 12px; font-size: 13px;" @click="viewLastResult">{{ isEnglish ? 'View Report' : '直接查看' }}</button>
+                  <button class="secondary-action" style="padding: 6px 12px; font-size: 13px; margin: 0;" @click="restartTest">{{ isEnglish ? 'New Test' : '重新测试' }}</button>
+                </div>
+              </div>
               <div class="input-group">
                 <label>出生日期 *</label>
                 <input type="date" v-model="formData.date" class="astro-input" />
