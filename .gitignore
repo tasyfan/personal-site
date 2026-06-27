@@ -6,3 +6,8 @@ dist/
 *.sqlite
 .env
 .DS_Store
+.voice-venv/
+.voice-venv312/
+venv/
+.venv/
+*venv*
