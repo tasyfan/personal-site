@@ -268,3 +268,18 @@ Improved website aesthetics and page responsiveness based on modern minimal slat
 - 借由 `rsync` 安全通道直接部署同步到生产服务器 `8.216.9.60` 的 Nginx Web 根目录 `/var/www/northstar/` 和后端目录 `/opt/northstar/` 中，并远程重启了后台服务守护进程 `systemctl restart northstar.service`。
 - 本地执行 `npm run check:launch:production` 针对真实的线上运行环境进行 38 项指标的全量拨测，全部绿牌通过，正式上线生效。
 - 全量修改已同步提交并推送至 GitHub `main` 分支。
+
+### 🐞 修复出生城市查询匹配缺陷 (已上线并验证)
+- **问题分析**：
+  1. **直辖市同名地点干扰**：输入“北京”时，Open-Meteo 会模糊匹配到中国其它省份（如重庆市、四川省）以“北京”命名的极小乡村/山丘，导致结果杂乱。
+  2. **普通中文城市检索不到**：由于本地 `city-timezones` 库仅含英文/拼音，且 Open-Meteo 地理编码 API 对中国普通中小城市直接输入中文不支持（需输入拼音，如 `Huainan` 才能返回安徽淮南），导致直接输入“淮南”或“安徽淮南”搜不出任何结果。
+- **重构解决**：
+  1. **智能汉字拼音转换**：在 `server/services/location-resolver.js` 中引入轻量级拼音转换库 `tiny-pinyin`。如果用户输入的查询中包含中文字符，自动剥离省份前缀（如“安徽省”、“安徽”），获取纯粹的城市名并转为拼音用于本地与远程检索。
+  2. **中文字符逆向映射还原**：从用户输入及 Open-Meteo 返回的 `admin2` 汉字数据中，逆向将英文/拼音城市名（如 `Huainan`）精准还原为原始中文汉字（如“淮南”），确保在前端展现为正确的中文。
+  3. **大城市同名过滤机制**：过滤剔除行政省份不符且无人口数据（或人口数量过小）的四大直辖市与主要省会城市的重名偏远村庄。
+- **发布与测试验证**：
+  1. 本地通过 `npm test`（所有 24 个后端测试用例 100% 绿牌通过）。
+  2. 使用 `npm run build:deploy` 打包，通过 `rsync` 将静态资源与服务端同步更新至 `8.216.9.60`。
+  3. 远程执行 `npm install --omit=dev` 安装了 `tiny-pinyin` 依赖，并执行 `systemctl restart northstar.service` 重启服务。
+  4. 再次执行 `npm run check:launch:production` 全量门禁校验，38 项生产指标全部通过。
+  5. 经验证，搜索“北京”时仅出现“北京 · 中国”，搜索“安徽淮南”或“淮南”能立刻、精准匹配出“淮南 · 安徽省 · 中国”。

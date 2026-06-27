@@ -1,4 +1,5 @@
 const cityTimezones = require('city-timezones');
+const Pinyin = require('tiny-pinyin');
 
 const COUNTRY_NAMES_ZH = {
   China: '中国',
@@ -71,21 +72,21 @@ const CHINESE_PROVINCE_NAMES = {
   江苏: '江苏省',
   浙江: '浙江省',
   安徽: '安徽省',
-  福建: '福建省',
-  江西: '江西省',
-  山东: '山东省',
-  河南: '河南省',
-  湖北: '湖北省',
-  湖南: '湖南省',
-  广东: '广东省',
-  海南: '海南省',
-  四川: '四川省',
-  贵州: '贵州省',
-  云南: '云南省',
-  陕西: '陕西省',
-  甘肃: '甘肃省',
-  青海: '青海省',
-  台湾: '台湾省',
+  Fujian: '福建省',
+  Jiangxi: '江西省',
+  Shandong: '山东省',
+  Henan: '河南省',
+  Hubei: '湖北省',
+  Hunan: '湖南省',
+  Guangdong: '广东省',
+  Hainan: '海南省',
+  Sichuan: '四川省',
+  Guizhou: '贵州省',
+  Yunnan: '云南省',
+  Shaanxi: '陕西省',
+  Gansu: '甘肃省',
+  Qinghai: '青海省',
+  Taiwan: '台湾省',
   内蒙古: '内蒙古自治区',
   广西: '广西壮族自治区',
   西藏: '西藏自治区',
@@ -126,7 +127,7 @@ const LOCATION_ALIASES = [
   ['Hefei', '合肥', ['合肥', '合肥市', 'hefei']],
   ['Nanchang', '南昌', ['南昌', '南昌市', 'nanchang']],
   ['Shashi', '荆州', ['荆州', '荆州市', '荊州', '荊州市', 'jingzhou', 'jing zhou', 'shashi']],
-  ['Shijiazhuang', '石家庄', ['石家庄', '石家庄市', '石家莊', '石家莊市', 'shijiazhuang']],
+  ['Shijiazhuang', '石家庄', ['石家庄', '石家庄市', '石莊', '石莊市', 'shijiazhuang']],
   ['Taiyuan', '太原', ['太原', '太原市', 'taiyuan']],
   ['Lanzhou', '兰州', ['兰州', '兰州市', '蘭州', '蘭州市', 'lanzhou']],
   ['Urumqi', '乌鲁木齐', ['乌鲁木齐', '乌鲁木齐市', '烏魯木齊', '烏魯木齊市', 'urumqi', 'wulumuqi']],
@@ -149,7 +150,7 @@ const LOCATION_ALIASES = [
   ['Munich', '慕尼黑', ['慕尼黑', 'munich', 'münchen', 'munchen']],
   ['Cologne', '科隆', ['科隆', 'cologne', 'köln', 'koln']],
   ['Vienna', '维也纳', ['维也纳', '維也納', 'vienna', 'wien']],
-  ['Rome', '罗马', ['罗马', '羅馬', 'rome', 'roma']],
+  ['Rome', '罗马', ['罗马', '羅馬', 'rose', 'roma']],
   ['Moscow', '莫斯科', ['莫斯科', 'moscow', 'москва', 'moskva']],
   ['Sao Paulo', '圣保罗', ['圣保罗', '聖保羅', 'sao paulo', 'são paulo']]
 ];
@@ -240,12 +241,16 @@ function createLocationResult({
   const cleanProvince = normalizeText(
     english
       ? province
-      : (provinceDisplay !== undefined ? provinceDisplay : (PROVINCE_NAMES_ZH[province] || province))
+      : (provinceDisplay !== undefined 
+          ? (PROVINCE_NAMES_ZH[provinceDisplay] || CHINESE_PROVINCE_NAMES[provinceDisplay] || provinceDisplay) 
+          : (PROVINCE_NAMES_ZH[province] || province))
   );
   const cleanCountry = normalizeText(
     english
       ? country
-      : (countryDisplay !== undefined ? countryDisplay : (COUNTRY_NAMES_ZH[country] || country))
+      : (countryDisplay !== undefined 
+          ? (COUNTRY_NAMES_ZH[countryDisplay] || countryDisplay) 
+          : (COUNTRY_NAMES_ZH[country] || country))
   );
   const parts = [cleanCity];
   if (cleanProvince && stripCitySuffix(cleanProvince) !== cleanCity) parts.push(cleanProvince);
@@ -265,12 +270,55 @@ function createLocationResult({
   };
 }
 
+function stripProvincePrefix(query) {
+  let clean = query;
+  for (const prov of Object.keys(CHINESE_PROVINCE_NAMES)) {
+    const fullProv = CHINESE_PROVINCE_NAMES[prov];
+    if (clean.startsWith(fullProv)) {
+      clean = clean.substring(fullProv.length);
+      break;
+    }
+    if (clean.startsWith(prov)) {
+      clean = clean.substring(prov.length);
+      break;
+    }
+  }
+  return clean.trim();
+}
+
+function translatePinyinToChinese(englishName, query) {
+  if (!query || !/[\u4e00-\u9fa5]/.test(query)) return englishName;
+  const targetPinyin = englishName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!targetPinyin) return englishName;
+
+  // Try substring matching in the query
+  for (let len = query.length; len >= 1; len--) {
+    for (let start = 0; start <= query.length - len; start++) {
+      const sub = query.substring(start, start + len);
+      if (/[\u4e00-\u9fa5]/.test(sub)) {
+        const subPinyin = Pinyin.convertToPinyin(sub, '', true).toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (subPinyin === targetPinyin) {
+          return sub;
+        }
+      }
+    }
+  }
+  return englishName;
+}
+
 function resolveLocations(rawQuery, limit = 8, locale = 'zh-CN') {
   const query = normalizeText(rawQuery).slice(0, 80);
   if (query.length < 2) return [];
 
-  const alias = ALIAS_INDEX.get(aliasKey(query));
-  const canonical = alias ? alias.canonical : query.replace(/\s+(?:city|municipality)$/iu, '');
+  const stripped = stripProvincePrefix(query);
+  const alias = ALIAS_INDEX.get(aliasKey(stripped)) || ALIAS_INDEX.get(aliasKey(query));
+
+  let searchKey = stripped;
+  if (/[\u4e00-\u9fa5]/.test(stripped)) {
+    searchKey = Pinyin.convertToPinyin(stripped, ' ', true);
+  }
+
+  const canonical = alias ? alias.canonical : searchKey.replace(/\s+(?:city|municipality)$/iu, '');
   const matches = cityTimezones.findFromCityStateProvince(canonical)
     .sort((left, right) => {
       const accuracy = scoreMatch(right, canonical) - scoreMatch(left, canonical);
@@ -279,19 +327,28 @@ function resolveLocations(rawQuery, limit = 8, locale = 'zh-CN') {
     .slice(0, limit)
     .map((item) => {
       const exactCity = scoreMatch(item, canonical) === 3;
-      const cityName = alias && exactCity && !isEnglishLocale(locale) ? alias.displayName : item.city;
-      const countryName = alias && exactCity
-        ? (isEnglishLocale(locale) ? item.country : (COUNTRY_NAMES_ZH[item.country] || item.country))
-        : item.country;
-      const provinceName = [item.city, canonical]
+      let cityName = item.city;
+      let countryName = item.country;
+      let provinceName = item.province;
+      
+      if (!isEnglishLocale(locale)) {
+        if (alias && exactCity) {
+          cityName = alias.displayName;
+        } else {
+          cityName = translatePinyinToChinese(item.city, query);
+        }
+        countryName = COUNTRY_NAMES_ZH[item.country] || item.country;
+        provinceName = PROVINCE_NAMES_ZH[item.province] || item.province;
+      }
+      const finalProvinceName = [item.city, canonical]
         .some(value => normalizeText(item.province).toLocaleLowerCase('en-US') === normalizeText(value).toLocaleLowerCase('en-US'))
         ? ''
-        : item.province;
+        : provinceName;
       return createLocationResult({
         city: item.city,
         displayName: cityName,
         province: item.province || '',
-        provinceDisplay: PROVINCE_NAMES_ZH[item.province] || provinceName,
+        provinceDisplay: finalProvinceName,
         country: item.country || '',
         countryDisplay: countryName,
         latitude: Number(item.lat),
@@ -306,15 +363,28 @@ function resolveLocations(rawQuery, limit = 8, locale = 'zh-CN') {
 
 const remoteCache = new Map();
 
-function mapOpenMeteoLocation(item, locale) {
+function mapOpenMeteoLocation(item, locale, originalQuery) {
   const isChina = item.country === '中国' || item.country_code === 'CN';
+  
+  let cityName = item.name;
+  if (isChina && !isEnglishLocale(locale)) {
+    const queryChinese = translatePinyinToChinese(item.name, originalQuery);
+    if (queryChinese !== item.name) {
+      cityName = queryChinese;
+    } else if (item.admin2 && /[\u4e00-\u9fa5]/.test(item.admin2)) {
+      cityName = stripCitySuffix(item.admin2);
+    } else if (item.name && /[\u4e00-\u9fa5]/.test(item.name)) {
+      cityName = stripCitySuffix(item.name);
+    }
+  }
+
   return createLocationResult({
     city: item.name,
-    displayName: item.name,
+    displayName: cityName,
     province: item.admin1 || '',
     provinceDisplay: isChina ? (CHINESE_PROVINCE_NAMES[item.admin1] || item.admin1 || '') : (item.admin1 || ''),
     country: item.country || '',
-    countryDisplay: item.country || '',
+    countryDisplay: isChina ? '中国' : (COUNTRY_NAMES_ZH[item.country] || item.country || ''),
     latitude: item.latitude,
     longitude: item.longitude,
     timezone: isChina ? 'Asia/Shanghai' : item.timezone,
@@ -322,8 +392,14 @@ function mapOpenMeteoLocation(item, locale) {
   });
 }
 
-async function fetchOpenMeteoLocations(query, limit, locale) {
-  const cacheKey = `${locale}:${query}`;
+async function fetchOpenMeteLocations(query, limit, locale) {
+  const stripped = stripProvincePrefix(query);
+  let searchKey = stripped;
+  if (/[\u4e00-\u9fa5]/.test(stripped)) {
+    searchKey = Pinyin.convertToPinyin(stripped, '', true);
+  }
+
+  const cacheKey = `${locale}:${searchKey}`;
   const cached = remoteCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.locations.slice(0, limit);
 
@@ -331,7 +407,7 @@ async function fetchOpenMeteoLocations(query, limit, locale) {
   const timeout = setTimeout(() => controller.abort(), 2800);
   try {
     const url = new URL('https://geocoding-api.open-meteo.com/v1/search');
-    url.searchParams.set('name', query);
+    url.searchParams.set('name', searchKey);
     url.searchParams.set('count', String(Math.min(Math.max(limit, 1), 10)));
     url.searchParams.set('language', isEnglishLocale(locale) ? 'en' : 'zh');
     url.searchParams.set('format', 'json');
@@ -343,8 +419,27 @@ async function fetchOpenMeteoLocations(query, limit, locale) {
     const payload = await response.json();
     const locations = Array.isArray(payload.results)
       ? payload.results
-        .filter(item => item && item.name && Number.isFinite(item.latitude) && Number.isFinite(item.longitude) && item.timezone)
-        .map(item => mapOpenMeteoLocation(item, locale))
+        .filter(item => {
+          if (!item || !item.name || !Number.isFinite(item.latitude) || !Number.isFinite(item.longitude) || !item.timezone) {
+            return false;
+          }
+          const isChinaItem = item.country_code === 'CN' || item.country === '中国';
+          if (isChinaItem) {
+            const ascii = item.name.toLowerCase().replace(/[^a-z]/g, '');
+            const isMajor = ALIAS_INDEX.has(ascii) || ['beijing', 'shanghai', 'tianjin', 'chongqing', 'guangzhou', 'shenzhen', 'chengdu', 'hangzhou', 'wuhan', 'xian'].includes(ascii);
+            if (isMajor) {
+              const isCorrectProvince = item.admin1 && (
+                item.admin1.toLowerCase().includes(ascii) || 
+                (ascii === 'peking' && item.admin1.toLowerCase().includes('beijing'))
+              );
+              if (!isCorrectProvince && (!item.population || item.population < 50000)) {
+                return false;
+              }
+            }
+          }
+          return true;
+        })
+        .map(item => mapOpenMeteoLocation(item, locale, query))
       : [];
     remoteCache.set(cacheKey, {
       locations,
@@ -373,17 +468,20 @@ async function resolveLocationsAsync(rawQuery, limit = 8, locale = 'zh-CN') {
   if (query.length < 2) return [];
   const simplifiedQuery = stripCitySuffix(query);
   const [remotePrimary, local] = await Promise.all([
-    fetchOpenMeteoLocations(query, limit, locale),
+    fetchOpenMeteLocations(query, limit, locale),
     Promise.resolve(resolveLocations(query, limit, locale))
   ]);
   const remote = remotePrimary.length || simplifiedQuery === query
     ? remotePrimary
-    : await fetchOpenMeteoLocations(simplifiedQuery, limit, locale);
+    : await fetchOpenMeteLocations(simplifiedQuery, limit, locale);
   const alias = ALIAS_INDEX.get(aliasKey(query));
   const preferredLocal = alias
     ? local.filter(item => aliasKey(item.city) === aliasKey(alias.canonical))
     : local;
-  const prioritizeLocal = Boolean(alias && preferredLocal[0] && preferredLocal[0].timezone.startsWith('Asia/'));
+  const prioritizeLocal = Boolean(
+    (alias && preferredLocal[0] && preferredLocal[0].timezone.startsWith('Asia/')) ||
+    (preferredLocal[0] && preferredLocal[0].timezone.startsWith('Asia/') && /[\u4e00-\u9fa5]/.test(query))
+  );
   return dedupeLocations(prioritizeLocal ? [...preferredLocal, ...remote] : [...remote, ...preferredLocal], limit);
 }
 
