@@ -424,6 +424,339 @@ function drawWater(ctx) {
   ctx.restore();
 }
 
+function roundedRect(ctx, x, y, width, height, radius) {
+  if (typeof ctx.roundRect === 'function') {
+    ctx.roundRect(x, y, width, height, radius);
+    return;
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+}
+
+function drawEnneagramSymbol(ctx, dominant) {
+  ctx.clearRect(0, 0, 512, 512);
+  ctx.save();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 14;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const cx = 256;
+  const cy = 256;
+  const R = 150;
+  const nodes = {};
+
+  for (let i = 1; i <= 9; i++) {
+    const angle = -Math.PI / 2 + (i - 9) * (Math.PI * 2 / 9);
+    nodes[i] = {
+      x: cx + Math.cos(angle) * R,
+      y: cy + Math.sin(angle) * R
+    };
+  }
+
+  // 1. Outer circle
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // 2. Triangle 9-3-6-9
+  ctx.beginPath();
+  ctx.moveTo(nodes[9].x, nodes[9].y);
+  ctx.lineTo(nodes[3].x, nodes[3].y);
+  ctx.lineTo(nodes[6].x, nodes[6].y);
+  ctx.closePath();
+  ctx.stroke();
+
+  // 3. Hexad 1-4-2-8-5-7-1
+  ctx.beginPath();
+  ctx.moveTo(nodes[1].x, nodes[1].y);
+  ctx.lineTo(nodes[4].x, nodes[4].y);
+  ctx.lineTo(nodes[2].x, nodes[2].y);
+  ctx.lineTo(nodes[8].x, nodes[8].y);
+  ctx.lineTo(nodes[5].x, nodes[5].y);
+  ctx.lineTo(nodes[7].x, nodes[7].y);
+  ctx.closePath();
+  ctx.stroke();
+
+  // 4. Highlight dominant node
+  const dom = parseInt(dominant);
+  if (dom >= 1 && dom <= 9) {
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(nodes[dom].x, nodes[dom].y, 24, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // 5. Center number
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 72px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(dominant, cx, cy);
+
+  ctx.restore();
+}
+
+function drawTarotCards(ctx, name) {
+  ctx.clearRect(0, 0, 512, 512);
+  ctx.save();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 6;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  let reversedList = [false, false, false];
+  try {
+    reversedList = JSON.parse(name);
+  } catch (e) {}
+
+  const drawCardFrame = (cx, cy, w, h) => {
+    ctx.beginPath();
+    roundedRect(ctx, cx - w/2, cy - h/2, w, h, 12);
+    ctx.stroke();
+    ctx.beginPath();
+    roundedRect(ctx, cx - w/2 + 6, cy - h/2 + 6, w - 12, h - 12, 6);
+    ctx.stroke();
+  };
+
+  const w = 90, h = 150;
+
+  // Card 1: Past
+  const cx1 = 130, cy1 = 256;
+  drawCardFrame(cx1, cy1, w, h);
+  ctx.save();
+  ctx.translate(cx1, cy1);
+  if (reversedList[0]) ctx.rotate(Math.PI);
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(-4, 0, 20, -Math.PI/2, Math.PI/2, false);
+  ctx.arc(4, 0, 20, Math.PI/2, -Math.PI/2, true);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Card 2: Present
+  const cx2 = 256, cy2 = 256;
+  drawCardFrame(cx2, cy2, w, h);
+  ctx.save();
+  ctx.translate(cx2, cy2);
+  if (reversedList[1]) ctx.rotate(Math.PI);
+  ctx.fillStyle = "#ffffff";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(0, 0, 14, 0, Math.PI*2);
+  ctx.fill();
+  for (let i = 0; i < 8; i++) {
+    const angle = i * Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * 18, Math.sin(angle) * 18);
+    ctx.lineTo(Math.cos(angle) * 26, Math.sin(angle) * 26);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Card 3: Future
+  const cx3 = 382, cy3 = 256;
+  drawCardFrame(cx3, cy3, w, h);
+  ctx.save();
+  ctx.translate(cx3, cy3);
+  if (reversedList[2]) ctx.rotate(Math.PI);
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  const rOuter = 22;
+  const rInner = 9;
+  for (let i = 0; i < 5; i++) {
+    const a1 = -Math.PI/2 + i * Math.PI * 2 / 5;
+    const a2 = -Math.PI/2 + (i + 0.5) * Math.PI * 2 / 5;
+    if (i === 0) ctx.moveTo(Math.cos(a1) * rOuter, Math.sin(a1) * rOuter);
+    else ctx.lineTo(Math.cos(a1) * rOuter, Math.sin(a1) * rOuter);
+    ctx.lineTo(Math.cos(a2) * rInner, Math.sin(a2) * rInner);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+function drawDarkTriangle(ctx, dominant) {
+  ctx.clearRect(0, 0, 512, 512);
+  ctx.save();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 14;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const pN = { x: 256, y: 140 };
+  const pM = { x: 130, y: 350 };
+  const pP = { x: 382, y: 350 };
+
+  ctx.beginPath();
+  ctx.moveTo(pN.x, pN.y);
+  ctx.lineTo(pM.x, pM.y);
+  ctx.lineTo(pP.x, pP.y);
+  ctx.closePath();
+  ctx.stroke();
+
+  let activePt = pN;
+  let labelPos = { x: 256, y: 95 };
+  let mPos = { x: 80, y: 375 };
+  let pPos = { x: 432, y: 375 };
+
+  if (dominant === 'Machiavellianism') {
+    activePt = pM;
+  } else if (dominant === 'Psychopathy') {
+    activePt = pP;
+  }
+
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(activePt.x, activePt.y, 22, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.font = "bold 24px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  if (dominant === 'Machiavellianism') {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 32px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  }
+  ctx.fillText("马基", mPos.x, mPos.y);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.font = "bold 24px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  if (dominant === 'Psychopathy') {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 32px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  }
+  ctx.fillText("反社", pPos.x, pPos.y);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.font = "bold 24px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  if (dominant === 'Narcissism') {
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 32px 'Inter', 'Outfit', 'PingFang SC', sans-serif";
+  }
+  ctx.fillText("自恋", labelPos.x, labelPos.y);
+
+  ctx.restore();
+}
+
+function drawHumanDesignBody(ctx, type) {
+  ctx.clearRect(0, 0, 512, 512);
+  ctx.save();
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  const centers = {
+    1: { x: 256, y: 70, type: 'up-tri', s: 16 },
+    2: { x: 256, y: 120, type: 'down-tri', s: 20 },
+    3: { x: 256, y: 180, type: 'square', s: 24 },
+    4: { x: 256, y: 250, type: 'diamond', s: 24 },
+    5: { x: 310, y: 275, type: 'up-tri', s: 14 },
+    6: { x: 256, y: 330, type: 'square', s: 28 },
+    7: { x: 190, y: 330, type: 'left-tri', s: 20 },
+    8: { x: 322, y: 330, type: 'right-tri', s: 20 },
+    9: { x: 256, y: 420, type: 'square', s: 28 }
+  };
+
+  let defined = [];
+  if (type === '生产者') {
+    defined = [3, 4, 6, 9];
+  } else if (type === '显示生产者') {
+    defined = [3, 4, 6];
+  } else if (type === '显示者') {
+    defined = [3, 5, 9];
+  } else if (type === '投射者') {
+    defined = [1, 2, 4];
+  } else if (type === '反映者') {
+    defined = [];
+  }
+
+  const isDefined = (id) => defined.includes(id);
+
+  const channels = [
+    [1, 2], [2, 3], [3, 4], [4, 5], [4, 6], [4, 7], [4, 8],
+    [7, 6], [8, 6], [7, 9], [8, 9], [6, 9]
+  ];
+
+  channels.forEach(([c1, c2]) => {
+    const p1 = centers[c1];
+    const p2 = centers[c2];
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);
+    if (isDefined(c1) && isDefined(c2)) {
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = "#ffffff";
+    } else {
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    }
+    ctx.stroke();
+  });
+
+  Object.entries(centers).forEach(([idStr, c]) => {
+    const id = parseInt(idStr);
+    const { x, y, type: shapeType, s } = c;
+    
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+    if (shapeType === 'square') {
+      ctx.rect(x - s, y - s, s * 2, s * 2);
+    } else if (shapeType === 'diamond') {
+      ctx.moveTo(x, y - s * 1.3);
+      ctx.lineTo(x + s * 1.3, y);
+      ctx.lineTo(x, y + s * 1.3);
+      ctx.lineTo(x - s * 1.3, y);
+      ctx.closePath();
+    } else if (shapeType === 'up-tri') {
+      ctx.moveTo(x, y - s * 1.2);
+      ctx.lineTo(x + s, y + s * 0.8);
+      ctx.lineTo(x - s, y + s * 0.8);
+      ctx.closePath();
+    } else if (shapeType === 'down-tri') {
+      ctx.moveTo(x, y + s * 1.2);
+      ctx.lineTo(x + s, y - s * 0.8);
+      ctx.lineTo(x - s, y - s * 0.8);
+      ctx.closePath();
+    } else if (shapeType === 'left-tri') {
+      ctx.moveTo(x - s * 1.2, y);
+      ctx.lineTo(x + s * 0.8, y - s);
+      ctx.lineTo(x + s * 0.8, y + s);
+      ctx.closePath();
+    } else if (shapeType === 'right-tri') {
+      ctx.moveTo(x + s * 1.2, y);
+      ctx.lineTo(x - s * 0.8, y - s);
+      ctx.lineTo(x - s * 0.8, y + s);
+      ctx.closePath();
+    }
+
+    if (isDefined(id)) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+    }
+    ctx.stroke();
+  });
+
+  ctx.restore();
+}
+
 function isCompactViewport() {
   return innerWidth <= 768 || coarsePointer;
 }
@@ -704,6 +1037,14 @@ function setPattern(type, name) {
       if (drawFn) {
         window.__northstarAntigravity.setCustomShape(name, drawFn);
       }
+    } else if (type === 'enneagram') {
+      window.__northstarAntigravity.setCustomShape(name, (tctx) => drawEnneagramSymbol(tctx, name));
+    } else if (type === 'tarot') {
+      window.__northstarAntigravity.setCustomShape(name, (tctx) => drawTarotCards(tctx, name));
+    } else if (type === 'darktriad') {
+      window.__northstarAntigravity.setCustomShape(name, (tctx) => drawDarkTriangle(tctx, name));
+    } else if (type === 'humandesign') {
+      window.__northstarAntigravity.setCustomShape(name, (tctx) => drawHumanDesignBody(tctx, name));
     }
   }
 

@@ -3383,6 +3383,16 @@
         }, 0)
       }
 
+      onMounted(() => {
+        window.__northstarFx?.setPattern('tarot', JSON.stringify(cards.value.map(c => c.isReversed)))
+        store.isPatternActive = true
+      })
+      onUnmounted(() => {
+        window.__northstarFx?.clearPattern()
+        store.isPatternActive = false
+        store.isImmersive = false
+      })
+
       const generatePoster = async () => {
         const posterEl = document.getElementById('poster-dom')
         if (!posterEl) return
@@ -5020,6 +5030,23 @@
           alert("海报生成失败，请重试。")
         }
       }
+
+      watch(phase, (newPhase) => {
+        if (newPhase === 'result' && hdResult.value) {
+          window.__northstarFx?.setPattern('humandesign', hdResult.value.name)
+          store.isPatternActive = true
+        } else if (newPhase === 'input') {
+          window.__northstarFx?.clearPattern()
+          store.isPatternActive = false
+          store.isImmersive = false
+        }
+      }, { immediate: true })
+
+      onUnmounted(() => {
+        window.__northstarFx?.clearPattern()
+        store.isPatternActive = false
+        store.isImmersive = false
+      })
 
       return {
         phase, formData, loadingText, startCalculation,
@@ -8022,10 +8049,13 @@
       }
 
       onMounted(() => {
-        window.__northstarFx?.clearPattern()
+        window.__northstarFx?.setPattern('enneagram', dominant)
+        store.isPatternActive = true
       })
       onUnmounted(() => {
         window.__northstarFx?.clearPattern()
+        store.isPatternActive = false
+        store.isImmersive = false
       })
 
       return { showPayment, hasPaid, displayedDeepText, isTyping, handlePaymentSuccess, typeData, generatePoster, restartTest, skipTypewriter, orderId }
@@ -8547,10 +8577,13 @@
       }
 
       onMounted(() => {
-        window.__northstarFx?.clearPattern()
+        window.__northstarFx?.setPattern('darktriad', dominant)
+        store.isPatternActive = true
       })
       onUnmounted(() => {
         window.__northstarFx?.clearPattern()
+        store.isPatternActive = false
+        store.isImmersive = false
       })
 
       return { showPayment, hasPaid, displayedDeepText, isTyping, handlePaymentSuccess, typeData, generatePoster, restartTest, scores, skipTypewriter, orderId }
