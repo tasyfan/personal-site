@@ -5479,6 +5479,7 @@
 
   const AstrologyTest = defineComponent({
     name: 'AstrologyTestPage',
+    components: { PaymentModal },
     setup() {
       const router = useRouter()
       const phase = ref('input') 
