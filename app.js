@@ -3207,13 +3207,27 @@
         router.push('/result')
       }
 
+      const getFanStyle = (index) => {
+        const diff = index - 5.5
+        const absDiff = Math.abs(diff)
+        const tx = diff * 28
+        const ty = absDiff * absDiff * 2.2
+        const rot = diff * 4.5
+        const z = Math.round(20 + diff)
+        return {
+          transform: `translateX(${tx}px) translateY(${ty}px) rotate(${rot}deg)`,
+          zIndex: z
+        }
+      }
+
       return {
         phase, question, deck, selected, selectedCount,
         revealedCount, isShuffling,
         startReading, pickCard, playHover, revealCards, goToResult,
         POSITIONS, store,
         isEnglish: computed(() => activeLocale.value === 'en'),
-        getCardTheme
+        getCardTheme,
+        getFanStyle
       }
     },
     template: `
@@ -3267,31 +3281,35 @@
             <div
               v-for="(item, index) in deck"
               :key="index"
-              class="tarot-card"
-              :class="{ selected: item.selected }"
-              :style="{ '--diff': index - 5.5, '--abs-diff': Math.abs(index - 5.5) }"
-              @click="pickCard(index)"
-              @mouseenter="playHover"
+              class="tarot-card-wrapper"
+              :style="getFanStyle(index)"
             >
-              <div class="card-inner">
-                <div class="card-front">
-                  <div class="tarot-card-inner-border"></div>
-                  <span class="card-numeral">{{ index + 1 }}</span>
-                  <svg class="card-back-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="28" stroke="rgba(212, 175, 55, 0.3)" stroke-width="1" stroke-dasharray="2, 2" fill="none" />
-                    <circle cx="50" cy="50" r="16" stroke="rgba(212, 175, 55, 0.4)" stroke-width="1" fill="none" />
-                    <path d="M 50 12 L 54 40 L 82 40 L 58 56 L 68 84 L 50 68 L 32 84 L 42 56 L 18 40 L 46 40 Z" fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.75)" stroke-width="1.2" />
-                  </svg>
-                  <span class="card-label">Northstar</span>
-                </div>
-                <div class="card-back">
-                  <svg class="card-front-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="38" stroke="rgba(138, 79, 255, 0.4)" stroke-width="1" fill="none" />
-                    <path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="rgba(138, 79, 255, 0.2)" stroke-width="1" stroke-dasharray="3, 3" />
-                  </svg>
-                  <span class="card-position-tag" v-if="item.selected">
-                    {{ POSITIONS[selected.indexOf(index)] }}
-                  </span>
+              <div
+                class="tarot-card"
+                :class="{ selected: item.selected }"
+                @click="pickCard(index)"
+                @mouseenter="playHover"
+              >
+                <div class="card-inner">
+                  <div class="card-front">
+                    <div class="tarot-card-inner-border"></div>
+                    <span class="card-numeral">{{ index + 1 }}</span>
+                    <svg class="card-back-svg" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="28" stroke="rgba(212, 175, 55, 0.3)" stroke-width="1" stroke-dasharray="2, 2" fill="none" />
+                      <circle cx="50" cy="50" r="16" stroke="rgba(212, 175, 55, 0.4)" stroke-width="1" fill="none" />
+                      <path d="M 50 12 L 54 40 L 82 40 L 58 56 L 68 84 L 50 68 L 32 84 L 42 56 L 18 40 L 46 40 Z" fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.75)" stroke-width="1.2" />
+                    </svg>
+                    <span class="card-label">Northstar</span>
+                  </div>
+                  <div class="card-back">
+                    <svg class="card-front-svg" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="38" stroke="rgba(138, 79, 255, 0.4)" stroke-width="1" fill="none" />
+                      <path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="rgba(138, 79, 255, 0.2)" stroke-width="1" stroke-dasharray="3, 3" />
+                    </svg>
+                    <span class="card-position-tag" v-if="item.selected">
+                      {{ POSITIONS[selected.indexOf(index)] }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
