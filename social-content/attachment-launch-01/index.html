@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080, height=1920">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #090b12;
+      }
+
+      body {
+        color: #f4f6fb;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 78% 16%, rgba(91, 140, 255, 0.19), rgba(91, 140, 255, 0) 30%),
+          radial-gradient(circle at 12% 76%, rgba(154, 124, 255, 0.16), rgba(154, 124, 255, 0) 34%),
+          #090b12;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background-color: #090b12;
+        transform-origin: center center;
+      }
+
+      #scene1 {
+        z-index: 1;
+      }
+
+      #scene2 {
+        z-index: 2;
+        opacity: 0;
+      }
+
+      #scene3 {
+        z-index: 3;
+        opacity: 0;
+      }
+
+      #scene4 {
+        z-index: 4;
+        opacity: 0;
+      }
+
+      #scene5 {
+        z-index: 5;
+        opacity: 0;
+      }
+
+      .scene-content {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100%;
+        padding: 150px 78px 180px;
+        gap: 34px;
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #a8b0c2;
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .brand {
+        color: #f4f6fb;
+      }
+
+      .brand-mark {
+        display: inline-block;
+        width: 18px;
+        height: 18px;
+        margin-right: 14px;
+        border-radius: 6px;
+        background: #5b8cff;
+        box-shadow: 0 0 28px rgba(91, 140, 255, 0.55);
+        transform: rotate(45deg);
+      }
+
+      .rule {
+        width: 100%;
+        height: 2px;
+        background: #31394a;
+        transform-origin: left center;
+      }
+
+      .headline {
+        max-width: 930px;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 118px;
+        font-weight: 400;
+        line-height: 0.94;
+        letter-spacing: -0.055em;
+      }
+
+      .headline .accent {
+        color: #7ca2ff;
+      }
+
+      .subhead {
+        max-width: 830px;
+        color: #b9c0cf;
+        font-size: 34px;
+        font-weight: 400;
+        line-height: 1.52;
+        letter-spacing: -0.025em;
+      }
+
+      .micro-label {
+        color: #7ca2ff;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .footer-index {
+        margin-top: auto;
+        color: #727b8e;
+        font-size: 20px;
+        letter-spacing: 0.12em;
+      }
+
+      .orbit {
+        position: absolute;
+        width: 860px;
+        height: 860px;
+        border: 2px solid rgba(124, 162, 255, 0.14);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .orbit::after {
+        content: "";
+        position: absolute;
+        top: 148px;
+        right: 76px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #9a7cff;
+        box-shadow: 0 0 34px rgba(154, 124, 255, 0.75);
+      }
+
+      .orbit-a {
+        top: 780px;
+        right: -430px;
+      }
+
+      .orbit-b {
+        top: -420px;
+        left: -480px;
+        width: 980px;
+        height: 980px;
+      }
+
+      .glass {
+        border: 2px solid rgba(244, 246, 251, 0.1);
+        border-radius: 34px;
+        background: rgba(20, 25, 37, 0.9);
+        box-shadow: 0 32px 90px rgba(0, 0, 0, 0.38);
+      }
+
+      .pattern-list {
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        margin-top: 20px;
+      }
+
+      .pattern {
+        display: grid;
+        grid-template-columns: 68px 1fr auto;
+        align-items: center;
+        min-height: 126px;
+        padding: 24px 30px;
+        gap: 24px;
+      }
+
+      .pattern-number {
+        color: #7ca2ff;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .pattern-copy strong {
+        display: block;
+        margin-bottom: 8px;
+        color: #f4f6fb;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 34px;
+        font-weight: 400;
+        letter-spacing: -0.04em;
+      }
+
+      .pattern-copy span {
+        color: #a8b0c2;
+        font-size: 23px;
+        line-height: 1.4;
+      }
+
+      .pattern-state {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #9a7cff;
+        box-shadow: 0 0 24px rgba(154, 124, 255, 0.7);
+      }
+
+      .protect-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 780px;
+        margin-top: 42px;
+        padding: 54px 50px;
+        gap: 30px;
+      }
+
+      .protect-card .label {
+        color: #7ca2ff;
+        font-size: 21px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .protect-card h2 {
+        font-family: "Archivo Black", sans-serif;
+        font-size: 68px;
+        font-weight: 400;
+        line-height: 1.02;
+        letter-spacing: -0.05em;
+      }
+
+      .protect-card p {
+        color: #b9c0cf;
+        font-size: 29px;
+        line-height: 1.55;
+      }
+
+      .meter {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 18px;
+        padding-top: 18px;
+      }
+
+      .meter-label {
+        color: #a8b0c2;
+        font-size: 22px;
+      }
+
+      .meter-value {
+        color: #f4f6fb;
+        font-size: 25px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .meter-track {
+        grid-column: 1 / -1;
+        height: 10px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: #2a3140;
+      }
+
+      .meter-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: #5b8cff;
+        transform-origin: left center;
+      }
+
+      .w82 { width: 82%; }
+      .w64 { width: 64%; }
+      .w47 { width: 47%; }
+
+      .product-stage {
+        justify-content: center;
+      }
+
+      .phone {
+        position: relative;
+        width: 700px;
+        min-height: 1150px;
+        margin: 0 auto;
+        padding: 36px;
+        overflow: hidden;
+        border: 3px solid rgba(244, 246, 251, 0.16);
+        border-radius: 64px;
+        background: #10141e;
+        box-shadow: 0 55px 130px rgba(0, 0, 0, 0.55);
+      }
+
+      .phone-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 4px 34px;
+        color: #a8b0c2;
+        font-size: 18px;
+        letter-spacing: 0.1em;
+      }
+
+      .phone-content {
+        display: flex;
+        flex-direction: column;
+        padding: 42px 34px;
+        gap: 30px;
+      }
+
+      .phone-kicker {
+        color: #7ca2ff;
+        font-size: 19px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .phone h2 {
+        font-family: "Archivo Black", sans-serif;
+        font-size: 63px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: -0.055em;
+      }
+
+      .phone p {
+        color: #aeb6c7;
+        font-size: 25px;
+        line-height: 1.55;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 12px;
+      }
+
+      .feature {
+        min-height: 150px;
+        padding: 24px;
+        border: 1px solid rgba(244, 246, 251, 0.1);
+        border-radius: 22px;
+        background: #171c28;
+      }
+
+      .feature b {
+        display: block;
+        margin-bottom: 10px;
+        color: #f4f6fb;
+        font-size: 25px;
+      }
+
+      .feature span {
+        color: #8f98ab;
+        font-size: 19px;
+        line-height: 1.35;
+      }
+
+      .phone-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100px;
+        margin-top: auto;
+        border-radius: 24px;
+        background: #5b8cff;
+        color: #f4f6fb;
+        font-size: 27px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .cta-stage {
+        justify-content: center;
+      }
+
+      .cta-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 1100px;
+        padding: 70px 58px;
+        gap: 38px;
+      }
+
+      .cta-panel h2 {
+        max-width: 850px;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 100px;
+        font-weight: 400;
+        line-height: 0.96;
+        letter-spacing: -0.06em;
+      }
+
+      .price-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding: 30px 0;
+        border-top: 2px solid #31394a;
+        border-bottom: 2px solid #31394a;
+      }
+
+      .price-row span {
+        color: #a8b0c2;
+        font-size: 24px;
+      }
+
+      .price-row strong {
+        color: #f4f6fb;
+        font-family: "Archivo Black", sans-serif;
+        font-size: 62px;
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .url {
+        margin-top: auto;
+        color: #7ca2ff;
+        font-size: 29px;
+        font-weight: 700;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+      }
+
+      .cta-note {
+        color: #929bad;
+        font-size: 21px;
+        line-height: 1.45;
+      }
+
+      .ambient {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      .ambient-a {
+        top: 230px;
+        right: 120px;
+        width: 16px;
+        height: 16px;
+        background: #5b8cff;
+        box-shadow: 0 0 35px rgba(91, 140, 255, 0.7);
+      }
+
+      .ambient-b {
+        bottom: 300px;
+        left: 100px;
+        width: 11px;
+        height: 11px;
+        background: #9a7cff;
+        box-shadow: 0 0 30px rgba(154, 124, 255, 0.65);
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-qv3y" id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+      <audio
+        id="narration"
+        data-start="0.2"
+        data-duration="13.1"
+        data-track-index="10"
+        data-volume="0.94"
+        src="voice-natural.wav"
+      ></audio>
+      <section data-hf-id="hf-4u6f" id="scene1" class="scene">
+        <div data-hf-id="hf-afyr" class="orbit orbit-a" data-layout-ignore=""></div>
+        <div data-hf-id="hf-zomb" class="ambient ambient-a" data-layout-ignore=""></div>
+        <div data-hf-id="hf-cn5c" class="scene-content">
+          <div data-hf-id="hf-o5lv" class="topline">
+            <span data-hf-id="hf-z48f" class="brand"><i data-hf-id="hf-yat3" class="brand-mark"></i>Northstar</span>
+            <span data-hf-id="hf-t6e0">01 / Attachment</span>
+          </div>
+          <div data-hf-id="hf-a46i" class="rule"></div>
+          <div data-hf-id="hf-arp5" class="micro-label">Relationship pattern</div>
+          <h1 data-hf-id="hf-bmqy" class="headline">Why do you <span data-hf-id="hf-mmdu" class="accent">pull away</span> when things get real?</h1>
+          <p data-hf-id="hf-0z2l" class="subhead">Sometimes the moment you want closeness is also the moment your protection system wakes up.</p>
+          <div data-hf-id="hf-d1v0" class="footer-index">A 15-second self-reflection</div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-tyos" id="scene2" class="scene">
+        <div data-hf-id="hf-wa08" class="orbit orbit-b" data-layout-ignore=""></div>
+        <div data-hf-id="hf-2648" class="ambient ambient-b" data-layout-ignore=""></div>
+        <div data-hf-id="hf-o0eg" class="scene-content">
+          <div data-hf-id="hf-pz6r" class="topline">
+            <span data-hf-id="hf-gvgv" class="brand"><i data-hf-id="hf-xd13" class="brand-mark"></i>Northstar</span>
+            <span data-hf-id="hf-5doz">Protection signals</span>
+          </div>
+          <div data-hf-id="hf-ya9a" class="rule"></div>
+          <h2 data-hf-id="hf-nhb7" class="headline">It may not be <span data-hf-id="hf-hn8o" class="accent">coldness.</span></h2>
+          <div data-hf-id="hf-7saz" class="pattern-list">
+            <div data-hf-id="hf-v90m" class="pattern glass">
+              <span data-hf-id="hf-va52" class="pattern-number">01</span>
+              <div data-hf-id="hf-xd2c" class="pattern-copy"><strong data-hf-id="hf-o6tp">You go quiet</strong><span data-hf-id="hf-i899">when the conversation feels emotionally risky.</span></div>
+              <span data-hf-id="hf-dvbd" class="pattern-state"></span>
+            </div>
+            <div data-hf-id="hf-7ap6" class="pattern glass">
+              <span data-hf-id="hf-vog3" class="pattern-number">02</span>
+              <div data-hf-id="hf-o3ks" class="pattern-copy"><strong data-hf-id="hf-olau">You need distance</strong><span data-hf-id="hf-k2lu">right after a moment of real closeness.</span></div>
+              <span data-hf-id="hf-kxbx" class="pattern-state"></span>
+            </div>
+            <div data-hf-id="hf-7p07" class="pattern glass">
+              <span data-hf-id="hf-w2r4" class="pattern-number">03</span>
+              <div data-hf-id="hf-mwnp" class="pattern-copy"><strong data-hf-id="hf-kjvf">You overthink</strong><span data-hf-id="hf-mxkd">small changes in tone, timing, or attention.</span></div>
+              <span data-hf-id="hf-m490" class="pattern-state"></span>
+            </div>
+          </div>
+          <div data-hf-id="hf-6hsr" class="footer-index">Patterns are clues, not permanent labels.</div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-uqcl" id="scene3" class="scene">
+        <div data-hf-id="hf-tizn" class="ambient ambient-a" data-layout-ignore=""></div>
+        <div data-hf-id="hf-mthd" class="scene-content">
+          <div data-hf-id="hf-pkvq" class="topline">
+            <span data-hf-id="hf-gh5u" class="brand"><i data-hf-id="hf-wyq2" class="brand-mark"></i>Northstar</span>
+            <span data-hf-id="hf-rh60">Read the pattern</span>
+          </div>
+          <div data-hf-id="hf-yokb" class="rule"></div>
+          <h2 data-hf-id="hf-2b17" class="headline">Your attachment pattern may be trying to <span data-hf-id="hf-iokp" class="accent">protect you.</span></h2>
+          <div data-hf-id="hf-kgk0" class="protect-card glass">
+            <div data-hf-id="hf-1e6s" class="label">Example reflection profile</div>
+            <h2 data-hf-id="hf-armr">Distance as protection</h2>
+            <p data-hf-id="hf-k8za">You may value connection while relying on space, control, or self-sufficiency when closeness feels uncertain.</p>
+            <div data-hf-id="hf-rq4r" class="meter">
+              <span data-hf-id="hf-jx6h" class="meter-label">Need for distance</span><span data-hf-id="hf-lw26" class="meter-value">82</span>
+              <div data-hf-id="hf-b4dl" class="meter-track"><div data-hf-id="hf-b6dm" class="meter-fill w82"></div></div>
+            </div>
+            <div data-hf-id="hf-wup7" class="meter">
+              <span data-hf-id="hf-ptpq" class="meter-label">Reassurance sensitivity</span><span data-hf-id="hf-yfc2" class="meter-value">64</span>
+              <div data-hf-id="hf-zaot" class="meter-track"><div data-hf-id="hf-co6m" class="meter-fill w64"></div></div>
+            </div>
+            <div data-hf-id="hf-wge6" class="meter">
+              <span data-hf-id="hf-bwgi" class="meter-label">Conflict openness</span><span data-hf-id="hf-52xd" class="meter-value">47</span>
+              <div data-hf-id="hf-0hlw" class="meter-track"><div data-hf-id="hf-7b4r" class="meter-fill w47"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-di2a" id="scene4" class="scene">
+        <div data-hf-id="hf-xf3n" class="orbit orbit-a" data-layout-ignore=""></div>
+        <div data-hf-id="hf-m9v4" class="scene-content product-stage">
+          <div data-hf-id="hf-kda4" class="phone">
+            <div data-hf-id="hf-plg4" class="phone-bar"><span data-hf-id="hf-eitc">Northstar</span><span data-hf-id="hf-xllu">Private report</span></div>
+            <div data-hf-id="hf-agrg" class="phone-content">
+              <div data-hf-id="hf-jgnq" class="phone-kicker">Attachment Style Test</div>
+              <h2 data-hf-id="hf-1ni2">See the pattern behind your reactions.</h2>
+              <p data-hf-id="hf-npyt">Complete the free assessment first. Unlock a structured private report only if you want the deeper explanation.</p>
+              <div data-hf-id="hf-tjqf" class="feature-grid">
+                <div data-hf-id="hf-ryk2" class="feature"><b data-hf-id="hf-j3rt">Free test</b><span data-hf-id="hf-7g9t">Start without payment</span></div>
+                <div data-hf-id="hf-5th2" class="feature"><b data-hf-id="hf-y5fw">Private</b><span data-hf-id="hf-pttq">Your report is not public</span></div>
+                <div data-hf-id="hf-67s3" class="feature"><b data-hf-id="hf-bedi">10–12 sections</b><span data-hf-id="hf-2slp">Detailed interpretation</span></div>
+                <div data-hf-id="hf-6m34" class="feature"><b data-hf-id="hf-pfiq">Persistent access</b><span data-hf-id="hf-0a5e">Restore after purchase</span></div>
+              </div>
+              <div data-hf-id="hf-5sxv" class="phone-button">Take the free test</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-hg6b" id="scene5" class="scene">
+        <div data-hf-id="hf-au6o" class="ambient ambient-b" data-layout-ignore=""></div>
+        <div data-hf-id="hf-iqy7" class="scene-content cta-stage">
+          <div data-hf-id="hf-nkev" class="cta-panel glass">
+            <div data-hf-id="hf-p6kp" class="topline">
+              <span data-hf-id="hf-g2ut" class="brand"><i data-hf-id="hf-wkf1" class="brand-mark"></i>Northstar</span>
+              <span data-hf-id="hf-kr2v">Start free</span>
+            </div>
+            <h2 data-hf-id="hf-bru7">Understand the pattern. Choose what happens next.</h2>
+            <p data-hf-id="hf-8hhy" class="subhead">Take the free Attachment Style Test. Unlock the full private report only when you are ready.</p>
+            <div data-hf-id="hf-hgwc" class="price-row">
+              <span data-hf-id="hf-oj36">Full report from</span>
+              <strong data-hf-id="hf-5fnh">$7.99</strong>
+            </div>
+            <div data-hf-id="hf-cnoo" class="url">northstar.fantasy-games.org</div>
+            <div data-hf-id="hf-jnxc" class="cta-note">For self-reflection only. Not a psychological diagnosis.</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      tl.from("#scene1 .brand", { x: -80, opacity: 0, duration: 0.55, ease: "expo.out" }, 0.18);
+      tl.from("#scene1 .topline > span:last-child", { x: 60, opacity: 0, duration: 0.42, ease: "power3.out" }, 0.26);
+      tl.from("#scene1 .rule", { scaleX: 0, duration: 0.6, ease: "circ.out" }, 0.34);
+      tl.from("#scene1 .micro-label", { y: 32, opacity: 0, duration: 0.34, ease: "back.out(1.5)" }, 0.48);
+      tl.from("#scene1 .headline", { y: 90, scale: 0.96, opacity: 0, duration: 0.72, ease: "power4.out" }, 0.58);
+      tl.from("#scene1 .subhead", { x: -48, opacity: 0, duration: 0.48, ease: "sine.out" }, 0.92);
+      tl.from("#scene1 .footer-index", { opacity: 0, duration: 0.8, ease: "power1.out" }, 1.15);
+      tl.from("#scene1 .orbit", { scale: 0.82, rotation: -18, opacity: 0, duration: 1.2, ease: "sine.out" }, 0.3);
+      tl.to("#scene1 .orbit", { rotation: 10, duration: 1.15, ease: "sine.inOut" }, 1.5);
+
+      tl.to("#scene1", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.46, ease: "power2.inOut" }, 2.65);
+      tl.fromTo("#scene2", { filter: "blur(10px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.46, ease: "power2.inOut" }, 2.72);
+      tl.from("#scene2 .brand", { x: -65, opacity: 0, duration: 0.38, ease: "expo.out" }, 2.9);
+      tl.from("#scene2 .topline > span:last-child", { opacity: 0, scale: 0.9, duration: 0.32, ease: "back.out(1.7)" }, 2.98);
+      tl.from("#scene2 .rule", { scaleX: 0, duration: 0.48, ease: "circ.out" }, 3.02);
+      tl.from("#scene2 .headline", { x: 80, opacity: 0, duration: 0.55, ease: "power4.out" }, 3.1);
+      tl.from("#scene2 .pattern", { y: 55, opacity: 0, scale: 0.97, duration: 0.5, stagger: 0.12, ease: "power3.out" }, 3.42);
+      tl.from("#scene2 .pattern-state", { scale: 0, duration: 0.28, stagger: 0.12, ease: "back.out(2)" }, 3.72);
+      tl.from("#scene2 .footer-index", { opacity: 0, duration: 0.65, ease: "sine.out" }, 4.15);
+      tl.from("#scene2 .orbit", { rotation: 24, scale: 1.1, opacity: 0, duration: 1, ease: "power1.out" }, 2.94);
+      tl.to("#scene2 .orbit", { rotation: -6, duration: 1.7, ease: "sine.inOut" }, 3.94);
+
+      tl.to("#scene2", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.46, ease: "power2.inOut" }, 5.7);
+      tl.fromTo("#scene3", { filter: "blur(10px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.46, ease: "power2.inOut" }, 5.77);
+      tl.from("#scene3 .brand", { y: -46, opacity: 0, duration: 0.36, ease: "expo.out" }, 5.92);
+      tl.from("#scene3 .topline > span:last-child", { x: 62, opacity: 0, duration: 0.38, ease: "power3.out" }, 6);
+      tl.from("#scene3 .rule", { scaleX: 0, duration: 0.44, ease: "circ.out" }, 6.05);
+      tl.from("#scene3 > .scene-content > .headline", { y: 72, opacity: 0, duration: 0.62, ease: "power4.out" }, 6.13);
+      tl.from("#scene3 .protect-card", { x: -70, scale: 0.97, opacity: 0, duration: 0.64, ease: "back.out(1.25)" }, 6.48);
+      tl.from("#scene3 .protect-card > *", { y: 28, opacity: 0, duration: 0.36, stagger: 0.055, ease: "power2.out" }, 6.72);
+      tl.from("#scene3 .meter-fill", { scaleX: 0, duration: 0.65, stagger: 0.1, ease: "expo.out" }, 7.05);
+
+      tl.to("#scene3", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.46, ease: "power2.inOut" }, 8.62);
+      tl.fromTo("#scene4", { filter: "blur(10px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.46, ease: "power2.inOut" }, 8.69);
+      tl.from("#scene4 .phone", { y: 120, rotation: 2.5, scale: 0.9, opacity: 0, duration: 0.72, ease: "expo.out" }, 8.86);
+      tl.from("#scene4 .phone-bar", { opacity: 0, duration: 0.45, ease: "sine.out" }, 9.18);
+      tl.from("#scene4 .phone-kicker", { x: -40, opacity: 0, duration: 0.34, ease: "power3.out" }, 9.25);
+      tl.from("#scene4 .phone h2", { y: 48, opacity: 0, duration: 0.5, ease: "back.out(1.25)" }, 9.33);
+      tl.from("#scene4 .phone p", { opacity: 0, scale: 0.98, duration: 0.44, ease: "power1.out" }, 9.55);
+      tl.from("#scene4 .feature", { y: 36, opacity: 0, duration: 0.38, stagger: 0.07, ease: "power2.out" }, 9.72);
+      tl.from("#scene4 .phone-button", { scale: 0.88, opacity: 0, duration: 0.42, ease: "back.out(1.8)" }, 10.15);
+      tl.to("#scene4 .phone", { y: -22, duration: 1.4, ease: "sine.inOut" }, 9.6);
+
+      tl.to("#scene4", { filter: "blur(10px)", scale: 1.03, opacity: 0, duration: 0.46, ease: "power2.inOut" }, 11.68);
+      tl.fromTo("#scene5", { filter: "blur(10px)", scale: 0.97, opacity: 0 }, { filter: "blur(0px)", scale: 1, opacity: 1, duration: 0.46, ease: "power2.inOut" }, 11.75);
+      tl.from("#scene5 .cta-panel", { y: 90, scale: 0.94, opacity: 0, duration: 0.7, ease: "expo.out" }, 11.92);
+      tl.from("#scene5 .brand", { x: -55, opacity: 0, duration: 0.34, ease: "power3.out" }, 12.12);
+      tl.from("#scene5 .topline > span:last-child", { scale: 0.8, opacity: 0, duration: 0.3, ease: "back.out(1.8)" }, 12.18);
+      tl.from("#scene5 h2", { x: 74, opacity: 0, duration: 0.58, ease: "power4.out" }, 12.25);
+      tl.from("#scene5 .subhead", { y: 38, opacity: 0, duration: 0.42, ease: "sine.out" }, 12.52);
+      tl.from("#scene5 .price-row", { scaleX: 0.86, opacity: 0, duration: 0.42, ease: "circ.out" }, 12.72);
+      tl.from("#scene5 .url", { y: 32, opacity: 0, duration: 0.4, ease: "back.out(1.4)" }, 12.92);
+      tl.from("#scene5 .cta-note", { opacity: 0, duration: 0.55, ease: "power1.out" }, 13.1);
+      tl.to("#scene5 .cta-panel", { scale: 1.015, duration: 1.45, ease: "sine.inOut" }, 13.35);
+      tl.to("#scene5", { opacity: 0, duration: 0.5, ease: "power2.in" }, 14.5);
+      tl.set("#scene5", { visibility: "hidden" }, 15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Northstar 基础报告随机预览</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css?v=56">
+  <style>
+    body { min-height: 100vh; }
+    .sample-shell { position: relative; z-index: 2; width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 34px 0 100px; }
+    .sample-nav { position: sticky; top: 16px; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 14px 16px; background: rgba(20,24,33,.78); border: 1px solid rgba(255,255,255,.09); border-radius: 16px; backdrop-filter: blur(24px); }
+    .sample-brand { color: #fff; font-weight: 700; letter-spacing: .08em; }
+    .sample-brand small { display: block; margin-top: 3px; color: #7f8696; font-size: 10px; font-weight: 500; letter-spacing: .04em; }
+    .sample-tabs { display: flex; gap: 8px; }
+    .sample-tabs button { min-height: 36px; padding: 0 13px; color: #aeb4c2; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 9px; cursor: pointer; }
+    .sample-tabs button.active { color: #fff; background: #4285f4; border-color: #4285f4; }
+    .sample-intro { padding: 88px 0 34px; }
+    .sample-intro h1 { max-width: 900px; font-size: clamp(42px, 7vw, 78px); }
+    .sample-intro p:last-child { max-width: 680px; color: #9ba1b0; line-height: 1.8; }
+    .sample-report { display: none; }
+    .sample-report.active { display: block; }
+    .sample-report .professional-report-cover { align-items: center; }
+    .sample-score-panel { display: grid; min-width: 210px; gap: 9px; }
+    .sample-score-panel div { display: flex; justify-content: space-between; padding: 10px 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); border-radius: 9px; color: #939aa9; font-size: 11px; }
+    .sample-score-panel strong { color: #8cb4ff; font-family: monospace; }
+    .sample-report .professional-report-layout { grid-template-columns: minmax(0, 780px); }
+    .sample-report .professional-report-section { padding-bottom: 54px; }
+    .sample-note { margin: 24px 0 0; color: rgba(255,255,255,.42); font-size: 11px; text-align: center; }
+    @media (max-width: 700px) {
+      .sample-shell { width: min(100% - 20px, 1180px); }
+      .sample-nav { align-items: flex-start; flex-direction: column; }
+      .sample-tabs { width: 100%; overflow-x: auto; }
+      .sample-tabs button { flex: 0 0 auto; }
+      .sample-intro { padding-top: 64px; }
+      .sample-score-panel { margin-top: 24px; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="antigravityCanvas" aria-hidden="true"></canvas>
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <main class="sample-shell">
+    <nav class="sample-nav">
+      <div class="sample-brand">NORTHSTAR <small>基础报告随机预览 · 未调用 AI</small></div>
+      <div class="sample-tabs" id="sampleTabs"></div>
+    </nav>
+
+    <header class="sample-intro">
+      <p class="eyebrow">LOCAL REPORT REVIEW · 3 RANDOM SAMPLES</p>
+      <h1>随机抽选的三份基础报告</h1>
+      <p>以下内容直接来自项目现有报告库，仅用于检查报告视觉和基础文案，不调用 AI、不创建订单，也不会写入用户记录。</p>
+    </header>
+
+    <div id="reports"></div>
+    <p class="sample-note">本页仅存在于本地 verification 目录，不会部署到正式网站。</p>
+  </main>
+
+  <script src="../three.min.js"></script>
+  <script src="../antigravity-engine.js?v=1"></script>
+  <script src="../background.js?v=42"></script>
+  <script src="../content/saboteurs.js"></script>
+  <script src="../content/synastry.js"></script>
+  <script src="../content/darktriad.js"></script>
+  <script>
+    const samples = [
+      {
+        id: 'saboteurs',
+        tab: '内在破坏者',
+        kicker: 'INNER SABOTEUR PROFILE',
+        title: window.SABOTEURS_DATA.profiles.victim.name,
+        description: window.SABOTEURS_DATA.profiles.victim.desc,
+        text: window.SABOTEURS_DATA.profiles.victim.deep,
+        scores: [['受伤叙事', '82'], ['迎合模式', '61'], ['控制模式', '47']]
+      },
+      {
+        id: 'synastry',
+        tab: '双人合盘',
+        kicker: 'RELATIONSHIP COMPATIBILITY',
+        title: window.SYNASTRY_DATA.types['强烈拉扯关系'].name,
+        description: window.SYNASTRY_DATA.types['强烈拉扯关系'].desc,
+        text: window.SYNASTRY_DATA.types['强烈拉扯关系'].deep,
+        scores: [['吸引强度', '91'], ['稳定程度', '48'], ['成长空间', '76']]
+      },
+      {
+        id: 'darktriad',
+        tab: '黑暗三角',
+        kicker: 'DARK TRIAD PROFILE',
+        title: window.DARKTRIAD_DATA.profiles.narc.name,
+        description: window.DARKTRIAD_DATA.profiles.narc.desc,
+        text: window.DARKTRIAD_DATA.profiles.narc.deep,
+        scores: [['自恋特质', '74'], ['策略防备', '55'], ['冲动倾向', '31']]
+      }
+    ];
+
+    const parseSections = (text) => text.split(/\n\n+/).map((block, index) => {
+      const match = block.match(/^【([^】]+)】(.*)$/s);
+      return {
+        number: String(index + 1).padStart(2, '0'),
+        title: match ? match[1] : `报告章节 ${index + 1}`,
+        body: (match ? match[2] : block).trim()
+      };
+    });
+
+    const tabs = document.getElementById('sampleTabs');
+    const reports = document.getElementById('reports');
+
+    samples.forEach((sample, sampleIndex) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = sample.tab;
+      button.dataset.target = sample.id;
+      button.className = sampleIndex === 0 ? 'active' : '';
+      tabs.appendChild(button);
+
+      const report = document.createElement('section');
+      report.id = sample.id;
+      report.className = `sample-report ${sampleIndex === 0 ? 'active' : ''}`;
+      const sections = parseSections(sample.text);
+      report.innerHTML = `
+        <div class="professional-report">
+          <header class="professional-report-cover">
+            <div>
+              <p class="professional-report-kicker">${sample.kicker}</p>
+              <h3>${sample.title}</h3>
+              <p class="professional-report-result">${sample.description}</p>
+            </div>
+            <div class="sample-score-panel">
+              ${sample.scores.map(([label, score]) => `<div><span>${label}</span><strong>${score}</strong></div>`).join('')}
+            </div>
+          </header>
+          <div class="professional-report-toolbar">
+            <span class="report-toolbar-button">${sections.length} 个基础章节</span>
+            <span class="report-toolbar-button">本地内容库</span>
+            <span class="report-toolbar-button is-primary">无 AI</span>
+          </div>
+          <div class="professional-report-layout">
+            <article class="professional-report-article">
+              ${sections.map(section => `
+                <section class="professional-report-section">
+                  <div class="professional-report-section-heading">
+                    <span>${section.number}</span>
+                    <h4>${section.title}</h4>
+                  </div>
+                  <p>${section.body}</p>
+                </section>
+              `).join('')}
+              <footer class="professional-report-footer">
+                <strong>NORTHSTAR</strong>
+                <span>基础报告内容 · 不构成诊断或确定性预测</span>
+              </footer>
+            </article>
+          </div>
+        </div>
+      `;
+      reports.appendChild(report);
+    });
+
+    tabs.addEventListener('click', event => {
+      const button = event.target.closest('button[data-target]');
+      if (!button) return;
+      document.querySelectorAll('.sample-tabs button').forEach(item => item.classList.toggle('active', item === button));
+      document.querySelectorAll('.sample-report').forEach(item => item.classList.toggle('active', item.id === button.dataset.target));
+      window.scrollTo({ top: document.querySelector('.sample-intro').offsetHeight, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>

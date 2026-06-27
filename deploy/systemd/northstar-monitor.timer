@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Northstar operational checks every ten minutes
+
+[Timer]
+OnBootSec=3m
+OnUnitActiveSec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

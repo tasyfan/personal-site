@@ -1,0 +1,34 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "backup": "node scripts/backup-db.js",
+    "verify:backup-restore": "node scripts/verify-backup-restore.js",
+    "retention": "node scripts/data-retention.js",
+    "monitor": "node scripts/monitor-operations.js",
+    "check:stripe-readiness": "node scripts/check-stripe-readiness.js",
+    "check": "node --check index.js && node --check routes/payment.js && node --check routes/relationship.js && node --check routes/tests.js && node --check routes/support.js && node --check routes/analytics.js && node --check services/entitlements.js && node --check services/private-content.js && node --check services/notifications.js && node --check services/backup-restore-verifier.js && node --check scripts/backup-db.js && node --check scripts/verify-backup-restore.js && node --check scripts/data-retention.js && node --check scripts/monitor-operations.js && node --check scripts/check-stripe-readiness.js && node --check core/engine.js",
+    "test": "node --test test/*.test.js",
+    "audit:prod": "npm audit --omit=dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "city-timezones": "^1.3.4",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "lunar-javascript": "^1.7.7",
+    "luxon": "^3.7.2",
+    "morgan": "^1.11.0",
+    "qrcode": "^1.5.4",
+    "stripe": "^22.2.0",
+    "uuid": "^14.0.0"
+  }
+}

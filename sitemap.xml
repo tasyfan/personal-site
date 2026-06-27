@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://northstar.fantasy-games.org/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/?lang=en" />
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://northstar.fantasy-games.org/terms.html</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/terms.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/terms.html?lang=en" />
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://northstar.fantasy-games.org/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/privacy.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/privacy.html?lang=en" />
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://northstar.fantasy-games.org/refund.html</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/refund.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/refund.html?lang=en" />
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://northstar.fantasy-games.org/support.html</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/support.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/support.html?lang=en" />
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
+  </url>
+</urlset>

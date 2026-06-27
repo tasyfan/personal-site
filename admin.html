@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Northstar 订单管理台</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #15171a;
+        --muted: #68707d;
+        --line: rgba(21, 23, 26, 0.1);
+        --blue: #3b73f6;
+        --green: #168b50;
+        --orange: #a35b00;
+        --red: #c9352b;
+        --panel: #fff;
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: #f6f7f9; color: var(--ink); }
+      main { max-width: 1280px; margin: 0 auto; padding: 28px 18px 52px; }
+      header { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+      h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: 0; }
+      p { margin: 0; color: var(--muted); line-height: 1.55; }
+      button, input, select { min-height: 38px; border-radius: 7px; border: 1px solid var(--line); font: inherit; }
+      input, select { padding: 0 11px; background: #fff; }
+      button { padding: 0 13px; background: var(--ink); color: #fff; cursor: pointer; font-weight: 650; }
+      button.secondary { background: #fff; color: var(--ink); }
+      button.success { background: var(--green); }
+      button.danger { background: var(--red); }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      .toolbar, .stats, .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+      .toolbar { display: grid; grid-template-columns: minmax(260px, 1fr) 150px 150px minmax(180px, 1fr) auto auto; gap: 10px; padding: 14px; margin: 18px 0; }
+      .stats { display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 1px; overflow: hidden; margin-bottom: 18px; }
+      .stat { padding: 16px; background: #fff; }
+      .stat span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 7px; }
+      .stat strong { font-size: 24px; }
+      .config { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 10px; margin-bottom: 18px; }
+      .config-item { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 13px; }
+      .config-item strong { display: block; margin-bottom: 6px; }
+      .config-item small { color: var(--muted); line-height: 1.45; }
+      .ready { color: var(--green); }
+      .missing { color: var(--orange); }
+      .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: 14px; }
+      th { background: #fbfbfc; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+      tr:last-child td { border-bottom: 0; }
+      tr:hover td { background: #fafbff; }
+      .status, .provider { display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 750; }
+      .status.pending { color: var(--blue); background: rgba(59, 115, 246, 0.1); }
+      .status.reviewing { color: var(--orange); background: rgba(251, 188, 4, 0.16); }
+      .status.paid { color: var(--green); background: rgba(22, 139, 80, 0.1); }
+      .status.canceled { color: var(--red); background: rgba(201, 53, 43, 0.1); }
+      .status.refunded { color: var(--red); background: rgba(201, 53, 43, 0.1); }
+      .status.disputed { color: var(--orange); background: rgba(251, 188, 4, 0.16); }
+      .severity { display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 750; }
+      .severity.warning { color: var(--orange); background: rgba(251, 188, 4, 0.16); }
+      .severity.critical { color: var(--red); background: rgba(201, 53, 43, 0.1); }
+      .provider { color: #4b4f5c; background: rgba(75, 79, 92, 0.1); margin-left: 6px; }
+      .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; word-break: break-all; }
+      .muted { color: var(--muted); }
+      .error { color: var(--red); margin: 10px 0; }
+      .detail { padding: 16px; position: sticky; top: 16px; }
+      .detail h2 { margin: 0 0 12px; font-size: 18px; }
+      .detail-grid { display: grid; gap: 10px; }
+      .detail-row span { display: block; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+      .json { max-height: 360px; overflow: auto; padding: 12px; background: #f7f8fb; border: 1px solid var(--line); border-radius: 7px; white-space: pre-wrap; }
+      .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+      @media (max-width: 980px) {
+        .toolbar { grid-template-columns: 1fr 1fr; }
+        .stats { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+        .config { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+        .layout { grid-template-columns: 1fr; }
+        .detail { position: static; }
+      }
+      @media (max-width: 680px) {
+        header { display: block; }
+        .toolbar { grid-template-columns: 1fr; }
+        .config { grid-template-columns: 1fr; }
+        table, thead, tbody, tr, th, td { display: block; }
+        thead { display: none; }
+        tr { border-bottom: 1px solid var(--line); }
+        td { border-bottom: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Northstar 订单管理台</h1>
+          <p>查看套餐订单、支付渠道、到账状态；Stripe、微信、支付宝配置完整后会通过官方回调自动置为 paid。</p>
+        </div>
+        <button class="secondary" id="refreshBtn">刷新</button>
+      </header>
+
+      <section class="toolbar">
+        <input id="tokenInput" type="password" placeholder="ADMIN_TOKEN" autocomplete="current-password" />
+        <select id="statusSelect">
+          <option value="">全部状态</option>
+          <option value="pending">待支付</option>
+          <option value="reviewing">等待核验</option>
+          <option value="paid">已支付</option>
+          <option value="canceled">已取消</option>
+          <option value="refunded">已退款</option>
+          <option value="disputed">争议中</option>
+        </select>
+        <select id="providerSelect">
+          <option value="">全部渠道</option>
+          <option value="stripe">Stripe</option>
+          <option value="wechat">微信</option>
+          <option value="alipay">支付宝</option>
+          <option value="manual">人工</option>
+        </select>
+        <input id="queryInput" type="search" placeholder="搜索订单号 / 套餐 / 测试" />
+        <button id="loadBtn">加载订单</button>
+        <button class="secondary" id="clearBtn">清空筛选</button>
+      </section>
+
+      <section class="stats" id="statsBox">
+        <div class="stat"><span>总订单</span><strong>-</strong></div>
+        <div class="stat"><span>待支付</span><strong>-</strong></div>
+        <div class="stat"><span>待核验</span><strong>-</strong></div>
+        <div class="stat"><span>已支付</span><strong>-</strong></div>
+        <div class="stat"><span>已退款</span><strong>-</strong></div>
+        <div class="stat"><span>净收入</span><strong>-</strong></div>
+      </section>
+
+      <section class="config" id="configBox">
+        <div class="config-item"><strong>支付配置</strong><small>输入 ADMIN_TOKEN 后加载。</small></div>
+      </section>
+
+      <p id="message" class="muted"></p>
+      <p id="error" class="error"></p>
+
+      <section class="layout">
+        <div class="panel">
+          <table>
+            <thead>
+              <tr>
+                <th>创建时间</th>
+                <th>订单</th>
+                <th>套餐</th>
+                <th>金额</th>
+                <th>状态</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td colspan="6" class="muted">尚未加载订单。</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="panel detail" id="detailBox">
+          <h2>订单详情</h2>
+          <p class="muted">点击左侧订单查看 payload、渠道流水和解锁范围。</p>
+        </aside>
+      </section>
+
+      <section class="panel" style="margin-top: 18px; overflow: hidden;">
+        <div style="padding: 16px; border-bottom: 1px solid var(--line);">
+          <h2 style="margin: 0 0 6px;">运营告警</h2>
+          <p>支付异常、争议、AI 故障、服务器错误和客服事件会保存在这里；外部 Webhook 未配置时也不会丢失。</p>
+        </div>
+        <table>
+          <thead><tr><th>时间</th><th>级别</th><th>事件</th><th>详情</th><th>推送</th><th>状态</th></tr></thead>
+          <tbody id="alertsBody"><tr><td colspan="6" class="muted">尚未加载告警。</td></tr></tbody>
+        </table>
+      </section>
+
+      <section class="panel" style="margin-top: 18px; overflow: hidden;">
+        <div style="padding: 16px; border-bottom: 1px solid var(--line);">
+          <h2 style="margin: 0 0 6px;">客服工单</h2>
+          <p id="analyticsSummary">转化数据将在加载后显示。</p>
+        </div>
+        <table>
+          <thead><tr><th>时间</th><th>工单</th><th>联系方式</th><th>问题</th><th>状态</th></tr></thead>
+          <tbody id="supportBody"><tr><td colspan="5" class="muted">尚未加载工单。</td></tr></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script>
+      const tokenInput = document.getElementById('tokenInput');
+      const statusSelect = document.getElementById('statusSelect');
+      const providerSelect = document.getElementById('providerSelect');
+      const queryInput = document.getElementById('queryInput');
+      const ordersBody = document.getElementById('ordersBody');
+      const detailBox = document.getElementById('detailBox');
+      const statsBox = document.getElementById('statsBox');
+      const configBox = document.getElementById('configBox');
+      const message = document.getElementById('message');
+      const error = document.getElementById('error');
+      const alertsBody = document.getElementById('alertsBody');
+      const supportBody = document.getElementById('supportBody');
+      const analyticsSummary = document.getElementById('analyticsSummary');
+      let currentOrders = [];
+
+      tokenInput.value = sessionStorage.getItem('northstar_admin_token') || '';
+
+      function authHeaders() {
+        const token = tokenInput.value.trim();
+        sessionStorage.setItem('northstar_admin_token', token);
+        return { Authorization: 'Bearer ' + token };
+      }
+
+      function setState(info, err) {
+        message.textContent = info || '';
+        error.textContent = err || '';
+      }
+
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (char) {
+          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char];
+        });
+      }
+
+      function money(value) {
+        return value || value === 0 ? 'USD $' + Number(value).toFixed(2) : '-';
+      }
+
+      function renderStats(stats) {
+        statsBox.innerHTML = [
+          ['总订单', stats.total],
+          ['待支付', stats.pending || 0],
+          ['待核验', stats.reviewing || 0],
+          ['已支付', stats.paid || 0],
+          ['已退款', stats.refunded || 0],
+          ['净收入', money(stats.netRevenue || 0)]
+        ].map(function (item) {
+          return '<div class="stat"><span>' + item[0] + '</span><strong>' + item[1] + '</strong></div>';
+        }).join('');
+      }
+
+      function renderConfig(config) {
+        const providers = config.providers || {};
+        const relationshipAI = config.relationshipAI || {};
+        const notifications = config.notifications || {};
+        const tax = config.tax || {};
+        const labels = {
+          manual: '人工核验',
+          stripe: 'Stripe',
+          wechat: '微信支付',
+          alipay: '支付宝'
+        };
+        configBox.innerHTML = Object.keys(labels).map(function (key) {
+          const item = providers[key] || {};
+          const missing = Array.isArray(item.missing) && item.missing.length ? item.missing.join(', ') : '';
+          const state = item.ready ? '已就绪' : '待配置';
+          const detail = missing ? '缺少：' + missing : (item.note || item.mode || '可用');
+          return '<div class="config-item">' +
+            '<strong>' + labels[key] + ' <span class="' + (item.ready ? 'ready' : 'missing') + '">' + state + '</span></strong>' +
+            '<small>' + escapeHtml(detail) + '</small>' +
+          '</div>';
+        }).join('') +
+          '<div class="config-item">' +
+            '<strong>Gemini 情感 AI <span class="' + (relationshipAI.geminiConfigured ? 'ready' : 'missing') + '">' + (relationshipAI.geminiConfigured ? '已接入' : '待配置') + '</span></strong>' +
+            '<small>' + escapeHtml((relationshipAI.geminiConfigured ? '模型：' : '缺少：GEMINI_API_KEY；未配置时会继续检查 OpenAI。模型：') + (relationshipAI.geminiModel || relationshipAI.model || '-')) + '</small>' +
+          '</div>' +
+          '<div class="config-item">' +
+            '<strong>OpenAI 情感 AI <span class="' + (relationshipAI.openaiConfigured ? 'ready' : 'missing') + '">' + (relationshipAI.openaiConfigured ? '已接入' : '待配置') + '</span></strong>' +
+            '<small>' + escapeHtml((relationshipAI.openaiConfigured ? '模型：' : '缺少：OPENAI_API_KEY；Gemini 不可用时会降级到基础分析。模型：') + (relationshipAI.openaiModel || '-')) + '</small>' +
+          '</div>' +
+          '<div class="config-item">' +
+            '<strong>情感分析付费门禁 <span class="' + (relationshipAI.paymentRequired ? 'ready' : 'missing') + '">' + (relationshipAI.paymentRequired ? '已开启' : '测试模式') + '</span></strong>' +
+            '<small>' + escapeHtml(relationshipAI.paymentRequired ? '接口需要服务器 paid 订单。' : 'RELATIONSHIP_AI_REQUIRE_PAYMENT=false，仅适合本地测试。') + '</small>' +
+          '</div>' +
+          '<div class="config-item">' +
+            '<strong>运营通知 <span class="ready">' + (notifications.configured ? '告警中心 + 外部推送' : '告警中心已启用') + '</span></strong>' +
+            '<small>' + escapeHtml(notifications.configured ? '异常会保存到后台并推送到外部通知渠道。' : '异常会保存在后台；配置 SUPPORT_NOTIFICATION_WEBHOOK_URL 后可同步外部推送。') + '</small>' +
+          '</div>' +
+          '<div class="config-item">' +
+            '<strong>税务评估 <span class="' + (tax.ready ? 'ready' : 'missing') + '">' + (tax.ready ? '已确认' : '非阻塞后续项') + '</span></strong>' +
+            '<small>' + escapeHtml(
+              tax.complianceStatus === 'registered'
+                ? (tax.stripeTaxEnabled ? '已登记并启用 Stripe Tax。' : '已登记，但 STRIPE_TAX_ENABLED 尚未开启。')
+                : (tax.complianceStatus === 'not-required'
+                  ? '当前确认无需代收间接税；应定期复核销售阈值。'
+                  : '刚上线阶段保持自动计税关闭；出现适用地区销售规模或登记义务后再处理。')
+            ) + '</small>' +
+          '</div>';
+      }
+
+      function renderOrders(orders) {
+        currentOrders = orders;
+        if (!orders.length) {
+          ordersBody.innerHTML = '<tr><td colspan="6" class="muted">没有符合条件的订单。</td></tr>';
+          return;
+        }
+
+        ordersBody.innerHTML = orders.map(function (order) {
+          const payload = order.payload || {};
+          const plan = payload.planName || payload.planId || '未记录';
+          const tests = Array.isArray(payload.unlockTests) ? payload.unlockTests.join(' / ') : '';
+          const provider = payload.provider || 'manual';
+          const action = order.status === 'paid'
+            ? (provider === 'stripe'
+              ? '<button class="danger" data-action="refund" data-order="' + escapeHtml(order.id) + '">全额退款</button>'
+              : '<span class="muted">已完成</span>')
+            : (order.status === 'pending' || order.status === 'reviewing'
+              ? '<button class="success" data-action="paid" data-order="' + escapeHtml(order.id) + '">确认到账</button> ' +
+                '<button class="danger" data-action="cancel" data-order="' + escapeHtml(order.id) + '">取消</button>'
+              : '<span class="muted">无需操作</span>');
+
+          return '<tr data-detail="' + escapeHtml(order.id) + '">' +
+            '<td>' + escapeHtml(order.created_at) + '</td>' +
+            '<td><div class="mono">' + escapeHtml(order.id) + '</div><div class="muted">' + escapeHtml(order.test_type) + '</div></td>' +
+            '<td><strong>' + escapeHtml(plan) + '</strong><div class="muted">' + escapeHtml(tests) + '</div></td>' +
+            '<td>' + escapeHtml(money(payload.amount)) + '</td>' +
+            '<td><span class="status ' + escapeHtml(order.status) + '">' + escapeHtml(order.status) + '</span><span class="provider">' + escapeHtml(provider) + '</span></td>' +
+            '<td>' + action + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      function showDetail(orderId) {
+        const order = currentOrders.find(function (item) { return item.id === orderId; });
+        if (!order) return;
+        const payload = order.payload || {};
+        detailBox.innerHTML =
+          '<h2>订单详情</h2>' +
+          '<div class="detail-grid">' +
+          '<div class="detail-row"><span>订单号</span><div class="mono">' + escapeHtml(order.id) + '</div></div>' +
+          '<div class="detail-row"><span>状态 / 渠道</span><div><span class="status ' + escapeHtml(order.status) + '">' + escapeHtml(order.status) + '</span><span class="provider">' + escapeHtml(payload.provider || 'manual') + '</span></div></div>' +
+          '<div class="detail-row"><span>套餐</span><strong>' + escapeHtml(payload.planName || payload.planId || '-') + '</strong></div>' +
+          '<div class="detail-row"><span>金额</span><strong>' + escapeHtml(money(payload.amount)) + '</strong></div>' +
+          '<div class="detail-row"><span>客户邮箱</span><div>' + escapeHtml(payload.customerEmail || '尚未记录') + '</div></div>' +
+          '<div class="detail-row"><span>客户国家/地区</span><div>' + escapeHtml(payload.customerCountry || '-') + '</div></div>' +
+          '<div class="detail-row"><span>网关流水</span><div class="mono">' + escapeHtml(order.gateway_trade_no || payload.gatewayTradeNo || payload.stripePaymentIntent || payload.wechatTransactionId || payload.alipayTradeNo || '-') + '</div></div>' +
+          '<div class="detail-row"><span>支付时间</span><div>' + escapeHtml(order.paid_at || payload.paidAt || '-') + '</div></div>' +
+          '<div class="detail-row"><span>Payload</span><pre class="json">' + escapeHtml(JSON.stringify(payload, null, 2)) + '</pre></div>' +
+          '</div>' +
+          '<div class="actions">' +
+          '<button class="secondary" data-copy="' + escapeHtml(order.id) + '">复制订单号</button>' +
+          (order.status === 'pending' || order.status === 'reviewing' ? '<button class="success" data-action="paid" data-order="' + escapeHtml(order.id) + '">确认到账</button>' : '') +
+          (order.status === 'paid' && (payload.provider || order.provider) === 'stripe' ? '<button class="danger" data-action="refund" data-order="' + escapeHtml(order.id) + '">Stripe 全额退款</button>' : '') +
+          (order.status === 'pending' || order.status === 'reviewing' ? '<button class="danger" data-action="cancel" data-order="' + escapeHtml(order.id) + '">取消订单</button>' : '') +
+          '</div>';
+      }
+
+      function renderSupport(requests) {
+        if (!requests.length) {
+          supportBody.innerHTML = '<tr><td colspan="5" class="muted">暂无客服工单。</td></tr>';
+          return;
+        }
+        supportBody.innerHTML = requests.map(function (ticket) {
+          return '<tr>' +
+            '<td>' + escapeHtml(ticket.created_at) + '</td>' +
+            '<td><strong>' + escapeHtml(ticket.id) + '</strong><div class="mono">' + escapeHtml(ticket.order_id || '-') + '</div></td>' +
+            '<td>' + escapeHtml(ticket.contact) + '</td>' +
+            '<td><strong>' + escapeHtml(ticket.category) + '</strong><div class="muted">' + escapeHtml(ticket.message) + '</div></td>' +
+            '<td><select data-ticket-status="' + escapeHtml(ticket.id) + '">' +
+              ['open', 'in_progress', 'resolved', 'closed'].map(function (status) {
+                return '<option value="' + status + '"' + (ticket.status === status ? ' selected' : '') + '>' + status + '</option>';
+              }).join('') +
+            '</select></td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      function renderAlerts(alerts) {
+        if (!alerts.length) {
+          alertsBody.innerHTML = '<tr><td colspan="6" class="muted">暂无运营告警。</td></tr>';
+          return;
+        }
+        alertsBody.innerHTML = alerts.map(function (alert) {
+          const details = Object.entries(alert.details || {}).map(function (item) {
+            return escapeHtml(item[0]) + ': ' + escapeHtml(item[1]);
+          }).join('<br>');
+          const delivery = alert.delivery_status === 'delivered'
+            ? '<span class="ready">已推送</span>'
+            : '<span class="muted">仅后台</span>';
+          return '<tr>' +
+            '<td>' + escapeHtml(alert.created_at) + '<div class="mono">' + escapeHtml(alert.id) + '</div></td>' +
+            '<td><span class="severity ' + escapeHtml(alert.severity) + '">' + escapeHtml(alert.severity) + '</span></td>' +
+            '<td><strong>' + escapeHtml(alert.event_name) + '</strong></td>' +
+            '<td>' + (details || '<span class="muted">无附加详情</span>') + '</td>' +
+            '<td>' + delivery + '</td>' +
+            '<td><select data-alert-status="' + escapeHtml(alert.id) + '">' +
+              ['open', 'acknowledged', 'resolved'].map(function (status) {
+                return '<option value="' + status + '"' + (alert.status === status ? ' selected' : '') + '>' + status + '</option>';
+              }).join('') +
+            '</select></td>' +
+          '</tr>';
+        }).join('');
+      }
+
+      async function loadStats() {
+        const res = await fetch('/api/payment/admin/stats', { headers: authHeaders() });
+        if (!res.ok) throw new Error('统计加载失败：' + res.status);
+        const data = await res.json();
+        renderStats(data.stats || {});
+      }
+
+      async function loadConfig() {
+        const headers = authHeaders();
+        const paymentRes = await fetch('/api/payment/admin/config', { headers });
+        if (!paymentRes.ok) throw new Error('支付配置加载失败：' + paymentRes.status);
+        const paymentData = await paymentRes.json();
+        const relationshipRes = await fetch('/api/relationship/admin/config', { headers });
+        if (!relationshipRes.ok) throw new Error('AI 配置加载失败：' + relationshipRes.status);
+        const relationshipData = await relationshipRes.json();
+        renderConfig({ ...(paymentData.config || {}), relationshipAI: relationshipData.config || {} });
+      }
+
+      async function loadSupport() {
+        const res = await fetch('/api/support/admin', { headers: authHeaders() });
+        if (!res.ok) throw new Error('客服工单加载失败：' + res.status);
+        const data = await res.json();
+        renderSupport(data.requests || []);
+      }
+
+      async function loadAlerts() {
+        const res = await fetch('/api/analytics/admin/alerts', { headers: authHeaders() });
+        if (!res.ok) throw new Error('运营告警加载失败：' + res.status);
+        const data = await res.json();
+        renderAlerts(data.alerts || []);
+      }
+
+      async function loadAnalytics() {
+        const res = await fetch('/api/analytics/admin/summary?days=30', { headers: authHeaders() });
+        if (!res.ok) throw new Error('转化统计加载失败：' + res.status);
+        const data = await res.json();
+        analyticsSummary.textContent =
+          '近 30 天：付款弹窗 ' + (data.events.payment_modal_opened || 0) +
+          '，创建 Checkout ' + (data.events.checkout_created || 0) +
+          '，确认支付 ' + (data.events.payment_confirmed || 0) +
+          '，成功交付报告 ' + (data.events.report_generated || 0) +
+          '；支付转化率 ' + ((data.rates.paymentConversion || 0) * 100).toFixed(1) + '%。' +
+          (data.operations
+            ? ' 最近巡检：' + data.operations.status + '（' + data.operations.checkedAt + '）。'
+            : ' 尚无自动巡检记录。') +
+          (data.backupRestore
+            ? ' 最近恢复演练：' + data.backupRestore.status + '，备份 ' + (data.backupRestore.backupName || '-') + '（' + data.backupRestore.checkedAt + '）。'
+            : ' 尚无备份恢复演练记录。') +
+          (data.dataRetention
+            ? ' 最近隐私清理：' + data.dataRetention.status + '（' + data.dataRetention.checkedAt + '）。'
+            : ' 尚无隐私清理记录。');
+      }
+
+      async function loadOrders() {
+        setState('正在加载...', '');
+        try {
+          await loadStats();
+          await loadConfig();
+          await loadAlerts();
+          await loadSupport();
+          await loadAnalytics();
+          const params = new URLSearchParams();
+          if (statusSelect.value) params.set('status', statusSelect.value);
+          if (providerSelect.value) params.set('provider', providerSelect.value);
+          if (queryInput.value.trim()) params.set('q', queryInput.value.trim());
+          const res = await fetch('/api/payment/admin/orders?' + params.toString(), { headers: authHeaders() });
+          if (!res.ok) throw new Error('订单加载失败：' + res.status);
+          const data = await res.json();
+          renderOrders(data.orders || []);
+          setState('已加载 ' + (data.orders || []).length + ' 个订单。', '');
+        } catch (e) {
+          setState('', e.message || '加载失败');
+        }
+      }
+
+      async function postAction(endpoint, orderId) {
+        setState('正在处理...', '');
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId })
+          });
+          if (!res.ok) throw new Error('处理失败：' + res.status);
+          await loadOrders();
+          showDetail(orderId);
+        } catch (e) {
+          setState('', e.message || '处理失败');
+        }
+      }
+
+      async function updateTicketStatus(id, status) {
+        const res = await fetch('/api/support/admin/status', {
+          method: 'POST',
+          headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status })
+        });
+        if (!res.ok) throw new Error('工单状态更新失败：' + res.status);
+      }
+
+      async function updateAlertStatus(id, status) {
+        const res = await fetch('/api/analytics/admin/alerts/status', {
+          method: 'POST',
+          headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id, status })
+        });
+        if (!res.ok) throw new Error('告警状态更新失败：' + res.status);
+      }
+
+      document.getElementById('loadBtn').addEventListener('click', loadOrders);
+      document.getElementById('refreshBtn').addEventListener('click', loadOrders);
+      document.getElementById('clearBtn').addEventListener('click', function () {
+        statusSelect.value = '';
+        providerSelect.value = '';
+        queryInput.value = '';
+        loadOrders();
+      });
+      ordersBody.addEventListener('click', function (event) {
+        const action = event.target.closest('button[data-action]');
+        if (action) {
+          const actionName = action.getAttribute('data-action');
+          const endpoint = actionName === 'paid'
+            ? '/api/payment/admin/mark-paid'
+            : (actionName === 'refund' ? '/api/payment/admin/refund' : '/api/payment/admin/cancel');
+          if (actionName === 'refund' && !window.confirm('确认执行 Stripe 全额退款？退款后报告访问权会立即撤销。')) return;
+          postAction(endpoint, action.getAttribute('data-order'));
+          return;
+        }
+        const row = event.target.closest('tr[data-detail]');
+        if (row) showDetail(row.getAttribute('data-detail'));
+      });
+      detailBox.addEventListener('click', function (event) {
+        const copy = event.target.closest('button[data-copy]');
+        if (copy) navigator.clipboard && navigator.clipboard.writeText(copy.getAttribute('data-copy'));
+        const action = event.target.closest('button[data-action]');
+        if (action) {
+          const actionName = action.getAttribute('data-action');
+          const endpoint = actionName === 'paid'
+            ? '/api/payment/admin/mark-paid'
+            : (actionName === 'refund' ? '/api/payment/admin/refund' : '/api/payment/admin/cancel');
+          if (actionName === 'refund' && !window.confirm('确认执行 Stripe 全额退款？退款后报告访问权会立即撤销。')) return;
+          postAction(endpoint, action.getAttribute('data-order'));
+        }
+      });
+      supportBody.addEventListener('change', function (event) {
+        const select = event.target.closest('select[data-ticket-status]');
+        if (!select) return;
+        updateTicketStatus(select.getAttribute('data-ticket-status'), select.value)
+          .then(function () { setState('工单状态已更新。', ''); })
+          .catch(function (e) { setState('', e.message || '工单更新失败'); });
+      });
+      alertsBody.addEventListener('change', function (event) {
+        const select = event.target.closest('select[data-alert-status]');
+        if (!select) return;
+        updateAlertStatus(select.getAttribute('data-alert-status'), select.value)
+          .then(function () { setState('告警状态已更新。', ''); })
+          .catch(function (e) { setState('', e.message || '告警更新失败'); });
+      });
+      queryInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') loadOrders();
+      });
+    </script>
+  </body>
+</html>

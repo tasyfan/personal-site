@@ -1,0 +1,11 @@
+[Unit]
+Description=Northstar backup restore verification
+After=northstar-backup.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/northstar/server
+EnvironmentFile=/opt/northstar/server/.env
+Environment=BACKUP_DIR=/opt/northstar/backups
+ExecStart=/usr/bin/node /opt/northstar/server/scripts/verify-backup-restore.js

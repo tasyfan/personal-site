@@ -1,0 +1,28 @@
+{
+  "name": "northstar-personal-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "import:antigravity": "node scripts/import-antigravity-design.js",
+    "build:static": "node scripts/build-static.js && node scripts/check-public-content.js",
+    "build:deploy": "npm run build:static && node scripts/build-deploy.js",
+    "check:i18n": "npm run build:static && node scripts/generate-locale-catalog.js --check",
+    "test:i18n-runtime": "node --test test/*.test.js",
+    "check:launch": "npm run build:static && npm run check:i18n && npm run test:i18n-runtime && npm run check:syntax && npm run test:payments && npm run check:server-audit && node scripts/launch-gate.js",
+    "check:launch:production": "npm run check:launch && node scripts/launch-gate.js https://northstar.fantasy-games.org",
+    "serve:static": "python3 -m http.server 4174 --directory dist/public",
+    "check:syntax": "node --check app.js && node --check scripts/launch-gate.js && node --check server/index.js && node --check server/routes/payment.js && node --check server/routes/relationship.js && node --check server/routes/tests.js && node --check server/routes/support.js && node --check server/routes/analytics.js && node --check server/services/entitlements.js && node --check server/services/notifications.js && node --check server/services/backup-restore-verifier.js && node --check server/scripts/backup-db.js && node --check server/scripts/verify-backup-restore.js && node --check server/scripts/data-retention.js && node --check server/scripts/monitor-operations.js && node --check server/scripts/check-stripe-readiness.js && node --check server/core/engine.js",
+    "test:payments": "npm --prefix server test",
+    "check:server-audit": "npm --prefix server audit --omit=dev"
+  },
+  "dependencies": {
+    "@vue/server-renderer": "^3.5.35",
+    "three": "0.128.0",
+    "vue": "^3.5.35",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.29.7",
+    "jsdom": "^26.1.0"
+  }
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=Northstar SQLite backup
+After=northstar.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/northstar/server
+EnvironmentFile=/opt/northstar/server/.env
+Environment=BACKUP_DIR=/opt/northstar/backups
+Environment=BACKUP_RETENTION_DAYS=30
+ExecStart=/usr/bin/node /opt/northstar/server/scripts/backup-db.js

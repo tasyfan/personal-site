@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Northstar privacy retention cleanup daily
+
+[Timer]
+OnCalendar=*-*-* 04:05:00
+Persistent=true
+RandomizedDelaySec=10m
+
+[Install]
+WantedBy=timers.target

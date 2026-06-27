@@ -3,38 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>北极星 Northstar | 命运观测站 · 塔罗 · MBTI · 星盘 · 依恋测试</title>
-    <meta name="description" content="北极星 Northstar 命运观测站——通过塔罗牌、MBTI、星盘、八字、人类图等九大维度，深度探索你的潜意识与灵魂蓝图。" />
-    <meta name="keywords" content="塔罗牌,MBTI,星盘,依恋类型,人类图,八字,测算,人格测试,潜意识,占卜,北极星" />
-    <meta property="og:title" content="北极星 Northstar | 命运观测站" />
-    <meta property="og:description" content="塔罗牌 · MBTI · 星盘 · 八字 · 人类图 —— 九大维度深度探索你的灵魂蓝图。" />
+    <title>北极星 Northstar | 看见自己，也看见关系里的答案</title>
+    <meta name="description" content="北极星 Northstar 提供 MBTI、依恋类型、塔罗、星盘、八字、人类图与双人合盘等内容，陪你整理性格、关系和当下最在意的问题。" />
+    <meta name="keywords" content="MBTI,依恋类型,AI情感分析,聊天记录分析,星盘,八字,人类图,塔罗牌,人格测试,关系分析,双人合盘,北极星" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <link rel="canonical" href="https://northstar.fantasy-games.org/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://northstar.fantasy-games.org/" />
+    <link rel="alternate" hreflang="en" href="https://northstar.fantasy-games.org/?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://northstar.fantasy-games.org/" />
+    <meta property="og:title" content="北极星 Northstar | 看见自己，也看见关系里的答案" />
+    <meta property="og:description" content="从性格、关系、塔罗与命理角度，整理你正在经历的问题。" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://northstar.fantasy-games.org/" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:image" content="https://northstar.fantasy-games.org/astral_poster_bg.png" />
+    <meta property="og:image:alt" content="Northstar celestial chart" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="北极星 Northstar | 看见自己，也看见关系里的答案" />
+    <meta name="twitter:description" content="从性格、关系、塔罗与命理角度，整理你正在经历的问题。" />
+    <meta name="twitter:image" content="https://northstar.fantasy-games.org/astral_poster_bg.png" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✦</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=37" />
+    <link rel="stylesheet" href="./styles.css?v=57" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Northstar",
+        "alternateName": "北极星",
+        "url": "https://northstar.fantasy-games.org/",
+        "inLanguage": ["zh-CN", "en"]
+      }
+    </script>
   </head>
   <body>
-    <!-- Background Canvas -->
+    <script>
+      if (window.location.protocol === 'file:') {
+        window.location.replace('https://northstar.fantasy-games.org/' + window.location.hash);
+      }
+    </script>
+
+    <!-- Antigravity WebGL background -->
+    <canvas id="antigravityCanvas" aria-hidden="true"></canvas>
+
+    <!-- Lightweight fallback background -->
     <canvas id="fx" aria-hidden="true"></canvas>
 
     <!-- Vue App Root -->
     <div id="app"></div>
 
     <!-- Background effects -->
-    <script src="./background.js?v=33"></script>
+    <script src="./background.js?v=42"></script>
+    <script src="./three.min.js"></script>
+    <script src="./antigravity-engine.js?v=1"></script>
 
-    <!-- Astronomy Engine for True Ephemeris Calculation -->
-    <script src="./astronomy.browser.js"></script>
+    <!-- Runtime config -->
+    <script>
+      window.NORTHSTAR_CONFIG = {
+        demoPayments: false
+      };
+    </script>
 
     <!-- Vue 3 & Vue Router 4 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <script src="https://unpkg.com/vue-router@4"></script>
+    <script src="./vue.global.prod.js"></script>
+    <script src="./vue-router.global.prod.js"></script>
+    <script src="./locales/en.js?v=5"></script>
+    <script src="./i18n.js?v=3"></script>
 
     <script>
       window.onerror = function(msg, url, line, col, error) {
-        document.body.innerHTML += '<div style="color:red; background:white; padding:20px; z-index:9999; position:fixed; top:0; left:0; right:0;"><b>Error:</b> ' + msg + '<br><b>Line:</b> ' + line + '<br><b>Col:</b> ' + col + '</div>';
+        console.error('Northstar runtime error:', msg, url, line, col, error);
         return false;
       };
     </script>
@@ -43,24 +84,22 @@
     <script src="./html2canvas.min.js"></script>
 
     <!-- Content Data Scripts -->
-    <script src="./content/mbti.js?v=1"></script>
-    <script src="./content/attachment.js?v=1"></script>
-    <script src="./content/astrology.js?v=1"></script>
-    <script src="./content/bazi.js?v=1"></script>
-    <script src="./content/hd.js?v=1"></script>
-    <script src="./content/tarot.js?v=1"></script>
-    <script src="./content/synastry.js?v=1"></script>
-    <script src="./content/aura.js?v=1"></script>
-    <script src="./content/shadow.js?v=1"></script>
-    <script>
-      window.LOCATIONS_DATA = [
-        { name: '北京', children: [{ name: '北京市', children: [{name:'东城区'}, {name:'西城区'}, {name:'朝阳区'}, {name:'海淀区'}]}] },
-        { name: '上海', children: [{ name: '上海市', children: [{name:'黄浦区'}, {name:'徐汇区'}, {name:'静安区'}, {name:'浦东新区'}]}] },
-        { name: '广东', children: [{ name: '广州市', children: [{name:'天河区'}, {name:'越秀区'}, {name:'海珠区'}]}, { name: '深圳市', children: [{name:'南山区'}, {name:'福田区'}, {name:'罗湖区'}]}] },
-        { name: '海外', children: [{ name: '其他国家', children: [{name:'北美'}, {name:'欧洲'}, {name:'亚洲其他'}]}] }
-      ];
-    </script>
+    <script src="./content/mbti.js?v=secure-20260619"></script>
+    <script src="./content/attachment.js?v=secure-20260619"></script>
+    <script src="./content/astrology.js?v=secure-20260619"></script>
+    <script src="./content/bazi.js?v=secure-20260619"></script>
+    <script src="./content/hd.js?v=secure-20260619"></script>
+    <script src="./content/tarot.js?v=secure-20260619"></script>
+    <script src="./content/synastry.js?v=secure-20260619"></script>
+    <script src="./content/aura.js?v=secure-20260619"></script>
+    <script src="./content/shadow.js?v=secure-20260619"></script>
+    <script src="./content/color.js?v=secure-20260619"></script>
+    <script src="./content/enneagram.js?v=secure-20260619"></script>
+    <script src="./content/jung8.js?v=secure-20260619"></script>
+    <script src="./content/darktriad.js?v=secure-20260619"></script>
+    <script src="./content/saboteurs.js?v=secure-20260619"></script>
+    <script src="./content/defense.js?v=secure-20260619"></script>
     <!-- All app code in one file -->
-    <script src="./app.js?v=139"></script>
+    <script src="./app.js?v=197"></script>
   </body>
 </html>
