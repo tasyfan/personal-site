@@ -3095,6 +3095,35 @@
   })
 
   // ─── Tarot Test Page ────────────────────────────────────────
+  const CARD_THEMES = {
+    '愚者': { grad: 'linear-gradient(135deg, #1b2735 0%, #090a0f 100%)', border: '#4facfe', glow: 'rgba(79, 172, 254, 0.35)', iconColor: '#00f2fe' },
+    '魔术师': { grad: 'linear-gradient(135deg, #2b1055 0%, #090a0f 100%)', border: '#b4a0e5', glow: 'rgba(180, 160, 229, 0.35)', iconColor: '#8a4fff' },
+    '女祭司': { grad: 'linear-gradient(135deg, #102a43 0%, #090a0f 100%)', border: '#486581', glow: 'rgba(72, 101, 129, 0.35)', iconColor: '#00f0ff' },
+    '女皇': { grad: 'linear-gradient(135deg, #4c0e30 0%, #090a0f 100%)', border: '#fa709a', glow: 'rgba(250, 112, 154, 0.35)', iconColor: '#fee140' },
+    '皇帝': { grad: 'linear-gradient(135deg, #450f0f 0%, #090a0f 100%)', border: '#ff7e5f', glow: 'rgba(255, 126, 95, 0.35)', iconColor: '#ff0844' },
+    '教皇': { grad: 'linear-gradient(135deg, #2b2510 0%, #090a0f 100%)', border: '#f9d423', glow: 'rgba(249, 212, 35, 0.35)', iconColor: '#f83600' },
+    '恋人': { grad: 'linear-gradient(135deg, #103c20 0%, #090a0f 100%)', border: '#43e97b', glow: 'rgba(67, 233, 123, 0.35)', iconColor: '#38f9d7' },
+    '战车': { grad: 'linear-gradient(135deg, #132f3c 0%, #090a0f 100%)', border: '#243949', glow: 'rgba(36, 57, 73, 0.35)', iconColor: '#517fa4' },
+    '力量': { grad: 'linear-gradient(135deg, #402008 0%, #090a0f 100%)', border: '#ffb347', glow: 'rgba(255, 179, 71, 0.35)', iconColor: '#fccd04' },
+    '隐者': { grad: 'linear-gradient(135deg, #1c1c24 0%, #090a0f 100%)', border: '#cfd9df', glow: 'rgba(207, 217, 223, 0.35)', iconColor: '#e2ebf0' },
+    '命运之轮': { grad: 'linear-gradient(135deg, #301040 0%, #090a0f 100%)', border: '#a1c4fd', glow: 'rgba(161, 196, 253, 0.35)', iconColor: '#c2e9fb' },
+    '正义': { grad: 'linear-gradient(135deg, #103030 0%, #090a0f 100%)', border: '#96fbc4', glow: 'rgba(150, 251, 196, 0.35)', iconColor: '#f9f586' },
+    '倒吊人': { grad: 'linear-gradient(135deg, #08203c 0%, #090a0f 100%)', border: '#fdcbf1', glow: 'rgba(253, 203, 241, 0.35)', iconColor: '#e6dee9' },
+    '死神': { grad: 'linear-gradient(135deg, #111111 0%, #000000 100%)', border: '#555555', glow: 'rgba(85, 85, 85, 0.35)', iconColor: '#333333' },
+    '节制': { grad: 'linear-gradient(135deg, #152535 0%, #090a0f 100%)', border: '#84fab0', glow: 'rgba(132, 250, 176, 0.35)', iconColor: '#8fd3f4' },
+    '恶魔': { grad: 'linear-gradient(135deg, #2b0505 0%, #090a0f 100%)', border: '#ff0844', glow: 'rgba(255, 8, 68, 0.35)', iconColor: '#ffb199' },
+    '塔': { grad: 'linear-gradient(135deg, #3d1005 0%, #090a0f 100%)', border: '#f83600', glow: 'rgba(248, 54, 0, 0.35)', iconColor: '#f9d423' },
+    '星星': { grad: 'linear-gradient(135deg, #093040 0%, #090a0f 100%)', border: '#00f0ff', glow: 'rgba(0, 240, 255, 0.35)', iconColor: '#8a4fff' },
+    '月亮': { grad: 'linear-gradient(135deg, #0c1a30 0%, #090a0f 100%)', border: '#8a4fff', glow: 'rgba(138, 79, 255, 0.35)', iconColor: '#00f0ff' },
+    '太阳': { grad: 'linear-gradient(135deg, #4c3000 0%, #090a0f 100%)', border: '#ffd700', glow: 'rgba(255, 215, 0, 0.35)', iconColor: '#ff8c00' },
+    '审判': { grad: 'linear-gradient(135deg, #332010 0%, #090a0f 100%)', border: '#ffdbf1', glow: 'rgba(255, 219, 241, 0.35)', iconColor: '#e6dee9' },
+    '世界': { grad: 'linear-gradient(135deg, #201035 0%, #090a0f 100%)', border: '#ab64ff', glow: 'rgba(171, 100, 255, 0.35)', iconColor: '#00f0ff' }
+  }
+
+  const getCardTheme = (cardName) => {
+    return CARD_THEMES[cardName] || { grad: 'linear-gradient(145deg, #1a1a2e, #16213e)', border: '#8a4fff', glow: 'rgba(138, 79, 255, 0.25)', iconColor: '#8a4fff' }
+  }
+
   const POSITIONS = ['过去', '现在', '未来']
 
   const TarotTest = defineComponent({
@@ -3182,7 +3211,9 @@
         phase, question, deck, selected, selectedCount,
         revealedCount, isShuffling,
         startReading, pickCard, playHover, revealCards, goToResult,
-        POSITIONS, store
+        POSITIONS, store,
+        isEnglish: computed(() => activeLocale.value === 'en'),
+        getCardTheme
       }
     },
     template: `
@@ -3214,7 +3245,9 @@
           <div class="shuffle-animation">
             <div class="shuffle-cards">
               <div v-for="i in 5" :key="i" class="shuffle-card" :style="{ animationDelay: (i * 0.12) + 's' }">
-                <span class="card-pattern">✧</span>
+                <svg class="card-back-svg" viewBox="0 0 100 100" style="width: 32px; height: 32px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                  <path d="M 50 12 L 54 40 L 82 40 L 58 56 L 68 84 L 50 68 L 32 84 L 42 56 L 18 40 L 46 40 Z" fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.8)" stroke-width="1.2" />
+                </svg>
               </div>
             </div>
             <p class="shuffle-text">正在洗牌，请专注于你的问题...</p>
@@ -3230,22 +3263,32 @@
             <p class="lede">它们将分别代表你的<strong>过去</strong>、<strong>现在</strong>与<strong>未来</strong>。</p>
           </div>
 
-          <div class="card-grid" v-reveal style="transition-delay: 0.1s">
+          <div class="card-fan-container" v-reveal style="transition-delay: 0.1s">
             <div
               v-for="(item, index) in deck"
               :key="index"
               class="tarot-card"
               :class="{ selected: item.selected }"
+              :style="{ '--diff': index - 5.5, '--abs-diff': Math.abs(index - 5.5) }"
               @click="pickCard(index)"
               @mouseenter="playHover"
             >
               <div class="card-inner">
                 <div class="card-front">
+                  <div class="tarot-card-inner-border"></div>
                   <span class="card-numeral">{{ index + 1 }}</span>
-                  <span class="card-pattern">✧</span>
+                  <svg class="card-back-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="28" stroke="rgba(212, 175, 55, 0.3)" stroke-width="1" stroke-dasharray="2, 2" fill="none" />
+                    <circle cx="50" cy="50" r="16" stroke="rgba(212, 175, 55, 0.4)" stroke-width="1" fill="none" />
+                    <path d="M 50 12 L 54 40 L 82 40 L 58 56 L 68 84 L 50 68 L 32 84 L 42 56 L 18 40 L 46 40 Z" fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.75)" stroke-width="1.2" />
+                  </svg>
                   <span class="card-label">Northstar</span>
                 </div>
                 <div class="card-back">
+                  <svg class="card-front-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="38" stroke="rgba(138, 79, 255, 0.4)" stroke-width="1" fill="none" />
+                    <path d="M 50 5 L 50 95 M 5 50 L 95 50" stroke="rgba(138, 79, 255, 0.2)" stroke-width="1" stroke-dasharray="3, 3" />
+                  </svg>
                   <span class="card-position-tag" v-if="item.selected">
                     {{ POSITIONS[selected.indexOf(index)] }}
                   </span>
@@ -3281,15 +3324,31 @@
               <div class="reveal-card" :class="{ flipped: deck[deckIndex].flipped, reversed: deck[deckIndex].isReversed && deck[deckIndex].flipped }">
                 <div class="reveal-card-inner">
                   <div class="reveal-front">
-                    <span class="card-pattern">✧</span>
+                    <div class="tarot-card-inner-border"></div>
+                    <svg class="card-back-svg" viewBox="0 0 100 100" style="width: 48px; height: 48px;">
+                      <circle cx="50" cy="50" r="28" stroke="rgba(212, 175, 55, 0.3)" stroke-width="1" stroke-dasharray="2, 2" fill="none" />
+                      <circle cx="50" cy="50" r="16" stroke="rgba(212, 175, 55, 0.4)" stroke-width="1" fill="none" />
+                      <path d="M 50 12 L 54 40 L 82 40 L 58 56 L 68 84 L 50 68 L 32 84 L 42 56 L 18 40 L 46 40 Z" fill="rgba(212, 175, 55, 0.15)" stroke="rgba(212, 175, 55, 0.75)" stroke-width="1.2" />
+                    </svg>
                   </div>
-                  <div class="reveal-back-face">
-                    <span class="reveal-symbol">{{ deck[deckIndex].card.symbol }}</span>
+                  <div class="reveal-back-face" :style="{
+                    background: getCardTheme(deck[deckIndex].card.name).grad,
+                    borderColor: getCardTheme(deck[deckIndex].card.name).border,
+                    boxShadow: '0 12px 32px ' + getCardTheme(deck[deckIndex].card.name).glow
+                  }">
+                    <div class="tarot-card-inner-border"></div>
+                    <span class="reveal-symbol-glow" :style="{
+                      color: getCardTheme(deck[deckIndex].card.name).iconColor,
+                      textShadow: '0 0 15px ' + getCardTheme(deck[deckIndex].card.name).iconColor
+                    }">
+                      {{ deck[deckIndex].card.symbol }}
+                    </span>
                     <span class="reveal-numeral">{{ deck[deckIndex].card.numeral }}</span>
                     <span class="reveal-name">{{ deck[deckIndex].card.name }}</span>
                     
-                    <span class="reveal-orientation" v-if="deck[deckIndex].isReversed">逆位</span>
-                    <span class="reveal-orientation upright-tag" v-else>正位</span>
+                    <span class="reveal-orientation" :class="deck[deckIndex].isReversed ? 'reversed-tag' : 'upright-tag'">
+                      {{ deck[deckIndex].isReversed ? (isEnglish ? 'Reversed' : '逆位') : (isEnglish ? 'Upright' : '正位') }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -3429,7 +3488,9 @@
 
       return {
         showPayment, hasPaid, cards, question, displayedDeepText, isTyping,
-        handlePaymentSuccess, getKeywords, getMeaning, getDeepMeaning, generatePoster, restartTest, skipTypewriter
+        handlePaymentSuccess, getKeywords, getMeaning, getDeepMeaning, generatePoster, restartTest, skipTypewriter,
+        getCardTheme,
+        isEnglish: computed(() => activeLocale.value === 'en')
       }
     },
     template: `
@@ -3443,8 +3504,16 @@
         <!-- Card Summary -->
         <div class="result-cards-row" v-reveal style="transition-delay: 0.1s">
           <div v-for="item in cards" :key="item.card.id" class="result-card-item">
-            <div class="result-card-visual" :class="{ 'is-reversed-visual': item.isReversed }">
-              <span class="result-card-symbol">{{ item.card.symbol }}</span>
+            <div class="result-card-visual" :class="{ 'is-reversed-visual': item.isReversed }" :style="{
+              background: getCardTheme(item.card.name).grad,
+              borderColor: getCardTheme(item.card.name).border,
+              boxShadow: '0 8px 24px ' + getCardTheme(item.card.name).glow
+            }">
+              <div class="tarot-card-inner-border"></div>
+              <span class="result-card-symbol" :style="{
+                color: getCardTheme(item.card.name).iconColor,
+                textShadow: '0 0 10px ' + getCardTheme(item.card.name).iconColor
+              }">{{ item.card.symbol }}</span>
               <span class="result-card-numeral">{{ item.card.numeral }}</span>
             </div>
             <div class="result-card-label">
@@ -3452,7 +3521,7 @@
               <span class="result-card-name">{{ item.card.name }}</span>
               
               <span class="result-orientation" :class="item.isReversed ? 'reversed-text' : 'upright-text'">
-                {{ item.isReversed ? '逆位 ↓' : '正位 ↑' }}
+                {{ item.isReversed ? (isEnglish ? 'Reversed ↓' : '逆位 ↓') : (isEnglish ? 'Upright ↑' : '正位 ↑') }}
               </span>
             </div>
           </div>

@@ -1083,15 +1083,43 @@ h3 {
   font-weight: 500;
 }
 
-/* Card Grid (Pick Phase) */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin: 40px 0;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
+/* Card Fan Spread (Pick Phase) */
+.card-fan-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 340px;
+  position: relative;
+  margin: 60px auto 20px;
+  max-width: 800px;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+.card-fan-container .tarot-card {
+  position: absolute;
+  width: 110px;
+  height: 170px;
+  cursor: pointer;
+  transform-origin: bottom center;
+  --tx: calc(var(--diff) * 28px);
+  --ty: calc(var(--abs-diff) * var(--abs-diff) * 2.2px);
+  --rot: calc(var(--diff) * 4.5deg);
+  transform: translateX(var(--tx)) translateY(var(--ty)) rotate(var(--rot));
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s var(--apple-ease);
+  z-index: calc(20 + var(--diff));
+}
+
+.card-fan-container .tarot-card:hover {
+  transform: translateX(var(--tx)) translateY(calc(var(--ty) - 25px)) rotate(var(--rot)) scale(1.06);
+  z-index: 100 !important;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+}
+
+.card-fan-container .tarot-card.selected {
+  transform: translateX(var(--tx)) translateY(calc(var(--ty) - 35px)) rotate(var(--rot)) scale(1.08);
+  z-index: 101 !important;
+  box-shadow: 0 0 24px rgba(138, 79, 255, 0.5) !important;
 }
 
 .tarot-card {
@@ -1110,14 +1138,8 @@ h3 {
   border-radius: 12px;
 }
 
-.tarot-card:hover .card-inner {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
-}
-
 .tarot-card.selected .card-inner {
-  transform: rotateY(180deg) scale(1.04);
-  box-shadow: 0 0 28px rgba(66, 133, 244, 0.45);
+  transform: rotateY(180deg);
 }
 
 .card-front, .card-back {
@@ -1134,18 +1156,26 @@ h3 {
 }
 
 .card-front {
-  background: linear-gradient(145deg, #1a1a2e, #16213e, #0f3460);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(135deg, #09090e 0%, #121225 50%, #1a1a3a 100%);
+  color: #d4af37;
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
 }
 
-.card-front::after {
-  content: '';
+.tarot-card-inner-border {
   position: absolute;
   inset: 6px;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 8px;
   pointer-events: none;
+}
+
+.tarot-card-inner-border::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px dashed rgba(212, 175, 55, 0.1);
+  border-radius: 6px;
 }
 
 .card-numeral {
@@ -1157,9 +1187,17 @@ h3 {
   font-weight: 600;
 }
 
-.card-pattern {
-  font-size: 28px;
-  color: rgba(255,255,255,0.35);
+.card-back-svg {
+  width: 44px;
+  height: 44px;
+}
+
+.card-front-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .card-label {
@@ -1172,15 +1210,16 @@ h3 {
 }
 
 .card-back {
-  background: linear-gradient(135deg, #4285f4, #1a73e8);
+  background: linear-gradient(135deg, #1f1235 0%, #0d061a 100%);
+  border: 2px solid rgba(138, 79, 255, 0.4);
+  color: #ab64ff;
   transform: rotateY(180deg);
-  color: white;
 }
 
 .card-position-tag {
   font-size: 18px;
   font-weight: 700;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
 /* Action Area */
@@ -1241,7 +1280,6 @@ h3 {
   height: 100%;
   transform-style: preserve-3d;
   transition: transform 1.2s var(--spring-ease);
-  border-radius: 14px;
 }
 
 .reveal-card.flipped .reveal-card-inner {
@@ -1263,58 +1301,73 @@ h3 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .reveal-front {
-  background: linear-gradient(145deg, #1a1a2e, #16213e, #0f3460);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  background: linear-gradient(135deg, #09090e 0%, #121225 50%, #1a1a3a 100%);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.4);
 }
 
 .reveal-back-face {
-  background: linear-gradient(145deg, #1a1a2e, #16213e);
   transform: rotateY(180deg);
-  border: 2px solid var(--blue);
-  box-shadow: 0 12px 32px rgba(138, 79, 255, 0.2);
-  gap: 4px;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   padding: 16px;
+  position: relative;
+  text-align: center;
 }
 
-.reveal-symbol {
-  font-size: 42px;
-  margin-bottom: 4px;
+.reveal-symbol-glow {
+  font-size: 44px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 0 12px currentColor);
+  z-index: 2;
 }
 
 .reveal-numeral {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
   font-weight: 600;
+  margin-bottom: 2px;
+  z-index: 2;
+  letter-spacing: 1px;
 }
 
 .reveal-name {
   font-size: 20px;
   font-weight: 700;
-  color: var(--ink);
+  color: #ffffff;
+  margin-bottom: 8px;
+  z-index: 2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .reveal-name-en {
   font-size: 11px;
   color: var(--muted);
+  z-index: 2;
 }
 
 .reveal-orientation {
   margin-top: 4px;
   font-size: 12px;
-  padding: 2px 10px;
+  padding: 2px 12px;
   border-radius: 999px;
   font-weight: 600;
-  background: rgba(234, 67, 53, 0.1);
-  color: var(--red);
+  z-index: 2;
+}
+
+.reveal-orientation.reversed-tag {
+  background: rgba(234, 67, 53, 0.15);
+  color: #ff6b6b;
+  border: 1px solid rgba(234, 67, 53, 0.3);
 }
 
 .reveal-orientation.upright-tag {
-  background: rgba(52, 168, 83, 0.1);
-  color: var(--green);
+  background: rgba(52, 168, 83, 0.15);
+  color: #2ec4b6;
+  border: 1px solid rgba(52, 168, 83, 0.3);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -1342,11 +1395,12 @@ h3 {
 }
 
 .result-card-visual {
+  position: relative;
   width: 120px;
   height: 160px;
   margin: 0 auto 16px;
   background: linear-gradient(145deg, #1a1a2e, #16213e);
-  border: 2px solid rgba(138, 79, 255, 0.25);
+  border: 1px solid rgba(138, 79, 255, 0.25);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
